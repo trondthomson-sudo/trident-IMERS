@@ -1185,7 +1185,7 @@ def render_value_hierarchy(processes=None, risks=None, controls=None, actions=No
     st.caption(
         "Left: open a process for its Level 3 drivers (ISO). "
         "Right: open a pillar (e.g. PIL-01) to reveal its risks. "
-        "Edit process links in 04 Processes & Process Owners."
+        "Edit process links under More modules -> Processes & Process Owners."
     )
     iso_col, erm_col = st.columns(2, gap="medium")
 
@@ -1507,66 +1507,110 @@ st.caption(f"{selected_register} | Accountable executive: {owner} ({title})")
 
 data = {key: load(key) for key in FILES}
 risks = scored(data["risks"]) if not data["risks"].empty else scored(pd.DataFrame(columns=COLUMNS["risks"]))
-pages = [
-    "00 Value Hierarchy & Context",
-    "01 Dashboard & Heatmap",
-    "02 Risks & Opportunities",
-    "03 Ownership & mitigation contribution",
-    "04 Processes & Process Owners",
-    "05 Inherent Risk Assessment",
-    "06 Controls, Policies & Procedures",
-    "07 Residual Risk Assessment",
-    "08 Risk Appetite & Escalation",
-    "09 Responses, Actions & Target Risk",
-    "10 Interfaces & Dependencies",
-    "11 KPIs, KRIs & Process Performance",
-    "12 Documents & Evidence",
-    "13 Audits, Findings & Improvements",
-    "14 Reporting & History",
-    "15 ISO Alignment Matrix",
-]
-page = st.sidebar.radio("Unit workflow", pages, key=f"workflow_{register_key}")
-st.sidebar.caption(
-    "Shared inventory is in 02. Allocate owners in 03. "
-    "Then run each department IMERS (05–09) on the active register. Dashboard (01) is an output."
-)
 
-if page.startswith("01"):
-    basis = st.radio("Heatmap basis", ["Residual", "Inherent", "Target"], horizontal=True)
-    actions = data["actions"]; due = pd.to_datetime(actions["Due date"], errors="coerce").dt.date
-    overdue = (due < date.today()) & ~actions["Status"].isin(["Completed", "Cancelled"])
+def render_dashboard_heatmap(risks_df, actions_df):
+    """Compact Strategy heatmap view - the near-term output."""
+    basis = st.radio("Heatmap basis", ["Residual", "Inherent", "Target"], horizontal=True, key=f"hm_basis_{ACTIVE_REGISTER_KEY}")
+    due = pd.to_datetime(actions_df.get("Due date", pd.Series(dtype=str)), errors="coerce").dt.date
+    if not actions_df.empty and "Status" in actions_df.columns:
+        overdue = (due < date.today()) & ~actions_df["Status"].isin(["Completed", "Cancelled"])
+    else:
+        overdue = pd.Series(False, index=actions_df.index)
     cols = st.columns(4)
-    cols[0].metric("Open strategic risks", int((risks["Status"] != "Closed").sum()))
-    cols[1].metric("Outside appetite", int((risks["Appetite status"] == "Outside appetite").sum()))
-    cols[2].metric("Enterprise escalation", int((risks["Enterprise escalation"] == "Yes").sum()))
-    cols[3].metric("Overdue actions", int(overdue.sum()))
-    left, right = st.columns([1.2,1])
-    with left: st.subheader(f"{basis} risk heatmap"); st.plotly_chart(heatmap(risks, basis), use_container_width=True)
+    cols[0].metric("Open risks", int((risks_df["Status"] != "Closed").sum()) if not risks_df.empty and "Status" in risks_df.columns else 0)
+    cols[1].metric("Outside appetite", int((risks_df["Appetite status"] == "Outside appetite").sum()) if not risks_df.empty and "Appetite status" in risks_df.columns else 0)
+    cols[2].metric("Enterprise escalation", int((risks_df["Enterprise escalation"] == "Yes").sum()) if not risks_df.empty and "Enterprise escalation" in risks_df.columns else 0)
+    cols[3].metric("Overdue actions", int(overdue.sum()) if hasattr(overdue, "sum") else 0)
+    left, right = st.columns([1.2, 1])
+    with left:
+        st.subheader(f"{basis} risk heatmap")
+        st.plotly_chart(heatmap(risks_df, basis), use_container_width=True)
     with right:
         st.subheader("Risks requiring attention")
-        st.dataframe(risks.sort_values("Residual score", ascending=False)[["Risk ID","Risk title","Residual score","Appetite status","Trend","Status"]], hide_index=True, use_container_width=True)
-        st.subheader("Treatment actions"); st.dataframe(actions[["Action ID","Risk ID","Action","Due date","Status","Progress %"]], hide_index=True, use_container_width=True)
+        show_cols = [c for c in ["Risk ID", "Risk title", "Residual score", "Appetite status", "Trend", "Status"] if c in risks_df.columns]
+        if show_cols and not risks_df.empty:
+            st.dataframe(risks_df.sort_values("Residual score", ascending=False)[show_cols], hide_index=True, use_container_width=True)
+        else:
+            st.info("No scored risks yet.")
+        st.subheader("Treatment actions")
+        action_cols = [c for c in ["Action ID", "Risk ID", "Action", "Due date", "Status", "Progress %"] if c in actions_df.columns]
+        if action_cols and not actions_df.empty:
+            st.dataframe(actions_df[action_cols], hide_index=True, use_container_width=True)
+        else:
+            st.caption("No actions yet.")
     st.subheader("Exposure by shareholder-value pillar")
     pillar_rows = []
-    for pillar_id, pillar_name in [("PIL-01", "Organic EBITDA growth"), ("PIL-02", "Investment EBITDA growth"), ("PIL-03", "Multiple expansion"), ("PIL-04", "Cash conversion"), ("PIL-05", "Capital allocation & balance sheet")]:
-        linked = risks[risks["Value pillars"].str.contains(pillar_id, na=False)]
-        pillar_rows.append([pillar_name, len(linked), int(linked["Residual score"].sum()), int((linked["Appetite status"] == "Outside appetite").sum())])
-    st.dataframe(pd.DataFrame(pillar_rows, columns=["Value pillar", "Linked risks", "Aggregate residual score", "Outside appetite"]), hide_index=True, use_container_width=True)
-    st.warning("Starter risks and scores are illustrative and require management validation.")
-elif page.startswith("00"):
+    for pillar_id, pillar_name in [
+        ("PIL-01", "Organic EBITDA growth"),
+        ("PIL-02", "Investment EBITDA growth"),
+        ("PIL-03", "Multiple expansion"),
+        ("PIL-04", "Cash conversion"),
+        ("PIL-05", "Capital allocation & balance sheet"),
+    ]:
+        if risks_df.empty or "Value pillars" not in risks_df.columns:
+            pillar_rows.append([pillar_name, 0, 0, 0])
+            continue
+        linked = risks_df[risks_df["Value pillars"].astype(str).str.contains(pillar_id, na=False)]
+        pillar_rows.append([
+            pillar_name,
+            len(linked),
+            int(linked["Residual score"].sum()) if "Residual score" in linked.columns and not linked.empty else 0,
+            int((linked["Appetite status"] == "Outside appetite").sum()) if "Appetite status" in linked.columns and not linked.empty else 0,
+        ])
+    st.dataframe(
+        pd.DataFrame(pillar_rows, columns=["Value pillar", "Linked risks", "Aggregate residual score", "Outside appetite"]),
+        hide_index=True,
+        use_container_width=True,
+    )
+    st.warning("Scores are drafts until Strategy & BD validates inherent/residual/appetite.")
+
+
+core_pages = [
+    "00 Context",
+    "01 Risks & Opportunities",
+    "02 Risk scoring",
+    "03 Heatmap",
+    "04 Ownership",
+    "05 Actions",
+]
+more_pages = [
+    "(use core path above)",
+    "Processes & Process Owners",
+    "Controls, Policies & Procedures",
+    "Interfaces & Dependencies",
+    "KPIs, KRIs & Process Performance",
+    "Documents & Evidence",
+    "Audits, Findings & Improvements",
+    "Reporting & History",
+    "ISO Alignment Matrix",
+]
+
+page = st.sidebar.radio("Strategy & BD path", core_pages, key=f"workflow_short_{register_key}")
+with st.sidebar.expander("More modules (later)"):
+    more = st.selectbox("Open module", more_pages, key=f"workflow_more_{register_key}")
+    st.caption("Keep the core path short. Use these when you deepen the IMS.")
+if more != "(use core path above)":
+    page = more
+st.sidebar.caption("Path: Context -> Risks -> Score -> Heatmap. Ownership and Actions next. Everything else is optional for now.")
+
+if page == "03 Heatmap" or str(page).startswith("01 Dashboard"):
+    st.subheader("Dashboard and heatmap")
+    render_dashboard_heatmap(risks, data["actions"])
+elif page == "00 Context" or str(page).startswith("00 Value"):
     st.subheader("Shareholder value framework")
     render_value_hierarchy(data["processes"], data["risks"], data["controls"], data["actions"])
     st.caption(
-        "The CEO sponsors the complete value framework. Accountable executives retain responsibility for delivery. "
-        "Every risk and opportunity should link to an objective and one or more value pillars. "
-        "Objective and value-driver master data remain in the data files; the visual hierarchy above is the working view."
+        "Context for Strategy & BD. Risks should link to Level 3 drivers and pillars. "
+        "Go to **01 Risks**, score in **02**, then open **03 Heatmap**."
     )
-elif page.startswith("02"):
+elif page == "01 Risks & Opportunities" or str(page).startswith("02 Risks"):
     t_lib, t_reg, t_opp = st.tabs(["Risk library", "Risk register", "Opportunities"])
     with t_lib:
         render_risk_library(data["risks"])
     with t_reg:
-        st.write("Maintain the full shared risk inventory here. Use **Level 3 drivers** (e.g. `3.1.1; 3.2.4`) to place risks in the library tree. Allocate department ownership in **03**.")
+        st.write(
+            "Shared Strategy & BD risk inventory. After edits, score in **02 Risk scoring**, then open **03 Heatmap**."
+        )
         risk_config = {
             "Category": st.column_config.SelectboxColumn(options=RISK_CATEGORIES),
             "Appetite status": st.column_config.SelectboxColumn(options=APPETITE),
@@ -1577,43 +1621,91 @@ elif page.startswith("02"):
         editor("risks", data["risks"], risk_config)
     with t_opp:
         editor("opportunities", data["opportunities"])
-elif page.startswith("03"):
+elif page == "02 Risk scoring":
+    st.subheader("Risk scoring")
+    st.write("Validate draft scores for Strategy & BD. Residual scores feed the heatmap immediately.")
+    t_inh, t_res, t_app = st.tabs(["Inherent", "Residual", "Appetite & escalation"])
+    with t_inh:
+        c = ["Risk ID", "Risk title", "Inherent likelihood", "Inherent impact"]
+        e = st.data_editor(data["risks"][c], hide_index=True, use_container_width=True, key=f"score_inh_{ACTIVE_REGISTER_KEY}")
+        if st.button("Save inherent scores", type="primary", key=f"save_inherent_{ACTIVE_REGISTER_KEY}"):
+            update_risks(e, c[-2:])
+    with t_res:
+        c = ["Risk ID", "Risk title", "Residual likelihood", "Residual impact"]
+        e = st.data_editor(data["risks"][c], hide_index=True, use_container_width=True, key=f"score_res_{ACTIVE_REGISTER_KEY}")
+        if st.button("Save residual scores", type="primary", key=f"save_residual_{ACTIVE_REGISTER_KEY}"):
+            update_risks(e, c[-2:])
+    with t_app:
+        c = ["Risk ID", "Risk title", "Appetite status", "Enterprise escalation", "Evidence / rationale"]
+        e = st.data_editor(
+            data["risks"][c],
+            hide_index=True,
+            use_container_width=True,
+            column_config={
+                "Appetite status": st.column_config.SelectboxColumn(options=APPETITE),
+                "Enterprise escalation": st.column_config.SelectboxColumn(options=["Yes", "No"]),
+            },
+            key=f"score_app_{ACTIVE_REGISTER_KEY}",
+        )
+        if st.button("Save appetite and escalation", type="primary", key=f"save_appetite_{ACTIVE_REGISTER_KEY}"):
+            update_risks(e, c[-3:])
+    st.info("Next: open **03 Heatmap** to see the Strategy & BD residual picture.")
+elif page == "04 Ownership" or str(page).startswith("03 Ownership"):
     render_ownership_page(data["risks"])
-elif page.startswith("04"):
-    st.subheader("Processes and process owners"); st.write("Complete a high-level plan first: purpose, inputs, main activities, outputs, interfaces and review frequency."); editor("processes", data["processes"])
-elif page.startswith("05"):
-    st.subheader("Inherent risk assessment"); st.write("Assess exposure before current controls using 1–5 likelihood and impact scales.")
-    c=["Risk ID","Risk title","Inherent likelihood","Inherent impact"]; e=st.data_editor(data["risks"][c],hide_index=True,use_container_width=True)
-    if st.button("Save inherent assessment", type="primary", key=f"save_inherent_{ACTIVE_REGISTER_KEY}"): update_risks(e, c[-2:])
-elif page.startswith("06"):
-    st.subheader("Controls, policies and procedures"); editor("controls",data["controls"],{"Risk ID":st.column_config.SelectboxColumn(options=data["risks"]["Risk ID"].tolist()),"Control type":st.column_config.SelectboxColumn(options=["Preventive","Detective","Corrective"]),"Effectiveness":st.column_config.SelectboxColumn(options=["Not assessed","Ineffective","Partly effective","Effective"])})
-elif page.startswith("07"):
-    st.subheader("Residual risk assessment"); st.write("Assess current exposure after controls that actually operate.")
-    c=["Risk ID","Risk title","Residual likelihood","Residual impact"]; e=st.data_editor(data["risks"][c],hide_index=True,use_container_width=True)
-    if st.button("Save residual assessment", type="primary", key=f"save_residual_{ACTIVE_REGISTER_KEY}"): update_risks(e, c[-2:])
-elif page.startswith("08"):
-    st.subheader("Risk appetite and Enterprise escalation"); c=["Risk ID","Risk title","Appetite status","Enterprise escalation","Evidence / rationale"]
-    e=st.data_editor(data["risks"][c],hide_index=True,use_container_width=True,column_config={"Appetite status":st.column_config.SelectboxColumn(options=APPETITE),"Enterprise escalation":st.column_config.SelectboxColumn(options=["Yes","No"])})
-    if st.button("Save appetite and escalation", type="primary", key=f"save_appetite_{ACTIVE_REGISTER_KEY}"): update_risks(e, c[-3:])
-elif page.startswith("09"):
-    st.subheader("Responses, actions and target risk"); t1,t2=st.tabs(["Treatment actions","Target risk"])
-    with t1: editor("actions",data["actions"],{"Risk ID":st.column_config.SelectboxColumn(options=data["risks"]["Risk ID"].tolist()),"Status":st.column_config.SelectboxColumn(options=["Not started","In progress","Blocked","Completed","Cancelled"]),"Due date":st.column_config.DateColumn(format="DD.MM.YYYY"),"Progress %":st.column_config.NumberColumn(min_value=0,max_value=100,step=5)})
+elif page == "05 Actions" or str(page).startswith("09 Responses"):
+    st.subheader("Responses, actions and target risk")
+    t1, t2 = st.tabs(["Treatment actions", "Target risk"])
+    with t1:
+        editor(
+            "actions",
+            data["actions"],
+            {
+                "Risk ID": st.column_config.SelectboxColumn(options=data["risks"]["Risk ID"].tolist()),
+                "Status": st.column_config.SelectboxColumn(options=["Not started", "In progress", "Blocked", "Completed", "Cancelled"]),
+                "Due date": st.column_config.DateColumn(format="DD.MM.YYYY"),
+                "Progress %": st.column_config.NumberColumn(min_value=0, max_value=100, step=5),
+            },
+        )
     with t2:
-        c=["Risk ID","Risk title","Target likelihood","Target impact"]; e=st.data_editor(data["risks"][c],hide_index=True,use_container_width=True)
-        if st.button("Save target risk", type="primary", key=f"save_target_{ACTIVE_REGISTER_KEY}"): update_risks(e, c[-2:])
-elif page.startswith("10"):
+        c = ["Risk ID", "Risk title", "Target likelihood", "Target impact"]
+        e = st.data_editor(data["risks"][c], hide_index=True, use_container_width=True)
+        if st.button("Save target risk", type="primary", key=f"save_target_{ACTIVE_REGISTER_KEY}"):
+            update_risks(e, c[-2:])
+elif page == "Processes & Process Owners" or str(page).startswith("04 Processes"):
+    st.subheader("Processes and process owners")
+    st.write("Complete a high-level plan first: purpose, inputs, main activities, outputs, interfaces and review frequency.")
+    editor("processes", data["processes"])
+elif page == "Controls, Policies & Procedures" or str(page).startswith("06 Controls"):
+    st.subheader("Controls, policies and procedures")
+    editor(
+        "controls",
+        data["controls"],
+        {
+            "Risk ID": st.column_config.SelectboxColumn(options=data["risks"]["Risk ID"].tolist()),
+            "Control type": st.column_config.SelectboxColumn(options=["Preventive", "Detective", "Corrective"]),
+            "Effectiveness": st.column_config.SelectboxColumn(options=["Not assessed", "Ineffective", "Partly effective", "Effective"]),
+        },
+    )
+elif page == "Interfaces & Dependencies" or str(page).startswith("10 Interfaces"):
     st.subheader("Departmental interfaces and dependencies")
-    st.caption("Process interfaces and escalation flags. Department mitigation roles are maintained in **03 Ownership**.")
-    c=["Risk ID","Risk title","Processes","Affected units","Enterprise escalation"]
-    e=st.data_editor(data["risks"][c],hide_index=True,use_container_width=True)
-    if st.button("Save dependencies", type="primary", key=f"save_deps_{ACTIVE_REGISTER_KEY}"): update_risks(e, c[-3:])
-elif page.startswith("11"):
-    st.subheader("KPIs, KRIs and process performance"); st.info("The next iteration will add an indicator register with thresholds, reporting frequency, data owner and trend history."); st.dataframe(data["processes"][["Process ID","Process","Process owner","Review frequency"]],hide_index=True,use_container_width=True)
-elif page.startswith("12"):
-    st.subheader("Documents and evidence"); st.write("Evidence references are currently recorded against controls, risks and actions. Direct document links and document-control metadata follow later."); st.dataframe(data["controls"][["Control ID","Risk ID","Control","Evidence"]],hide_index=True,use_container_width=True)
-elif page.startswith("13"):
-    st.subheader("Audits, findings and improvements"); st.info("This will become a shared IMS module for audits, non-conformities, root causes, corrective actions and effectiveness verification."); st.dataframe(data["actions"],hide_index=True,use_container_width=True)
-elif page.startswith("14"):
+    st.caption("Process interfaces and escalation flags. Department mitigation roles are in **04 Ownership**.")
+    c = ["Risk ID", "Risk title", "Processes", "Affected units", "Enterprise escalation"]
+    e = st.data_editor(data["risks"][c], hide_index=True, use_container_width=True)
+    if st.button("Save dependencies", type="primary", key=f"save_deps_{ACTIVE_REGISTER_KEY}"):
+        update_risks(e, c[-3:])
+elif page == "KPIs, KRIs & Process Performance" or str(page).startswith("11 KPIs"):
+    st.subheader("KPIs, KRIs and process performance")
+    st.info("Indicator register with thresholds and trend history comes later.")
+    st.dataframe(data["processes"][["Process ID", "Process", "Process owner", "Review frequency"]], hide_index=True, use_container_width=True)
+elif page == "Documents & Evidence" or str(page).startswith("12 Documents"):
+    st.subheader("Documents and evidence")
+    st.write("Evidence references are currently on controls, risks and actions.")
+    st.dataframe(data["controls"][["Control ID", "Risk ID", "Control", "Evidence"]], hide_index=True, use_container_width=True)
+elif page == "Audits, Findings & Improvements" or str(page).startswith("13 Audits"):
+    st.subheader("Audits, findings and improvements")
+    st.info("Shared IMS audit module comes later.")
+    st.dataframe(data["actions"], hide_index=True, use_container_width=True)
+elif page == "Reporting & History" or str(page).startswith("14 Reporting"):
     st.subheader("Reporting and history")
     ent_risks = collect_enterprise_risks()
     ent_actions = collect_enterprise_actions(ent_risks)
@@ -1628,7 +1720,7 @@ elif page.startswith("14"):
     )
 else:
     st.subheader("ISO alignment matrix")
-    st.write("A navigation aid linking the process architecture to management-system requirements. It is not a certification conclusion.")
+    st.write("Navigation aid only - not a certification conclusion.")
     matrix = pd.DataFrame(ISO_MATRIX_ROWS, columns=["Management-system element", "Reference", "Application in this model", "Linked S&BD processes"])
     st.dataframe(matrix, hide_index=True, use_container_width=True)
     st.caption("ISO 31000 and ISO 26000 provide guidance rather than certifiable requirements.")

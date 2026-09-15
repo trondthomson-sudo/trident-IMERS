@@ -45,6 +45,7 @@ ENTERPRISE_REGISTER = "Enterprise Risk Register"
 UNIT_BY_NAME = {name: (owner, title) for name, owner, title in UNITS}
 RISK_CATEGORIES = ["Strategy execution", "Market development", "Fleet & capacity", "Capital allocation", "M&A & integration", "Customer concentration", "Technology", "New business models", "Geographic expansion", "Competitive position", "Financing & ownership", "Organizational capacity", "Data & assumptions", "Sustainability & regulation", "Reputation & partnerships"]
 APPETITE = ["Within appetite", "Approaching appetite", "Outside appetite"]
+TREATMENT_DECISIONS = ["Treat", "Accept", "Monitor", "Transfer", "Avoid"]
 TRENDS = ["Increasing", "Stable", "Decreasing"]
 STATUSES = ["Draft", "Open", "Monitoring", "Treatment in progress", "Accepted", "Closed"]
 OWNERSHIP_ROLES = ["Primary owner", "Contributor", "Informed"]
@@ -78,7 +79,7 @@ COLUMNS = {
     "objectives": ["Objective ID", "Objective level", "Strategic objective", "Parent objective", "Value effect", "Executive sponsor", "Metric", "Target", "Horizon", "Status"],
     "value_drivers": ["Driver ID", "Value pillar", "Value driver", "Management intent", "Value effect", "Executive sponsor"],
     "processes": ["Process ID", "Process", "Process owner", "Purpose", "Trigger / inputs", "Main activities", "Outputs", "Interfaces", "Review frequency", "S&BD Manual section"],
-    "risks": ["Risk ID", "Category", "Risk title", "Objectives", "Value pillars", "Value effects", "Level 3 drivers", "Processes", "Cause", "Risk event", "Consequences", "Accountable executive", "Risk owner", "Affected units", "Time horizon", "Velocity", "Inherent likelihood", "Inherent impact", "Residual likelihood", "Residual impact", "Target likelihood", "Target impact", "Appetite status", "Trend", "Status", "Enterprise escalation", "Evidence / rationale"],
+    "risks": ["Risk ID", "Category", "Risk title", "Objectives", "Value pillars", "Value effects", "Level 3 drivers", "Processes", "Cause", "Risk event", "Consequences", "Accountable executive", "Risk owner", "Affected units", "Time horizon", "Velocity", "Inherent likelihood", "Inherent impact", "Residual likelihood", "Residual impact", "Target likelihood", "Target impact", "Appetite status", "Trend", "Status", "Enterprise escalation", "Treatment decision", "Current mitigation", "Evidence / rationale"],
     "controls": ["Control ID", "Risk ID", "Control", "Control type", "Control owner", "Frequency", "Effectiveness", "Evidence", "Linked processes"],
     "actions": ["Action ID", "Risk ID", "Action", "Action owner", "Due date", "Status", "Progress %", "Treatment effect", "Completion evidence"],
     "opportunities": ["Opportunity ID", "Opportunity", "Objectives", "Owner", "Strategic fit", "Probability", "Value potential", "Execution complexity", "Decision stage", "Evidence / rationale"],
@@ -859,6 +860,22 @@ def update_risks(edited, columns):
     st.rerun()
 
 
+def ensure_risk_treatment_columns(df):
+    """Add fast-path treatment fields used in Risks & Opportunities."""
+    out = df.copy()
+    changed = False
+    for column, default in [("Treatment decision", ""), ("Current mitigation", "")]:
+        if column not in out.columns:
+            out[column] = default
+            changed = True
+    if changed and ACTIVE_REGISTER_KEY:
+        try:
+            save("risks", out)
+        except Exception:
+            pass
+    return out
+
+
 def workbook(data, *, enterprise_risks=None, enterprise_actions=None, source_label=None):
     bio = BytesIO()
     with pd.ExcelWriter(bio, engine="openpyxl") as writer:
@@ -1570,10 +1587,10 @@ core_pages = [
     "01 Risks & Opportunities",
     "02 Heatmap",
     "03 Ownership",
-    "04 Actions",
 ]
 more_pages = [
     "(use core path above)",
+    "Actions & target risk",
     "Processes & Process Owners",
     "Controls, Policies & Procedures",
     "Interfaces & Dependencies",
@@ -1584,13 +1601,13 @@ more_pages = [
     "ISO Alignment Matrix",
 ]
 
-page = st.sidebar.radio("Strategy & BD path", core_pages, key=f"workflow_v3_{register_key}")
+page = st.sidebar.radio("Strategy & BD path", core_pages, key=f"workflow_v4_{register_key}")
 with st.sidebar.expander("More modules (later)"):
-    more = st.selectbox("Open module", more_pages, key=f"workflow_more_v3_{register_key}")
-    st.caption("Keep the core path short. Use these when you deepen the IMS.")
+    more = st.selectbox("Open module", more_pages, key=f"workflow_more_v4_{register_key}")
+    st.caption("Detailed action plans live under More modules when you need them.")
 if more != "(use core path above)":
     page = more
-st.sidebar.caption("Path: Context -> Risks (incl. scores) -> Heatmap. Ownership and Actions next.")
+st.sidebar.caption("Path: Context -> Risks (score, mitigate, appetite) -> Heatmap. Ownership when allocating departments.")
 
 if page == "02 Heatmap" or page == "03 Heatmap" or str(page).startswith("01 Dashboard"):
     st.subheader("Dashboard and heatmap")
@@ -1604,57 +1621,81 @@ elif page == "00 Context" or str(page).startswith("00 Value"):
         "Score risks in **01 Risks & Opportunities**, then open **02 Heatmap**."
     )
 elif page == "01 Risks & Opportunities" or str(page).startswith("02 Risks"):
-    t_lib, t_reg, t_score, t_opp = st.tabs(["Risk library", "Risk register", "Scoring", "Opportunities"])
+    risks_work = ensure_risk_treatment_columns(data["risks"])
+    data["risks"] = risks_work
+    t_lib, t_reg, t_assess, t_opp = st.tabs(["Risk library", "Risk register", "Assess & decide", "Opportunities"])
     with t_lib:
-        render_risk_library(data["risks"])
+        render_risk_library(risks_work)
     with t_reg:
-        st.write(
-            "Shared Strategy & BD risk inventory. Use the **Scoring** tab for 1-5 likelihood/impact, then open **02 Heatmap**."
-        )
+        st.write("Shared Strategy & BD risk inventory. Use **Assess & decide** for mitigation, residual score, and appetite.")
         risk_config = {
             "Category": st.column_config.SelectboxColumn(options=RISK_CATEGORIES),
             "Appetite status": st.column_config.SelectboxColumn(options=APPETITE),
             "Trend": st.column_config.SelectboxColumn(options=TRENDS),
             "Status": st.column_config.SelectboxColumn(options=STATUSES),
             "Enterprise escalation": st.column_config.SelectboxColumn(options=["Yes", "No"]),
+            "Treatment decision": st.column_config.SelectboxColumn(options=TREATMENT_DECISIONS),
         }
-        editor("risks", data["risks"], risk_config)
-    with t_score:
-        st.write(
-            "**Residual** (after current controls) drives the heatmap. "
-            "**Inherent** is before controls. **Appetite** decides escalation. Scale: likelihood and impact each 1-5; score = product."
+        editor("risks", risks_work, risk_config)
+    with t_assess:
+        st.markdown(
+            """
+**How to use this tab (Strategy & BD fast path)**
+
+1. **Current mitigation** — what already reduces the risk (process, control, contract term, review).
+2. **Residual** — score likelihood and impact **after** that mitigation (1–5 each). This feeds the heatmap.
+3. **Treatment decision** — Treat / Accept / Monitor / Transfer / Avoid.
+4. **Appetite** — Within / Approaching / Outside. If you **Accept**, set Status to Accepted and Appetite to Within (or Approaching with a reason).
+5. Open **02 Heatmap** when residual scores are good enough to review.
+            """.strip()
         )
-        t_inh, t_res, t_app = st.tabs(["Inherent", "Residual (heatmap)", "Appetite & escalation"])
-        with t_inh:
-            c = ["Risk ID", "Risk title", "Inherent likelihood", "Inherent impact"]
-            e = st.data_editor(data["risks"][c], hide_index=True, use_container_width=True, key=f"score_inh_{ACTIVE_REGISTER_KEY}")
-            if st.button("Save inherent scores", type="primary", key=f"save_inherent_{ACTIVE_REGISTER_KEY}"):
-                update_risks(e, c[-2:])
-        with t_res:
-            c = ["Risk ID", "Risk title", "Residual likelihood", "Residual impact"]
-            e = st.data_editor(data["risks"][c], hide_index=True, use_container_width=True, key=f"score_res_{ACTIVE_REGISTER_KEY}")
-            if st.button("Save residual scores", type="primary", key=f"save_residual_{ACTIVE_REGISTER_KEY}"):
-                update_risks(e, c[-2:])
-        with t_app:
-            c = ["Risk ID", "Risk title", "Appetite status", "Enterprise escalation", "Evidence / rationale"]
+        t_mit, t_res, t_dec = st.tabs(["1. Mitigation -> residual", "2. Residual scores", "3. Accept / appetite"])
+        with t_mit:
+            c = ["Risk ID", "Risk title", "Current mitigation", "Treatment decision", "Residual likelihood", "Residual impact"]
             e = st.data_editor(
-                data["risks"][c],
+                risks_work[c],
                 hide_index=True,
                 use_container_width=True,
                 column_config={
+                    "Treatment decision": st.column_config.SelectboxColumn(options=TREATMENT_DECISIONS),
+                    "Current mitigation": st.column_config.TextColumn(width="large"),
+                },
+                key=f"score_mit_{ACTIVE_REGISTER_KEY}",
+            )
+            if st.button("Save mitigation and residual", type="primary", key=f"save_mit_{ACTIVE_REGISTER_KEY}"):
+                update_risks(e, ["Current mitigation", "Treatment decision", "Residual likelihood", "Residual impact"])
+        with t_res:
+            st.caption("Same residual fields — use if you prefer a tight scoring grid.")
+            c = ["Risk ID", "Risk title", "Inherent likelihood", "Inherent impact", "Residual likelihood", "Residual impact"]
+            e = st.data_editor(risks_work[c], hide_index=True, use_container_width=True, key=f"score_res2_{ACTIVE_REGISTER_KEY}")
+            if st.button("Save inherent and residual scores", type="primary", key=f"save_residual_{ACTIVE_REGISTER_KEY}"):
+                update_risks(e, c[-4:])
+        with t_dec:
+            st.caption(
+                "Accept the residual: set Treatment decision = Accept, Appetite = Within appetite (or Approaching with rationale), Status = Accepted. "
+                "Outside appetite usually means Treat or escalate."
+            )
+            c = ["Risk ID", "Risk title", "Treatment decision", "Appetite status", "Status", "Enterprise escalation", "Evidence / rationale"]
+            e = st.data_editor(
+                risks_work[c],
+                hide_index=True,
+                use_container_width=True,
+                column_config={
+                    "Treatment decision": st.column_config.SelectboxColumn(options=TREATMENT_DECISIONS),
                     "Appetite status": st.column_config.SelectboxColumn(options=APPETITE),
+                    "Status": st.column_config.SelectboxColumn(options=STATUSES),
                     "Enterprise escalation": st.column_config.SelectboxColumn(options=["Yes", "No"]),
                 },
-                key=f"score_app_{ACTIVE_REGISTER_KEY}",
+                key=f"score_dec_{ACTIVE_REGISTER_KEY}",
             )
-            if st.button("Save appetite and escalation", type="primary", key=f"save_appetite_{ACTIVE_REGISTER_KEY}"):
-                update_risks(e, c[-3:])
-        st.info("Next: open **02 Heatmap** for the Strategy & BD residual picture.")
+            if st.button("Save acceptance and appetite", type="primary", key=f"save_appetite_{ACTIVE_REGISTER_KEY}"):
+                update_risks(e, ["Treatment decision", "Appetite status", "Status", "Enterprise escalation", "Evidence / rationale"])
+        st.info("Detailed multi-step action plans remain under **More modules → Actions & target risk** if you need them later.")
     with t_opp:
         editor("opportunities", data["opportunities"])
 elif page == "03 Ownership" or page == "04 Ownership" or str(page).startswith("03 Ownership"):
     render_ownership_page(data["risks"])
-elif page == "04 Actions" or page == "05 Actions" or str(page).startswith("09 Responses"):
+elif page in ("04 Actions", "05 Actions", "Actions & target risk") or str(page).startswith("09 Responses"):
     st.subheader("Responses, actions and target risk")
     t1, t2 = st.tabs(["Treatment actions", "Target risk"])
     with t1:

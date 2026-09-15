@@ -1,0 +1,4 @@
+Control ID,Risk ID,Control,Control type,Control owner,Frequency,Effectiveness,Evidence,Linked processes
+SBD-C001,SBD-R001,Board-approved investment process and business case,Preventive,Trond V. Thomson,Per investment,Partly effective,Approved business case and minutes,SBD-P04; SBD-P07
+SBD-C002,SBD-R002,Strategy review and initiative follow-up,Detective,Trond V. Thomson,Quarterly,Partly effective,Strategy status report,SBD-P12
+SBD-C003,SBD-R004,Market intelligence and scenario analysis,Preventive,Trond V. Thomson,Quarterly,Partly effective,Market report and model assumptions,SBD-P02

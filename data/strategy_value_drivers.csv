@@ -1,0 +1,13 @@
+Driver ID,Hierarchy reference,Value pillar,Value driver,Management intent,Value effect,Executive sponsor
+VD-01,3.1.1,PIL-01,Rate uplift on existing vessels,Increase rates and improve commercial terms on the existing fleet,Organic EBITDA; Cash/NIBD,Chief Strategy & Business Developer; CCO
+VD-02,3.1.2,PIL-01,Existing-fleet utilization,Increase utilization and reduce planned and unplanned off-hire,Organic EBITDA; Cash/NIBD,COO; CCO; Chief HSEQ
+VD-03,3.1.3,PIL-01,Existing-fleet operating performance,Improve contribution margins through disciplined vessel and crewing costs,Organic EBITDA; Cash/NIBD,COO; Chief HR; Chief HSEQ
+VD-04,3.2.1,PIL-02,Value-accretive newbuild EBITDA yield,Add contracted EBITDA at returns exceeding Trident's approved thresholds,Investment EBITDA; Cash/NIBD,Chief Strategy & Business Developer
+VD-05,3.2.2,PIL-02,Value-accretive vessel investment,Reconstruct or acquire vessels only where risk-adjusted value creation is documented,Investment EBITDA; Multiple; Cash/NIBD,Chief Strategy & Business Developer; COO
+VD-06,3.2.3,PIL-02,Value-accretive M&A and new platforms,"Add EBITDA through acquisitions, new geographies and services with executable synergies",Investment EBITDA; Multiple; Cash/NIBD,Chief Strategy & Business Developer
+VD-07,3.3.1,PIL-03,Earnings visibility and contract quality,"Increase contracted EBITDA, contract duration, customer quality and predictability",Multiple,Chief Strategy & Business Developer; CCO
+VD-08,3.3.2,PIL-03,Modernize through vessel divestments and replacements,"Replace or divest aging vessels in a disciplined manner to reduce avoidable OPEX and downtime, improve fleet reliability and protect residual value without overinvesting",Multiple; Cash/NIBD,Chief HSEQ; COO; Chief Strategy & Business Developer
+VD-09,3.3.3,PIL-03,"Governance, scalability and risk control","Reduce key-person risk and improve integration, auditability and execution confidence",Multiple,Executive Management
+VD-10,3.4.1,PIL-04,EBITDA-to-cash conversion,"Optimize working capital, DSO, maintenance capex, cash interest and cash taxes",Cash conversion; Cash/NIBD,CFO; COO
+VD-11,3.5.1,PIL-05,Value-maximizing capital deployment,"Allocate cash between organic investment, growth investment, debt reduction and distributions",Capital allocation; Cash/NIBD,CFO; Chief Strategy & Business Developer
+VD-12,3.5.2,PIL-05,Balance-sheet resilience,"Maintain appropriate NIBD, liquidity, covenant headroom and financing flexibility",Capital allocation; Cash/NIBD,CFO

@@ -982,7 +982,7 @@ def render_value_hierarchy(processes=None, risks=None, controls=None, actions=No
             "4.2 · ERM risk categories (five pillars)</div></div>",
             unsafe_allow_html=True,
         )
-        st.caption("Open a pillar (e.g. PIL-01) to see its risks in the same chip layout as Level 3 drivers.")
+        st.caption("Open a pillar (e.g. PIL-01) to see risks grouped by Level 3 driver, top to bottom matching the chips above.")
 
         def risks_for_pillar(pillar_number, pillar_code):
             if scored_risks_df.empty:
@@ -1023,16 +1023,12 @@ def render_value_hierarchy(processes=None, risks=None, controls=None, actions=No
                     continue
 
                 # ERM visual language: orange pane and risk chips (distinct from green ISO side)
+                # Group by Level 3 drivers in hierarchy order (top-left → bottom-right).
                 header_html = (
                     '<div class="vh-l5-erm-pane">'
-                    '<div class="vh-l5-pane-title">Risks under this pillar</div>'
+                    '<div class="vh-l5-pane-title">Risks under this pillar · by Level 3 driver</div>'
                     f'<div class="vh-process-pillar"><span class="vh-pil-badge">{escape(pillar_code)}</span>'
                     f'{escape(pillar_description)}</div>'
-                )
-                ordered = (
-                    pillar_risks.sort_values("Risk ID")
-                    if "Risk ID" in pillar_risks.columns
-                    else pillar_risks
                 )
                 # Map Process ID → "section · name" from ISO S&BD process definitions
                 process_label_by_id = {}
@@ -1047,8 +1043,13 @@ def render_value_hierarchy(processes=None, risks=None, controls=None, actions=No
                             f"{section} · {pid} · {pname}" if section else f"{pid} · {pname}"
                         )
 
-                list_parts = [header_html]
-                for _, risk_row in ordered.iterrows():
+                pillar_driver_order = [
+                    (reference, driver_name)
+                    for reference, driver_name in groups[int(pillar_number) - 1][1]
+                    if reference != "divider"
+                ]
+
+                def risk_chip_html(risk_row):
                     rid = str(risk_row.get("Risk ID", ""))
                     title = str(risk_row.get("Risk title", ""))
                     score_val = risk_row.get("Residual score", "")
@@ -1060,27 +1061,69 @@ def render_value_hierarchy(processes=None, risks=None, controls=None, actions=No
                         )
                     except (TypeError, ValueError):
                         score_txt = ""
-                    list_parts.append(
+                    parts = [
                         f'<div class="vh-driver-link vh-l5-driver-slot">'
                         f'<span class="vh-l5-risk-badge">{escape(rid)}</span>'
                         f'{escape(title)}{escape(score_txt)}</div>'
-                    )
-                    # ISO process coverage note under each risk chip
+                    ]
                     linked_procs = split_refs(risk_row.get("Processes", ""))
                     if linked_procs:
-                        labels = []
-                        for pid in linked_procs:
-                            labels.append(process_label_by_id.get(pid, pid))
+                        labels = [process_label_by_id.get(pid, pid) for pid in linked_procs]
                         coverage = "; ".join(labels)
-                        list_parts.append(
+                        parts.append(
                             '<div class="vh-l5-erm-coverage"><strong>ISO process coverage:</strong> '
                             f'{escape(coverage)}</div>'
                         )
                     else:
-                        list_parts.append(
+                        parts.append(
                             '<div class="vh-l5-erm-coverage"><strong>ISO process coverage:</strong> '
                             'Not yet linked to an S&amp;BD ISO process definition.</div>'
                         )
+                    return "".join(parts)
+
+                list_parts = [header_html]
+                shown_ids = set()
+                for reference, driver_name in pillar_driver_order:
+                    if "Level 3 drivers" in pillar_risks.columns:
+                        mask = pillar_risks["Level 3 drivers"].astype(str).apply(
+                            lambda value, r=reference: r in split_refs(value)
+                        )
+                        driver_risks = pillar_risks.loc[mask]
+                    else:
+                        driver_risks = pillar_risks.iloc[0:0]
+                    if "Risk ID" in driver_risks.columns and not driver_risks.empty:
+                        driver_risks = driver_risks.sort_values("Risk ID")
+                    list_parts.append(
+                        f'<div class="vh-process-pillar" style="margin-top:10px;">'
+                        f'<span class="vh-ref-badge">{escape(reference)}</span>'
+                        f'{escape(driver_name)}</div>'
+                    )
+                    if driver_risks.empty:
+                        list_parts.append(
+                            '<div class="vh-l5-empty-slot">No risks linked to this Level 3 driver yet.</div>'
+                        )
+                    else:
+                        for _, risk_row in driver_risks.iterrows():
+                            rid = str(risk_row.get("Risk ID", ""))
+                            shown_ids.add(rid)
+                            list_parts.append(risk_chip_html(risk_row))
+
+                # Risks tagged to the pillar but not yet to any Level 3 driver in this column
+                if "Risk ID" in pillar_risks.columns:
+                    orphan_mask = ~pillar_risks["Risk ID"].astype(str).isin(shown_ids)
+                    orphan_risks = pillar_risks.loc[orphan_mask]
+                else:
+                    orphan_risks = pillar_risks.iloc[0:0]
+                if not orphan_risks.empty:
+                    list_parts.append(
+                        '<div class="vh-process-pillar" style="margin-top:10px;">'
+                        "Pillar-linked · Level 3 driver not set</div>"
+                    )
+                    if "Risk ID" in orphan_risks.columns:
+                        orphan_risks = orphan_risks.sort_values("Risk ID")
+                    for _, risk_row in orphan_risks.iterrows():
+                        list_parts.append(risk_chip_html(risk_row))
+
                 list_parts.append("</div>")
                 st.markdown("".join(list_parts), unsafe_allow_html=True)
 

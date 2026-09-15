@@ -153,8 +153,40 @@ ACTIVE_REGISTER_KEY = "strategy"
 
 
 def seed(path, rows, columns):
-    if not path.exists():
+    # Also recover blank files left on Streamlit Cloud persistent storage.
+    if (not path.exists()) or path.stat().st_size == 0:
         pd.DataFrame(rows, columns=columns).to_csv(path, index=False)
+
+
+def schema_columns_for(key, register_key=None):
+    """Column schema for a dataset key in the active or named unit register."""
+    register_key = register_key or ACTIVE_REGISTER_KEY
+    columns = list(COLUMNS[key])
+    if key == "objectives" and register_key != "strategy":
+        columns = ["Objective ID", "Hierarchy reference", "Objective level", "Strategic objective", "Parent objective", "Value effect", "Executive sponsor", "Accountable executive(s)", "Metric", "Target", "Horizon", "Status"]
+    elif key == "value_drivers" and register_key != "strategy":
+        columns = ["Driver ID", "Hierarchy reference", "Value pillar", "Value driver", "Management intent", "Value effect", "Executive sponsor"]
+    elif key == "processes" and register_key != "strategy":
+        columns = COLUMNS["processes"] + ["Linked Level 3 drivers"]
+    return columns
+
+
+def safe_read_csv(path, columns=None):
+    """Read a register CSV; recover empty or unreadable files without crashing."""
+    columns = list(columns) if columns is not None else []
+    try:
+        if (not path.exists()) or path.stat().st_size == 0:
+            if columns:
+                pd.DataFrame(columns=columns).to_csv(path, index=False)
+            return pd.DataFrame(columns=columns)
+        frame = pd.read_csv(path, dtype=str, keep_default_na=False)
+        if len(frame.columns) == 0:
+            raise pd.errors.EmptyDataError("No columns to parse")
+        return frame
+    except (pd.errors.EmptyDataError, pd.errors.ParserError, UnicodeDecodeError, OSError):
+        if columns:
+            pd.DataFrame(columns=columns).to_csv(path, index=False)
+        return pd.DataFrame(columns=columns)
 
 
 def seed_data():
@@ -222,7 +254,11 @@ def seed_data():
 def migrate_existing_data():
     """Add the value-creation hierarchy without discarding existing user entries."""
     objective_path = FILES["objectives"]
-    objectives = pd.read_csv(objective_path, dtype=str, keep_default_na=False)
+    objectives = safe_read_csv(objective_path, columns=schema_columns_for("objectives"))
+    # Blank Cloud volume files: restore Strategy seed rows before migration.
+    if objectives.empty:
+        seed_data()
+        objectives = safe_read_csv(objective_path, columns=schema_columns_for("objectives"))
     if "Objective level" not in objectives.columns:
         legacy_map = {
             "OBJ-01": ("PIL-01", "EBITDA; Cash/NIBD", "COO and CCO", "Revenue, EBITDA and cash conversion", "Budget and long-term plan"),
@@ -245,7 +281,7 @@ def migrate_existing_data():
         pd.DataFrame(rows, columns=new_columns).to_csv(objective_path, index=False)
 
     # Separate CEO sponsorship from functional accountability in earlier model data.
-    objectives = pd.read_csv(objective_path, dtype=str, keep_default_na=False)
+    objectives = safe_read_csv(objective_path, columns=schema_columns_for("objectives"))
     if "Accountable executive(s)" not in objectives.columns:
         objectives = objectives.rename(columns={"Executive sponsor": "Accountable executive(s)"})
     if "Executive sponsor" not in objectives.columns:
@@ -298,7 +334,7 @@ def migrate_existing_data():
 
     # Replace only the canonical driver IDs; preserve any additional user-created drivers.
     driver_path = FILES["value_drivers"]
-    drivers = pd.read_csv(driver_path, dtype=str, keep_default_na=False)
+    drivers = safe_read_csv(driver_path, columns=schema_columns_for("value_drivers"))
     canonical_drivers = pd.DataFrame([
         ["VD-01", "PIL-01", "Rate uplift on existing vessels", "Increase rates and improve commercial terms on the existing fleet", "Organic EBITDA; Cash/NIBD", "Chief Strategy & Business Developer; CCO"],
         ["VD-02", "PIL-01", "Existing-fleet utilization", "Increase utilization and reduce planned and unplanned off-hire", "Organic EBITDA; Cash/NIBD", "COO; CCO; Chief HSEQ"],
@@ -325,7 +361,7 @@ def migrate_existing_data():
 
     # Link each ISO-aligned S&BD process to the Level 3 value drivers it supports.
     process_path = FILES["processes"]
-    processes = pd.read_csv(process_path, dtype=str, keep_default_na=False)
+    processes = safe_read_csv(process_path, columns=schema_columns_for("processes"))
     if "Linked Level 3 drivers" not in processes.columns:
         processes["Linked Level 3 drivers"] = ""
     if not (processes["Process ID"] == "SBD-P13").any():
@@ -371,7 +407,7 @@ def migrate_existing_data():
     processes.to_csv(process_path, index=False)
 
     risk_path = FILES["risks"]
-    risks = pd.read_csv(risk_path, dtype=str, keep_default_na=False)
+    risks = safe_read_csv(risk_path, columns=schema_columns_for("risks"))
     if "Value pillars" not in risks.columns:
         pillar_map = {"SBD-R001": "PIL-01; PIL-02", "SBD-R002": "PIL-01; PIL-03", "SBD-R003": "PIL-02; PIL-03", "SBD-R004": "PIL-01; PIL-02; PIL-03", "SBD-R005": "PIL-01; PIL-02; PIL-03"}
         effect_map = {"SBD-R001": "EBITDA; Multiple; Cash/NIBD", "SBD-R002": "EBITDA; Multiple", "SBD-R003": "EBITDA; Multiple; Cash/NIBD", "SBD-R004": "EBITDA; Multiple; Cash/NIBD", "SBD-R005": "EBITDA; Multiple; Cash/NIBD"}
@@ -417,9 +453,12 @@ def migrate_existing_data():
         ("Standardise", "Standardize"), ("standardise", "standardize"),
         ("Standardisation", "Standardization"), ("standardisation", "standardization"),
     ]
-    for data_path in FILES.values():
-        if not data_path.exists(): continue
-        frame = pd.read_csv(data_path, dtype=str, keep_default_na=False)
+    for key, data_path in FILES.items():
+        if not data_path.exists():
+            continue
+        frame = safe_read_csv(data_path, columns=schema_columns_for(key))
+        if frame.empty and len(frame.columns) == 0:
+            continue
         for column in frame.columns:
             frame[column] = frame[column].map(lambda value: _americanize(value, american_english))
         frame.to_csv(data_path, index=False)
@@ -443,24 +482,14 @@ def ensure_register_files(register_key):
     """Create empty CSVs with the correct columns when a unit register is first used."""
     paths = files_for(register_key)
     for key, path in paths.items():
-        if not path.exists():
-            # Objectives gain Hierarchy reference / Accountable executive(s) via Strategy migration;
-            # non-Strategy units start with the base schema and can be extended when edited.
-            columns = list(COLUMNS[key])
-            if key == "objectives" and register_key == "strategy":
-                pass
-            elif key == "objectives":
-                columns = ["Objective ID", "Hierarchy reference", "Objective level", "Strategic objective", "Parent objective", "Value effect", "Executive sponsor", "Accountable executive(s)", "Metric", "Target", "Horizon", "Status"]
-            elif key == "value_drivers" and register_key != "strategy":
-                columns = ["Driver ID", "Hierarchy reference", "Value pillar", "Value driver", "Management intent", "Value effect", "Executive sponsor"]
-            elif key == "processes" and register_key != "strategy":
-                columns = COLUMNS["processes"] + ["Linked Level 3 drivers"]
+        columns = schema_columns_for(key, register_key)
+        if (not path.exists()) or path.stat().st_size == 0:
             pd.DataFrame(columns=columns).to_csv(path, index=False)
     return paths
 
 
 def load(key):
-    return pd.read_csv(FILES[key], dtype=str, keep_default_na=False)
+    return safe_read_csv(FILES[key], columns=schema_columns_for(key))
 
 
 def save(key, df):
@@ -492,7 +521,7 @@ def collect_enterprise_risks():
         register_key = REGISTER_KEYS[unit_name]
         ensure_register_files(register_key)
         risk_path = files_for(register_key)["risks"]
-        risks_df = pd.read_csv(risk_path, dtype=str, keep_default_na=False)
+        risks_df = safe_read_csv(risk_path, columns=schema_columns_for("risks", register_key))
         if risks_df.empty or "Risk ID" not in risks_df.columns:
             continue
         scored_df = scored(risks_df)
@@ -521,7 +550,7 @@ def collect_enterprise_actions(enterprise_risks):
         action_path = files_for(register_key)["actions"]
         if not action_path.exists():
             continue
-        actions_df = pd.read_csv(action_path, dtype=str, keep_default_na=False)
+        actions_df = safe_read_csv(action_path, columns=schema_columns_for("actions", register_key))
         if actions_df.empty:
             continue
         linked = actions_df[actions_df["Risk ID"].astype(str).isin(risk_ids)].copy()

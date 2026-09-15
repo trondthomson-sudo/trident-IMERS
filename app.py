@@ -1023,10 +1023,10 @@ def render_value_hierarchy(processes=None, risks=None, controls=None, actions=No
                     continue
 
                 # ERM visual language: orange pane and risk chips (distinct from green ISO side)
-                # Group by Level 3 drivers in hierarchy order (top-left → bottom-right).
+                # Group by Level 3 drivers in hierarchy order (top-left to bottom-right).
                 header_html = (
                     '<div class="vh-l5-erm-pane">'
-                    '<div class="vh-l5-pane-title">Risks under this pillar · by Level 3 driver</div>'
+                    '<div class="vh-l5-pane-title">Risks under this pillar - by Level 3 driver</div>'
                     f'<div class="vh-process-pillar"><span class="vh-pil-badge">{escape(pillar_code)}</span>'
                     f'{escape(pillar_description)}</div>'
                 )
@@ -1117,7 +1117,7 @@ def render_value_hierarchy(processes=None, risks=None, controls=None, actions=No
                 if not orphan_risks.empty:
                     list_parts.append(
                         '<div class="vh-process-pillar" style="margin-top:10px;">'
-                        "Pillar-linked · Level 3 driver not set</div>"
+                        "Pillar-linked - Level 3 driver not set</div>"
                     )
                     if "Risk ID" in orphan_risks.columns:
                         orphan_risks = orphan_risks.sort_values("Risk ID")

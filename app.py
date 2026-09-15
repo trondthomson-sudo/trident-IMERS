@@ -1568,10 +1568,9 @@ def render_dashboard_heatmap(risks_df, actions_df):
 core_pages = [
     "00 Context",
     "01 Risks & Opportunities",
-    "02 Risk scoring",
-    "03 Heatmap",
-    "04 Ownership",
-    "05 Actions",
+    "02 Heatmap",
+    "03 Ownership",
+    "04 Actions",
 ]
 more_pages = [
     "(use core path above)",
@@ -1585,31 +1584,32 @@ more_pages = [
     "ISO Alignment Matrix",
 ]
 
-page = st.sidebar.radio("Strategy & BD path", core_pages, key=f"workflow_short_{register_key}")
+page = st.sidebar.radio("Strategy & BD path", core_pages, key=f"workflow_v3_{register_key}")
 with st.sidebar.expander("More modules (later)"):
-    more = st.selectbox("Open module", more_pages, key=f"workflow_more_{register_key}")
+    more = st.selectbox("Open module", more_pages, key=f"workflow_more_v3_{register_key}")
     st.caption("Keep the core path short. Use these when you deepen the IMS.")
 if more != "(use core path above)":
     page = more
-st.sidebar.caption("Path: Context -> Risks -> Score -> Heatmap. Ownership and Actions next. Everything else is optional for now.")
+st.sidebar.caption("Path: Context -> Risks (incl. scores) -> Heatmap. Ownership and Actions next.")
 
-if page == "03 Heatmap" or str(page).startswith("01 Dashboard"):
+if page == "02 Heatmap" or page == "03 Heatmap" or str(page).startswith("01 Dashboard"):
     st.subheader("Dashboard and heatmap")
+    st.caption("Default view: **Residual** score (likelihood x impact after current controls). That is the working Strategy & BD picture.")
     render_dashboard_heatmap(risks, data["actions"])
 elif page == "00 Context" or str(page).startswith("00 Value"):
     st.subheader("Shareholder value framework")
     render_value_hierarchy(data["processes"], data["risks"], data["controls"], data["actions"])
     st.caption(
         "Context for Strategy & BD. Risks should link to Level 3 drivers and pillars. "
-        "Go to **01 Risks**, score in **02**, then open **03 Heatmap**."
+        "Score risks in **01 Risks & Opportunities**, then open **02 Heatmap**."
     )
 elif page == "01 Risks & Opportunities" or str(page).startswith("02 Risks"):
-    t_lib, t_reg, t_opp = st.tabs(["Risk library", "Risk register", "Opportunities"])
+    t_lib, t_reg, t_score, t_opp = st.tabs(["Risk library", "Risk register", "Scoring", "Opportunities"])
     with t_lib:
         render_risk_library(data["risks"])
     with t_reg:
         st.write(
-            "Shared Strategy & BD risk inventory. After edits, score in **02 Risk scoring**, then open **03 Heatmap**."
+            "Shared Strategy & BD risk inventory. Use the **Scoring** tab for 1-5 likelihood/impact, then open **02 Heatmap**."
         )
         risk_config = {
             "Category": st.column_config.SelectboxColumn(options=RISK_CATEGORIES),
@@ -1619,40 +1619,42 @@ elif page == "01 Risks & Opportunities" or str(page).startswith("02 Risks"):
             "Enterprise escalation": st.column_config.SelectboxColumn(options=["Yes", "No"]),
         }
         editor("risks", data["risks"], risk_config)
+    with t_score:
+        st.write(
+            "**Residual** (after current controls) drives the heatmap. "
+            "**Inherent** is before controls. **Appetite** decides escalation. Scale: likelihood and impact each 1-5; score = product."
+        )
+        t_inh, t_res, t_app = st.tabs(["Inherent", "Residual (heatmap)", "Appetite & escalation"])
+        with t_inh:
+            c = ["Risk ID", "Risk title", "Inherent likelihood", "Inherent impact"]
+            e = st.data_editor(data["risks"][c], hide_index=True, use_container_width=True, key=f"score_inh_{ACTIVE_REGISTER_KEY}")
+            if st.button("Save inherent scores", type="primary", key=f"save_inherent_{ACTIVE_REGISTER_KEY}"):
+                update_risks(e, c[-2:])
+        with t_res:
+            c = ["Risk ID", "Risk title", "Residual likelihood", "Residual impact"]
+            e = st.data_editor(data["risks"][c], hide_index=True, use_container_width=True, key=f"score_res_{ACTIVE_REGISTER_KEY}")
+            if st.button("Save residual scores", type="primary", key=f"save_residual_{ACTIVE_REGISTER_KEY}"):
+                update_risks(e, c[-2:])
+        with t_app:
+            c = ["Risk ID", "Risk title", "Appetite status", "Enterprise escalation", "Evidence / rationale"]
+            e = st.data_editor(
+                data["risks"][c],
+                hide_index=True,
+                use_container_width=True,
+                column_config={
+                    "Appetite status": st.column_config.SelectboxColumn(options=APPETITE),
+                    "Enterprise escalation": st.column_config.SelectboxColumn(options=["Yes", "No"]),
+                },
+                key=f"score_app_{ACTIVE_REGISTER_KEY}",
+            )
+            if st.button("Save appetite and escalation", type="primary", key=f"save_appetite_{ACTIVE_REGISTER_KEY}"):
+                update_risks(e, c[-3:])
+        st.info("Next: open **02 Heatmap** for the Strategy & BD residual picture.")
     with t_opp:
         editor("opportunities", data["opportunities"])
-elif page == "02 Risk scoring":
-    st.subheader("Risk scoring")
-    st.write("Validate draft scores for Strategy & BD. Residual scores feed the heatmap immediately.")
-    t_inh, t_res, t_app = st.tabs(["Inherent", "Residual", "Appetite & escalation"])
-    with t_inh:
-        c = ["Risk ID", "Risk title", "Inherent likelihood", "Inherent impact"]
-        e = st.data_editor(data["risks"][c], hide_index=True, use_container_width=True, key=f"score_inh_{ACTIVE_REGISTER_KEY}")
-        if st.button("Save inherent scores", type="primary", key=f"save_inherent_{ACTIVE_REGISTER_KEY}"):
-            update_risks(e, c[-2:])
-    with t_res:
-        c = ["Risk ID", "Risk title", "Residual likelihood", "Residual impact"]
-        e = st.data_editor(data["risks"][c], hide_index=True, use_container_width=True, key=f"score_res_{ACTIVE_REGISTER_KEY}")
-        if st.button("Save residual scores", type="primary", key=f"save_residual_{ACTIVE_REGISTER_KEY}"):
-            update_risks(e, c[-2:])
-    with t_app:
-        c = ["Risk ID", "Risk title", "Appetite status", "Enterprise escalation", "Evidence / rationale"]
-        e = st.data_editor(
-            data["risks"][c],
-            hide_index=True,
-            use_container_width=True,
-            column_config={
-                "Appetite status": st.column_config.SelectboxColumn(options=APPETITE),
-                "Enterprise escalation": st.column_config.SelectboxColumn(options=["Yes", "No"]),
-            },
-            key=f"score_app_{ACTIVE_REGISTER_KEY}",
-        )
-        if st.button("Save appetite and escalation", type="primary", key=f"save_appetite_{ACTIVE_REGISTER_KEY}"):
-            update_risks(e, c[-3:])
-    st.info("Next: open **03 Heatmap** to see the Strategy & BD residual picture.")
-elif page == "04 Ownership" or str(page).startswith("03 Ownership"):
+elif page == "03 Ownership" or page == "04 Ownership" or str(page).startswith("03 Ownership"):
     render_ownership_page(data["risks"])
-elif page == "05 Actions" or str(page).startswith("09 Responses"):
+elif page == "04 Actions" or page == "05 Actions" or str(page).startswith("09 Responses"):
     st.subheader("Responses, actions and target risk")
     t1, t2 = st.tabs(["Treatment actions", "Target risk"])
     with t1:
@@ -1688,7 +1690,7 @@ elif page == "Controls, Policies & Procedures" or str(page).startswith("06 Contr
     )
 elif page == "Interfaces & Dependencies" or str(page).startswith("10 Interfaces"):
     st.subheader("Departmental interfaces and dependencies")
-    st.caption("Process interfaces and escalation flags. Department mitigation roles are in **04 Ownership**.")
+    st.caption("Process interfaces and escalation flags. Department mitigation roles are in **03 Ownership**.")
     c = ["Risk ID", "Risk title", "Processes", "Affected units", "Enterprise escalation"]
     e = st.data_editor(data["risks"][c], hide_index=True, use_container_width=True)
     if st.button("Save dependencies", type="primary", key=f"save_deps_{ACTIVE_REGISTER_KEY}"):

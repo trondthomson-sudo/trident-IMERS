@@ -47,6 +47,33 @@ RISK_CATEGORIES = ["Strategy execution", "Market development", "Fleet & capacity
 APPETITE = ["Within appetite", "Approaching appetite", "Outside appetite"]
 TRENDS = ["Increasing", "Stable", "Decreasing"]
 STATUSES = ["Draft", "Open", "Monitoring", "Treatment in progress", "Accepted", "Closed"]
+OWNERSHIP_ROLES = ["Primary owner", "Contributor", "Informed"]
+OWNERSHIP_COLUMNS = [
+    "Risk ID",
+    "Department",
+    "Role",
+    "Mitigation contribution %",
+    "Mitigation focus",
+    "Notes",
+]
+# Aliases used in Affected units / free text → canonical UNITS names
+UNIT_NAME_ALIASES = {
+    "Strategy & BD": "Strategy & Business Development",
+    "Strategy & Business Development": "Strategy & Business Development",
+    "S&BD": "Strategy & Business Development",
+    "Finance": "Finance",
+    "Commercial": "Commercial",
+    "Vessel Operations": "Vessel Operations",
+    "Technical & HSEQ": "Technical & HSEQ",
+    "Crewing": "Crewing",
+    "HR": "Onshore Employees & Organization",
+    "Onshore Employees & Organization": "Onshore Employees & Organization",
+    "Administration": "Administration",
+    "ICT": "ICT",
+    "Legal & Compliance": "Legal & Compliance",
+    "Chile Operations": "Chile Operations",
+    "Shetland Operations": "Shetland Operations",
+}
 COLUMNS = {
     "objectives": ["Objective ID", "Objective level", "Strategic objective", "Parent objective", "Value effect", "Executive sponsor", "Metric", "Target", "Horizon", "Status"],
     "value_drivers": ["Driver ID", "Value pillar", "Value driver", "Management intent", "Value effect", "Executive sponsor"],
@@ -496,6 +523,233 @@ def save(key, df):
     df.to_csv(FILES[key], index=False)
 
 
+def ownership_path():
+    """Group-level ownership matrix (shared across department registers)."""
+    return DATA_DIR / "group_risk_ownership.csv"
+
+
+def normalize_unit_name(raw):
+    text_val = str(raw or "").strip()
+    if not text_val:
+        return ""
+    if text_val in UNIT_NAME_ALIASES:
+        return UNIT_NAME_ALIASES[text_val]
+    for alias, canonical in UNIT_NAME_ALIASES.items():
+        if alias.lower() == text_val.lower():
+            return canonical
+    for name, _owner, _title in UNITS:
+        if name.lower() == text_val.lower():
+            return name
+    return ""
+
+
+def parse_affected_departments(affected_units_value):
+    raw = str(affected_units_value or "").strip()
+    if not raw:
+        return []
+    if re.search(r"(?i)^all units$", raw) or "All units" in raw:
+        return [name for name, _o, _t in UNITS]
+    departments = []
+    seen = set()
+    for part in split_refs(raw):
+        if re.search(r"(?i)^all units$", part):
+            for name, _o, _t in UNITS:
+                if name not in seen:
+                    departments.append(name)
+                    seen.add(name)
+            continue
+        canonical = normalize_unit_name(part)
+        if canonical and canonical not in seen:
+            departments.append(canonical)
+            seen.add(canonical)
+    return departments
+
+
+def primary_department_for_risk(risk_row):
+    """Heuristic primary owner from accountable executive / risk content."""
+    accountable = str(risk_row.get("Accountable executive", "")).strip().lower()
+    if "folland" in accountable or accountable == "cfo":
+        return "Finance"
+    # Default inventory steward for Strategy register risks
+    return "Strategy & Business Development"
+
+
+def seed_ownership_from_risks(risks_df):
+    """Build ownership rows: one Primary owner + Contributors from Affected units."""
+    rows = []
+    if risks_df is None or risks_df.empty or "Risk ID" not in risks_df.columns:
+        return pd.DataFrame(columns=OWNERSHIP_COLUMNS)
+    for _, risk_row in risks_df.iterrows():
+        risk_id = str(risk_row.get("Risk ID", "")).strip()
+        if not risk_id:
+            continue
+        primary = primary_department_for_risk(risk_row)
+        affected = parse_affected_departments(risk_row.get("Affected units", ""))
+        if primary not in affected:
+            affected = [primary] + affected
+        # Deduplicate preserving order
+        ordered = []
+        seen = set()
+        for dept in affected:
+            if dept and dept not in seen:
+                ordered.append(dept)
+                seen.add(dept)
+        contributors = [d for d in ordered if d != primary]
+        n = max(len(contributors), 1)
+        primary_share = 55 if contributors else 100
+        contrib_share = max(5, (100 - primary_share) // n) if contributors else 0
+        # Adjust remainder onto primary
+        assigned = primary_share + contrib_share * len(contributors)
+        primary_share = primary_share + (100 - assigned)
+        rows.append({
+            "Risk ID": risk_id,
+            "Department": primary,
+            "Role": "Primary owner",
+            "Mitigation contribution %": str(primary_share),
+            "Mitigation focus": "Lead mitigation design and follow-up",
+            "Notes": "Seeded from Strategy inventory — validate",
+        })
+        for dept in contributors:
+            rows.append({
+                "Risk ID": risk_id,
+                "Department": dept,
+                "Role": "Contributor",
+                "Mitigation contribution %": str(contrib_share),
+                "Mitigation focus": "Contribute controls/actions in this unit",
+                "Notes": "Seeded from Affected units — validate",
+            })
+    return pd.DataFrame(rows, columns=OWNERSHIP_COLUMNS)
+
+
+def load_ownership(risks_df=None):
+    path = ownership_path()
+    if (not path.exists()) or path.stat().st_size == 0:
+        seeded = seed_ownership_from_risks(risks_df if risks_df is not None else pd.DataFrame())
+        seeded.to_csv(path, index=False)
+        return seeded
+    frame = safe_read_csv(path, columns=OWNERSHIP_COLUMNS)
+    if frame.empty or "Risk ID" not in frame.columns:
+        seeded = seed_ownership_from_risks(risks_df if risks_df is not None else pd.DataFrame())
+        seeded.to_csv(path, index=False)
+        return seeded
+    for column in OWNERSHIP_COLUMNS:
+        if column not in frame.columns:
+            frame[column] = ""
+    return frame[OWNERSHIP_COLUMNS]
+
+
+def save_ownership(df):
+    out = df.copy()
+    for column in OWNERSHIP_COLUMNS:
+        if column not in out.columns:
+            out[column] = ""
+    out[OWNERSHIP_COLUMNS].to_csv(ownership_path(), index=False)
+
+
+def render_ownership_page(risks_df):
+    """Allocate shared risks to departments with roles and mitigation contribution."""
+    st.subheader("Ownership and mitigation contribution")
+    st.write(
+        "One risk can sit with several departments. Set a **Primary owner** and **Contributor** / **Informed** "
+        "roles. Contribution % is indicative of mitigation effort share, not financial allocation. "
+        "Department IMERS work (inherent → actions) should focus where this unit is Primary or Contributor."
+    )
+    ownership = load_ownership(risks_df)
+    unit_names = [name for name, _o, _t in UNITS]
+    risk_ids = (
+        risks_df["Risk ID"].astype(str).tolist()
+        if risks_df is not None and not risks_df.empty and "Risk ID" in risks_df.columns
+        else []
+    )
+
+    c1, c2, c3 = st.columns(3)
+    with c1:
+        filter_dept = st.selectbox("Filter department", ["All departments"] + unit_names, key=f"own_dept_{ACTIVE_REGISTER_KEY}")
+    with c2:
+        filter_role = st.selectbox("Filter role", ["All roles"] + OWNERSHIP_ROLES, key=f"own_role_{ACTIVE_REGISTER_KEY}")
+    with c3:
+        if st.button("Re-seed from Affected units", key=f"own_reseed_{ACTIVE_REGISTER_KEY}"):
+            seeded = seed_ownership_from_risks(risks_df)
+            save_ownership(seeded)
+            st.success(f"Re-seeded {len(seeded)} ownership rows from the risk register.")
+            st.rerun()
+
+    view = ownership.copy()
+    if filter_dept != "All departments":
+        view = view[view["Department"].astype(str) == filter_dept]
+    if filter_role != "All roles":
+        view = view[view["Role"].astype(str) == filter_role]
+
+    # Coverage summary
+    if risk_ids:
+        covered = set(ownership["Risk ID"].astype(str))
+        missing = [rid for rid in risk_ids if rid not in covered]
+        primaries = ownership[ownership["Role"].astype(str) == "Primary owner"]
+        multi_primary = primaries.groupby("Risk ID").size()
+        multi_primary = multi_primary[multi_primary > 1]
+        st.caption(
+            f"{len(ownership)} allocation rows · {len(set(ownership['Risk ID'].astype(str)))} risks covered · "
+            f"{len(missing)} risks with no ownership row yet"
+            + (f" · {len(multi_primary)} risks have multiple Primary owners (fix)" if len(multi_primary) else "")
+        )
+        if missing:
+            st.warning("Risks without ownership rows: " + ", ".join(missing[:12]) + ("…" if len(missing) > 12 else ""))
+
+    edited = st.data_editor(
+        view,
+        hide_index=True,
+        use_container_width=True,
+        num_rows="dynamic",
+        column_config={
+            "Risk ID": st.column_config.SelectboxColumn(options=risk_ids or [""], required=True),
+            "Department": st.column_config.SelectboxColumn(options=unit_names, required=True),
+            "Role": st.column_config.SelectboxColumn(options=OWNERSHIP_ROLES, required=True),
+            "Mitigation contribution %": st.column_config.NumberColumn(min_value=0, max_value=100, step=5),
+        },
+        key=f"own_editor_{ACTIVE_REGISTER_KEY}_{filter_dept}_{filter_role}",
+    )
+
+    if st.button("Save ownership allocations", type="primary", key=f"own_save_{ACTIVE_REGISTER_KEY}"):
+        # Replace the currently visible filter slice; keep all other rows.
+        mask = pd.Series([True] * len(ownership), index=ownership.index)
+        if filter_dept != "All departments":
+            mask &= ownership["Department"].astype(str) == filter_dept
+        if filter_role != "All roles":
+            mask &= ownership["Role"].astype(str) == filter_role
+        kept = ownership.loc[~mask].copy() if (filter_dept != "All departments" or filter_role != "All roles") else ownership.iloc[0:0]
+        if filter_dept == "All departments" and filter_role == "All roles":
+            merged = edited.copy()
+        else:
+            merged = pd.concat([kept, edited], ignore_index=True)
+        for column in OWNERSHIP_COLUMNS:
+            if column not in merged.columns:
+                merged[column] = ""
+        merged = merged[merged["Risk ID"].astype(str).str.strip() != ""]
+        save_ownership(merged[OWNERSHIP_COLUMNS])
+        st.success(f"Saved {len(merged)} ownership rows.")
+        st.rerun()
+
+    st.markdown("---")
+    st.subheader("By department (read-out)")
+    if ownership.empty:
+        st.info("No ownership rows yet.")
+    else:
+        summary_rows = []
+        for name, _o, _t in UNITS:
+            subset = ownership[ownership["Department"].astype(str) == name]
+            if subset.empty:
+                continue
+            summary_rows.append({
+                "Department": name,
+                "Primary owner": int((subset["Role"] == "Primary owner").sum()),
+                "Contributor": int((subset["Role"] == "Contributor").sum()),
+                "Informed": int((subset["Role"] == "Informed").sum()),
+                "Total rows": len(subset),
+            })
+        st.dataframe(pd.DataFrame(summary_rows), hide_index=True, use_container_width=True)
+
+
+
 def scored(df):
     out = df.copy()
     for prefix in ["Inherent", "Residual", "Target"]:
@@ -931,7 +1185,7 @@ def render_value_hierarchy(processes=None, risks=None, controls=None, actions=No
     st.caption(
         "Left: open a process for its Level 3 drivers (ISO). "
         "Right: open a pillar (e.g. PIL-01) to reveal its risks. "
-        "Edit process links in 02 Processes & Process Owners."
+        "Edit process links in 04 Processes & Process Owners."
     )
     iso_col, erm_col = st.columns(2, gap="medium")
 
@@ -1253,9 +1507,29 @@ st.caption(f"{selected_register} | Accountable executive: {owner} ({title})")
 
 data = {key: load(key) for key in FILES}
 risks = scored(data["risks"]) if not data["risks"].empty else scored(pd.DataFrame(columns=COLUMNS["risks"]))
-pages = ["00 Value Hierarchy & Context", "01 Dashboard & Heatmap", "02 Processes & Process Owners", "03 Risks & Opportunities", "04 Inherent Risk Assessment", "05 Controls, Policies & Procedures", "06 Residual Risk Assessment", "07 Risk Appetite & Escalation", "08 Responses, Actions & Target Risk", "09 Interfaces & Dependencies", "10 KPIs, KRIs & Process Performance", "11 Documents & Evidence", "12 Audits, Findings & Improvements", "13 Reporting & History", "14 ISO Alignment Matrix"]
+pages = [
+    "00 Value Hierarchy & Context",
+    "01 Dashboard & Heatmap",
+    "02 Risks & Opportunities",
+    "03 Ownership & mitigation contribution",
+    "04 Processes & Process Owners",
+    "05 Inherent Risk Assessment",
+    "06 Controls, Policies & Procedures",
+    "07 Residual Risk Assessment",
+    "08 Risk Appetite & Escalation",
+    "09 Responses, Actions & Target Risk",
+    "10 Interfaces & Dependencies",
+    "11 KPIs, KRIs & Process Performance",
+    "12 Documents & Evidence",
+    "13 Audits, Findings & Improvements",
+    "14 Reporting & History",
+    "15 ISO Alignment Matrix",
+]
 page = st.sidebar.radio("Unit workflow", pages, key=f"workflow_{register_key}")
-st.sidebar.caption("The dashboard is an output. Complete the value hierarchy and supporting inputs in the remaining sections.")
+st.sidebar.caption(
+    "Shared inventory is in 02. Allocate owners in 03. "
+    "Then run each department IMERS (05–09) on the active register. Dashboard (01) is an output."
+)
 
 if page.startswith("01"):
     basis = st.radio("Heatmap basis", ["Residual", "Inherent", "Target"], horizontal=True)
@@ -1288,13 +1562,11 @@ elif page.startswith("00"):
         "Objective and value-driver master data remain in the data files; the visual hierarchy above is the working view."
     )
 elif page.startswith("02"):
-    st.subheader("Processes and process owners"); st.write("Complete a high-level plan first: purpose, inputs, main activities, outputs, interfaces and review frequency."); editor("processes", data["processes"])
-elif page.startswith("03"):
     t_lib, t_reg, t_opp = st.tabs(["Risk library", "Risk register", "Opportunities"])
     with t_lib:
         render_risk_library(data["risks"])
     with t_reg:
-        st.write("Maintain the full risk register here. Use **Level 3 drivers** (e.g. `3.1.1; 3.2.4`) to place risks in the library tree that mirrors the value hierarchy.")
+        st.write("Maintain the full shared risk inventory here. Use **Level 3 drivers** (e.g. `3.1.1; 3.2.4`) to place risks in the library tree. Allocate department ownership in **03**.")
         risk_config = {
             "Category": st.column_config.SelectboxColumn(options=RISK_CATEGORIES),
             "Appetite status": st.column_config.SelectboxColumn(options=APPETITE),
@@ -1305,37 +1577,43 @@ elif page.startswith("03"):
         editor("risks", data["risks"], risk_config)
     with t_opp:
         editor("opportunities", data["opportunities"])
+elif page.startswith("03"):
+    render_ownership_page(data["risks"])
 elif page.startswith("04"):
+    st.subheader("Processes and process owners"); st.write("Complete a high-level plan first: purpose, inputs, main activities, outputs, interfaces and review frequency."); editor("processes", data["processes"])
+elif page.startswith("05"):
     st.subheader("Inherent risk assessment"); st.write("Assess exposure before current controls using 1–5 likelihood and impact scales.")
     c=["Risk ID","Risk title","Inherent likelihood","Inherent impact"]; e=st.data_editor(data["risks"][c],hide_index=True,use_container_width=True)
     if st.button("Save inherent assessment", type="primary", key=f"save_inherent_{ACTIVE_REGISTER_KEY}"): update_risks(e, c[-2:])
-elif page.startswith("05"):
-    st.subheader("Controls, policies and procedures"); editor("controls",data["controls"],{"Risk ID":st.column_config.SelectboxColumn(options=data["risks"]["Risk ID"].tolist()),"Control type":st.column_config.SelectboxColumn(options=["Preventive","Detective","Corrective"]),"Effectiveness":st.column_config.SelectboxColumn(options=["Not assessed","Ineffective","Partly effective","Effective"])})
 elif page.startswith("06"):
+    st.subheader("Controls, policies and procedures"); editor("controls",data["controls"],{"Risk ID":st.column_config.SelectboxColumn(options=data["risks"]["Risk ID"].tolist()),"Control type":st.column_config.SelectboxColumn(options=["Preventive","Detective","Corrective"]),"Effectiveness":st.column_config.SelectboxColumn(options=["Not assessed","Ineffective","Partly effective","Effective"])})
+elif page.startswith("07"):
     st.subheader("Residual risk assessment"); st.write("Assess current exposure after controls that actually operate.")
     c=["Risk ID","Risk title","Residual likelihood","Residual impact"]; e=st.data_editor(data["risks"][c],hide_index=True,use_container_width=True)
     if st.button("Save residual assessment", type="primary", key=f"save_residual_{ACTIVE_REGISTER_KEY}"): update_risks(e, c[-2:])
-elif page.startswith("07"):
+elif page.startswith("08"):
     st.subheader("Risk appetite and Enterprise escalation"); c=["Risk ID","Risk title","Appetite status","Enterprise escalation","Evidence / rationale"]
     e=st.data_editor(data["risks"][c],hide_index=True,use_container_width=True,column_config={"Appetite status":st.column_config.SelectboxColumn(options=APPETITE),"Enterprise escalation":st.column_config.SelectboxColumn(options=["Yes","No"])})
     if st.button("Save appetite and escalation", type="primary", key=f"save_appetite_{ACTIVE_REGISTER_KEY}"): update_risks(e, c[-3:])
-elif page.startswith("08"):
+elif page.startswith("09"):
     st.subheader("Responses, actions and target risk"); t1,t2=st.tabs(["Treatment actions","Target risk"])
     with t1: editor("actions",data["actions"],{"Risk ID":st.column_config.SelectboxColumn(options=data["risks"]["Risk ID"].tolist()),"Status":st.column_config.SelectboxColumn(options=["Not started","In progress","Blocked","Completed","Cancelled"]),"Due date":st.column_config.DateColumn(format="DD.MM.YYYY"),"Progress %":st.column_config.NumberColumn(min_value=0,max_value=100,step=5)})
     with t2:
         c=["Risk ID","Risk title","Target likelihood","Target impact"]; e=st.data_editor(data["risks"][c],hide_index=True,use_container_width=True)
         if st.button("Save target risk", type="primary", key=f"save_target_{ACTIVE_REGISTER_KEY}"): update_risks(e, c[-2:])
-elif page.startswith("09"):
-    st.subheader("Departmental interfaces and dependencies"); c=["Risk ID","Risk title","Processes","Affected units","Enterprise escalation"]
+elif page.startswith("10"):
+    st.subheader("Departmental interfaces and dependencies")
+    st.caption("Process interfaces and escalation flags. Department mitigation roles are maintained in **03 Ownership**.")
+    c=["Risk ID","Risk title","Processes","Affected units","Enterprise escalation"]
     e=st.data_editor(data["risks"][c],hide_index=True,use_container_width=True)
     if st.button("Save dependencies", type="primary", key=f"save_deps_{ACTIVE_REGISTER_KEY}"): update_risks(e, c[-3:])
-elif page.startswith("10"):
-    st.subheader("KPIs, KRIs and process performance"); st.info("The next iteration will add an indicator register with thresholds, reporting frequency, data owner and trend history."); st.dataframe(data["processes"][["Process ID","Process","Process owner","Review frequency"]],hide_index=True,use_container_width=True)
 elif page.startswith("11"):
-    st.subheader("Documents and evidence"); st.write("Evidence references are currently recorded against controls, risks and actions. Direct document links and document-control metadata follow later."); st.dataframe(data["controls"][["Control ID","Risk ID","Control","Evidence"]],hide_index=True,use_container_width=True)
+    st.subheader("KPIs, KRIs and process performance"); st.info("The next iteration will add an indicator register with thresholds, reporting frequency, data owner and trend history."); st.dataframe(data["processes"][["Process ID","Process","Process owner","Review frequency"]],hide_index=True,use_container_width=True)
 elif page.startswith("12"):
-    st.subheader("Audits, findings and improvements"); st.info("This will become a shared IMS module for audits, non-conformities, root causes, corrective actions and effectiveness verification."); st.dataframe(data["actions"],hide_index=True,use_container_width=True)
+    st.subheader("Documents and evidence"); st.write("Evidence references are currently recorded against controls, risks and actions. Direct document links and document-control metadata follow later."); st.dataframe(data["controls"][["Control ID","Risk ID","Control","Evidence"]],hide_index=True,use_container_width=True)
 elif page.startswith("13"):
+    st.subheader("Audits, findings and improvements"); st.info("This will become a shared IMS module for audits, non-conformities, root causes, corrective actions and effectiveness verification."); st.dataframe(data["actions"],hide_index=True,use_container_width=True)
+elif page.startswith("14"):
     st.subheader("Reporting and history")
     ent_risks = collect_enterprise_risks()
     ent_actions = collect_enterprise_actions(ent_risks)

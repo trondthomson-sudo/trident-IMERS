@@ -1018,7 +1018,23 @@ def apply_brand_theme():
     .vh-l5-empty-slot{color:#6b7c80;font-size:.85rem;font-style:italic;margin:0 0 9px 0;padding:4px 0}
     .vh-l5-driver-slot{margin:0 0 9px 0;min-height:1.55em}
     
-        /* Help buttons: Streamlit stamps class st-key-vh_help_* on keyed containers */
+        
+        div[class*="st-key-vh_help"] div[data-testid="stHorizontalBlock"] {
+            gap: 0.35rem !important;
+        }
+        div[class*="st-key-vh_help"] div[data-testid="stColumn"] {
+            flex: 0 0 auto !important;
+            width: auto !important;
+            min-width: 0 !important;
+        }
+        div[class*="st-key-vh_help"] button {
+            width: auto !important;
+            padding-left: 0.85rem !important;
+            padding-right: 0.85rem !important;
+            white-space: nowrap !important;
+        }
+
+/* Help buttons: Streamlit stamps class st-key-vh_help_* on keyed containers */
         div[class*="st-key-vh_help"] button,
         div[class*="st-key-vh_help"] [data-testid="stBaseButton-secondary"],
         div[class*="st-key-vh_help"] [data-testid="baseButton-secondary"] {
@@ -1732,7 +1748,7 @@ def render_risk_explain_button(risk_id, driver_ref=""):
         return
 
     with st.container(key=f"vh_help_{suffix}"):
-        c1, c2, c3, _sp = st.columns([1.2, 1.6, 1.8, 3.5])
+        c1, c2, c3, _sp = st.columns([1.05, 1.25, 1.45, 6.2], gap="small")
         if risk_id == "SBD-R101":
             with c1:
                 if st.button(
@@ -2054,6 +2070,27 @@ if _LOGO.exists():
         st.logo(str(_LOGO))
 elif _ICON.exists():
     st.logo(str(_ICON))
+
+# Enlarge Streamlit sidebar logo beyond the built-in "large" size
+st.markdown(
+    """
+    <style>
+    [data-testid="stSidebar"] img,
+    [data-testid="stSidebarHeader"] img,
+    [data-testid="stLogo"] img,
+    div[data-testid="stSidebarCollapsedControl"] img {
+        max-height: 72px !important;
+        height: 72px !important;
+        width: auto !important;
+        object-fit: contain !important;
+    }
+    [data-testid="stSidebar"] [data-testid="stLogo"] {
+        margin: 0.4rem 0 0.6rem 0 !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
 register_options = [name for name, _owner, _title in UNITS] + [ENTERPRISE_REGISTER]
 selected_register = st.sidebar.selectbox("Risk register", register_options, index=0)

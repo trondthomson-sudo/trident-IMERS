@@ -1493,7 +1493,6 @@ def render_term_playbook_popover(risk_id):
         "playbook",
         key=f"term_playbook_btn_{ACTIVE_REGISTER_KEY}_{risk_id}",
         help="Open Trident commercial term-playbook",
-        type="primary",
     ):
         _term_playbook_dialog(risk_id)
 
@@ -1571,7 +1570,6 @@ def render_p05_agenda_button(risk_id):
         "SBD-P05 agenda",
         key=f"p05_agenda_btn_{ACTIVE_REGISTER_KEY}_{risk_id}",
         help="What linking the operating agenda to a renewal means",
-        type="primary",
     ):
         _p05_agenda_dialog(risk_id)
 
@@ -1611,11 +1609,15 @@ def render_risk_library(risks_df, processes_df=None):
         .vh-l5-empty-slot{color:#6b7c80;font-size:.85rem;font-style:italic;margin:0 0 9px 0;padding:4px 0}
         .vh-l5-driver-slot{margin:0 0 9px 0;min-height:1.55em}
         .vh-playbook-hit{color:#00839B;font-weight:700;text-decoration:underline;text-underline-offset:2px}
-        div[data-testid="stExpander"] div[data-testid="stHorizontalBlock"] .stButton > button[kind="primary"]{
-            background:#00839B;border-color:#006677;min-height:2.1rem;font-weight:700;box-shadow:0 1px 3px rgba(0,25,29,.18)
+        div[data-testid="stExpander"] div[data-testid="stHorizontalBlock"] .stButton > button{
+            background:#5a6570;border:1px solid #3d4650;color:#fff;min-height:2.1rem;font-weight:700;
+            box-shadow:0 1px 2px rgba(0,25,29,.12)
         }
-        div[data-testid="stExpander"] div[data-testid="stHorizontalBlock"] .stButton > button[kind="primary"]:hover{
-            background:#006677;border-color:#004d5a
+        div[data-testid="stExpander"] div[data-testid="stHorizontalBlock"] .stButton > button:hover{
+            background:#3d4650;border-color:#2a3138;color:#fff
+        }
+        div[data-testid="stExpander"] div[data-testid="stHorizontalBlock"] .stButton > button p{
+            color:#fff
         }
         </style>
         """,

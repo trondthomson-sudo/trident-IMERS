@@ -1433,6 +1433,59 @@ def extract_operational_questions(cause_text):
 
 
 
+
+TERM_PLAYBOOK_MD = """
+**Trident term-playbook** — standard commercial menu for customer renewals and new fixtures
+(so rate uplift is not left to ad-hoc negotiation).
+
+**1. Rate and indexation**
+- Base TC / day-rate corridor by vessel class and region (min / target / stretch).
+- Indexation: annual CPI (or crewing + ops cost basket) with a floor (e.g. ≥2%) and a cap;
+  mid-year reopen if crewing cost rises above an agreed threshold.
+- Premium tier: +Y% for priority slots, guaranteed response window, or dedicated season cover.
+
+**2. Duration and optionality**
+- Preferred tenor: 24–36 months (short rolling terms only if paid for).
+- Customer options at pre-agreed uplift; Trident redelivery / exit rights if utilization
+  or payment falls outside corridor.
+- Peak-season windows with higher rate or minimum committed days.
+
+**3. Utilization and off-hire**
+- Minimum committed days / season or take-or-pay band.
+- Clear off-hire definition (what counts, notice, cure).
+- Redeployment clause when regional demand shifts, with shared economics.
+
+**4. Scope and service standard**
+- What is in the rate (crew profile, biosecurity, reporting, welfare) vs chargeable extras.
+- Incident / trust: open critical service incidents closed or disclosed before locking uplift.
+
+**5. Negotiation rules**
+- No signing below corridor without CCO / S&BD mandate.
+- Pre-negotiation brief: comps, BATNA, which playbook clauses are in or out.
+- Deal review gate if the customer pushes flat rates into a rising-cost year.
+"""
+
+
+def text_mentions_playbook(*parts):
+    return any("playbook" in str(part or "").lower() for part in parts)
+
+
+def highlight_playbook_html(escaped_text):
+    """After html.escape, mark the word playbook so it reads as clickable."""
+    return re.sub(
+        r"(?i)playbook",
+        '<span class="vh-playbook-hit">playbook</span>',
+        escaped_text,
+    )
+
+
+def render_term_playbook_popover(risk_id):
+    """Popover opened from the playbook control under a risk that mentions it."""
+    with st.popover("playbook"):
+        st.caption(f"Linked from {risk_id}" if risk_id else "Trident commercial terms")
+        st.markdown(TERM_PLAYBOOK_MD)
+
+
 def extract_mitigation_bullets(mitigation_text):
     """Split Current mitigation into successive action bullets (numbered or semicolon lists)."""
     import re as _re
@@ -1453,7 +1506,6 @@ def extract_mitigation_bullets(mitigation_text):
 
 def render_risk_library(risks_df, processes_df=None):
     """Risk library in the same visual language as Context ERM (peach pane, chips), with ops questions."""
-    # Belt-and-suspenders: ensure ERM pane classes exist even if brand theme was skipped.
     st.markdown(
         """
         <style>
@@ -1461,20 +1513,22 @@ def render_risk_library(risks_df, processes_df=None):
         .vh-pil-badge{display:inline-block;color:#00191d;background:#90c4ce;border:1px solid #255a64;border-radius:4px;padding:3px 8px;margin-right:8px;font-size:.9rem;font-weight:700;white-space:nowrap}
         .vh-driver-link{margin:0 0 9px 0;font-size:.96rem;line-height:1.6}
         .vh-process-pillar{margin:11px 0 8px;font-size:.98rem;font-weight:700}
-        .vh-l5-erm-pane{background:rgba(255,107,53,.12);border:1px solid #d94b18;border-radius:8px;padding:12px 12px 8px;min-height:120px;margin-bottom:10px}
+        .vh-l5-erm-pane{background:rgba(255,107,53,.12);border:1px solid #d94b18;border-radius:8px;padding:12px 12px 8px;min-height:40px;margin-bottom:10px}
         .vh-l5-pane-title{font-weight:700;color:#00191d;font-size:.96rem;margin:0 0 10px 0}
         .vh-l5-risk-badge{display:inline-block;color:#00191d;background:#ffc9b0;border:1px solid #d94b18;border-radius:4px;padding:2px 7px;margin-right:8px;font-size:.9rem;font-weight:700;white-space:nowrap}
         .vh-l5-erm-coverage{font-size:.82rem;color:#8a3a18;margin:2px 0 10px 28px;line-height:1.35}
         .vh-l5-erm-coverage strong{color:#00191d}
         .vh-l5-empty-slot{color:#6b7c80;font-size:.85rem;font-style:italic;margin:0 0 9px 0;padding:4px 0}
         .vh-l5-driver-slot{margin:0 0 9px 0;min-height:1.55em}
+        .vh-playbook-hit{color:#00839B;font-weight:700;text-decoration:underline;text-underline-offset:2px}
         </style>
         """,
         unsafe_allow_html=True,
     )
     st.write(
         "Same layout as **Context** Level 5 ERM: pillars → Level 3 drivers → risk chips. "
-        "Under each risk: **what we can fail to do** and **what we can do** (ISO process links come later)."
+        "Under each risk: **what we can fail to do** and **what we can do** (ISO process links come later). "
+        "Where a failure mode mentions **playbook**, press the **playbook** button to open Trident's term-playbook."
     )
     catalog = level3_driver_catalog()
     scored_risks = scored(risks_df) if not risks_df.empty and "Risk ID" in risks_df.columns else risks_df.copy()
@@ -1486,7 +1540,6 @@ def render_risk_library(risks_df, processes_df=None):
         pillar_id = plain.split("PIL-0")[1][:1] if "PIL-0" in plain else ""
         pillar_code = f"PIL-0{pillar_id}" if pillar_id else ""
         drivers_for_pillar = [row for row in catalog if row["pillar_id"] == pillar_code]
-        # Last segment only — avoid "PIL-01 · PIL-01 · Organic EBITDA Growth"
         pillar_description = plain.rsplit(" · ", 1)[-1].strip() if " · " in plain else plain
 
         pillar_risk_ids = set()
@@ -1522,24 +1575,27 @@ def render_risk_library(risks_df, processes_df=None):
                 if "Risk ID" in linked.columns and not linked.empty:
                     linked = linked.sort_values("Risk ID")
 
-                # Build one self-contained peach pane for this Level 3 driver
-                parts = [
-                    '<div class="vh-l5-erm-pane">',
-                    (
-                        f'<div class="vh-process-pillar">'
-                        f'<span class="vh-ref-badge">{escape(ref)}</span>'
-                        f'{escape(driver_name)}</div>'
-                    ),
-                ]
-
                 if linked.empty:
-                    parts.append(
-                        '<div class="vh-l5-empty-slot">'
-                        "No risks linked to this Level 3 driver yet.</div>"
+                    st.markdown(
+                        (
+                            '<div class="vh-l5-erm-pane">'
+                            f'<div class="vh-process-pillar"><span class="vh-ref-badge">{escape(ref)}</span>'
+                            f'{escape(driver_name)}</div>'
+                            '<div class="vh-l5-empty-slot">No risks linked to this Level 3 driver yet.</div>'
+                            "</div>"
+                        ),
+                        unsafe_allow_html=True,
                     )
-                    parts.append("</div>")
-                    st.markdown("".join(parts), unsafe_allow_html=True)
                     continue
+
+                st.markdown(
+                    (
+                        '<div class="vh-l5-erm-pane" style="min-height:0;padding-bottom:4px;">'
+                        f'<div class="vh-process-pillar"><span class="vh-ref-badge">{escape(ref)}</span>'
+                        f'{escape(driver_name)}</div></div>'
+                    ),
+                    unsafe_allow_html=True,
+                )
 
                 seen = set()
                 for _, risk_row in linked.iterrows():
@@ -1558,16 +1614,30 @@ def render_risk_library(risks_df, processes_df=None):
                     except (TypeError, ValueError):
                         score_txt = ""
 
-                    parts.append(
-                        f'<div class="vh-driver-link vh-l5-driver-slot">'
-                        f'<span class="vh-l5-risk-badge">{escape(rid)}</span>'
-                        f'{escape(title)}{escape(score_txt)}</div>'
+                    questions = extract_operational_questions(risk_row.get("Cause", ""))
+                    mitigation = str(risk_row.get("Current mitigation", "") or "").strip()
+                    treatment = str(risk_row.get("Treatment decision", "") or "").strip()
+                    bullets = extract_mitigation_bullets(mitigation)
+                    show_playbook = text_mentions_playbook(
+                        risk_row.get("Cause", ""),
+                        " ".join(questions),
+                        mitigation,
+                        " ".join(bullets),
                     )
 
-                    questions = extract_operational_questions(risk_row.get("Cause", ""))
+                    parts = [
+                        '<div class="vh-l5-erm-pane">',
+                        (
+                            f'<div class="vh-driver-link vh-l5-driver-slot">'
+                            f'<span class="vh-l5-risk-badge">{escape(rid)}</span>'
+                            f'{escape(title)}{escape(score_txt)}</div>'
+                        ),
+                    ]
+
                     if questions:
                         q_html = "".join(
-                            f"<li>{escape(q.rstrip(' ?'))}?</li>" for q in questions
+                            f"<li>{highlight_playbook_html(escape(q.rstrip(' ?')))}?</li>"
+                            for q in questions
                         )
                         parts.append(
                             '<div class="vh-l5-erm-coverage"><strong>What we can fail to do:</strong>'
@@ -1582,11 +1652,10 @@ def render_risk_library(risks_df, processes_df=None):
                             "</ul></div>"
                         )
 
-                    mitigation = str(risk_row.get("Current mitigation", "") or "").strip()
-                    treatment = str(risk_row.get("Treatment decision", "") or "").strip()
-                    bullets = extract_mitigation_bullets(mitigation)
                     if bullets:
-                        m_html = "".join(f"<li>{escape(b)}</li>" for b in bullets)
+                        m_html = "".join(
+                            f"<li>{highlight_playbook_html(escape(b))}</li>" for b in bullets
+                        )
                         treat_note = (
                             f' <em>(Treatment: {escape(treatment)})</em>' if treatment else ""
                         )
@@ -1604,8 +1673,10 @@ def render_risk_library(risks_df, processes_df=None):
                             "</ul></div>"
                         )
 
-                parts.append("</div>")
-                st.markdown("".join(parts), unsafe_allow_html=True)
+                    parts.append("</div>")
+                    st.markdown("".join(parts), unsafe_allow_html=True)
+                    if show_playbook:
+                        render_term_playbook_popover(rid)
 
     st.markdown("---")
     st.subheader("Add risk into a library slot")

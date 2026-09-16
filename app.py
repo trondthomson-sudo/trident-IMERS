@@ -1626,14 +1626,17 @@ Document rejected cases so the same alert does not loop forever.
 
 
 def text_mentions_redeployment(*parts):
+    """True for real redeployment-case content — not a bare 'redeploy' in BATNA text (e.g. R101)."""
     blob = " ".join(str(part or "") for part in parts).lower()
     keys = (
-        "redeploy",
         "redeployment",
-        "regional spread",
-        "regional ebitda gap",
+        "not a liquid",
+        "not liquid",
         "cannibalis",
         "reconstruct",
+        "portfolio case",
+        "regional ebitda gap",
+        "regional spread vs plan",
     )
     return any(k in blob for k in keys)
 
@@ -1692,14 +1695,14 @@ def render_risk_library(risks_df, processes_df=None):
         .vh-l5-driver-slot{margin:0 0 9px 0;min-height:1.55em}
         .vh-playbook-hit{color:#00839B;font-weight:700;text-decoration:underline;text-underline-offset:2px}
         div[data-testid="stExpander"] div[data-testid="stHorizontalBlock"] .stButton > button{
-            background:#5a6570;border:1px solid #3d4650;color:#fff;min-height:2.1rem;font-weight:700;
+            background:#90c4ce;border:1px solid #255a64;color:#00191d;min-height:2.1rem;font-weight:700;
             box-shadow:0 1px 2px rgba(0,25,29,.12)
         }
         div[data-testid="stExpander"] div[data-testid="stHorizontalBlock"] .stButton > button:hover{
-            background:#3d4650;border-color:#2a3138;color:#fff
+            background:#6eb0bd;border-color:#00191d;color:#00191d
         }
         div[data-testid="stExpander"] div[data-testid="stHorizontalBlock"] .stButton > button p{
-            color:#fff
+            color:#00191d
         }
         </style>
         """,
@@ -1810,7 +1813,7 @@ def render_risk_library(risks_df, processes_df=None):
                         mitigation,
                         " ".join(bullets),
                     )
-                    show_redeploy = text_mentions_redeployment(
+                    show_redeploy = rid == "SBD-R104" or text_mentions_redeployment(
                         risk_row.get("Cause", ""),
                         " ".join(questions),
                         mitigation,

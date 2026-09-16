@@ -1553,6 +1553,21 @@ def highlight_library_terms_html(escaped_text):
         '<span class="vh-playbook-hit">operating agenda</span>',
         out,
     )
+    out = re.sub(
+        r"(?i)redeployment",
+        '<span class="vh-playbook-hit">redeployment</span>',
+        out,
+    )
+    out = re.sub(
+        r"(?i)cannibalisation",
+        '<span class="vh-playbook-hit">cannibalisation</span>',
+        out,
+    )
+    out = re.sub(
+        r"(?i)cannibalization",
+        '<span class="vh-playbook-hit">cannibalization</span>',
+        out,
+    )
     return out
 
 
@@ -1572,6 +1587,73 @@ def render_p05_agenda_button(risk_id):
         help="What linking the operating agenda to a renewal means",
     ):
         _p05_agenda_dialog(risk_id)
+
+
+
+REDEPLOYMENT_CASE_MD = """
+**Regional redeployment case** — when demand is stronger in one region (e.g. Chile)
+than where the vessel sits (e.g. Europe).
+
+**Important:** tonnage is **not liquid**. A trigger does **not** mean “move the ship.”
+It means **open a portfolio case** with full friction and destination impact.
+
+**1. What the trigger opens**
+- Pre-agreed gap vs plan (regional EBITDA, rate, or utilization spread).
+- Named owner and decision deadline.
+- Options on the table: **move / reconstruct-and-move / wait / serve demand another way**.
+
+**2. Transaction costs and time (must be in the pack)**
+- Reconstruction / conversion scope for the destination trade (yard slot, capex, off-hire).
+- Transit, flag, class, and biosecurity path (Europe → Chile is a programme, not a voyage).
+- Commercial exit or novation cost in the weak region.
+- Delivery lag vs the Chile demand window (late arrival can destroy the case NPV).
+
+**3. Collateral damage in the destination region**
+- Stronger incoming vessel can **cannibalise** less competitive tonnage already in Chile:
+  utilisation, achievable rate, and residual value on the existing fleet.
+- Gross Chile uplift is not enough — use **net fleet EBITDA** after cannibalisation.
+
+**4. Decision rule**
+Approve only if **net** fleet economics (and risk) clear the hurdle after:
+transaction costs + time risk + cannibalisation − avoided losses in the weak region.
+Document rejected cases so the same alert does not loop forever.
+
+**Linked processes**
+- **SBD-P02** — see the regional spread (market intelligence).
+- **SBD-P05** — “vs plan” baseline (operating agenda).
+- **SBD-P06** — fleet portfolio choice including reconstruction and regional interaction.
+"""
+
+
+def text_mentions_redeployment(*parts):
+    blob = " ".join(str(part or "") for part in parts).lower()
+    keys = (
+        "redeploy",
+        "redeployment",
+        "regional spread",
+        "regional ebitda gap",
+        "cannibalis",
+        "reconstruct",
+    )
+    return any(k in blob for k in keys)
+
+
+@st.dialog("Regional redeployment case")
+def _redeployment_case_dialog(risk_id=""):
+    """Modal: trigger opens a costly portfolio case, not a liquid vessel move."""
+    if risk_id:
+        st.caption(f"Linked from {risk_id}")
+    st.markdown(REDEPLOYMENT_CASE_MD)
+
+
+def render_redeployment_case_button(risk_id):
+    """Open regional redeployment case explanation via grey help button."""
+    if st.button(
+        "redeployment case",
+        key=f"redeploy_case_btn_{ACTIVE_REGISTER_KEY}_{risk_id}",
+        help="Redeployment is not liquid — reconstruction, costs, and Chile cannibalisation",
+    ):
+        _redeployment_case_dialog(risk_id)
 
 
 def extract_mitigation_bullets(mitigation_text):
@@ -1626,7 +1708,7 @@ def render_risk_library(risks_df, processes_df=None):
     st.write(
         "Same layout as **Context** Level 5 ERM: pillars → Level 3 drivers → risk chips. "
         "Under each risk: **what we can fail to do** and **what we can do** (ISO process links come later). "
-        "Where text mentions **playbook** or **SBD-P05 / operating agenda**, press the matching button under the risk for the explanation."
+        "Where text mentions **playbook**, **SBD-P05 / operating agenda**, or **redeployment**, press the matching grey button under the risk for the explanation."
     )
     catalog = level3_driver_catalog()
     scored_risks = scored(risks_df) if not risks_df.empty and "Risk ID" in risks_df.columns else risks_df.copy()
@@ -1728,6 +1810,12 @@ def render_risk_library(risks_df, processes_df=None):
                         mitigation,
                         " ".join(bullets),
                     )
+                    show_redeploy = text_mentions_redeployment(
+                        risk_row.get("Cause", ""),
+                        " ".join(questions),
+                        mitigation,
+                        " ".join(bullets),
+                    )
 
                     parts = [
                         '<div class="vh-l5-erm-pane">',
@@ -1779,9 +1867,9 @@ def render_risk_library(risks_df, processes_df=None):
 
                     parts.append("</div>")
                     st.markdown("".join(parts), unsafe_allow_html=True)
-                    if show_playbook or show_p05:
-                        # Tight left cluster (not full-width twin columns)
-                        btn_cols = st.columns([1.1, 1.5, 5])
+                    if show_playbook or show_p05 or show_redeploy:
+                        # Tight left cluster of grey help buttons
+                        btn_cols = st.columns([1.1, 1.5, 1.7, 4])
                         slot = 0
                         if show_playbook:
                             with btn_cols[slot]:
@@ -1790,6 +1878,10 @@ def render_risk_library(risks_df, processes_df=None):
                         if show_p05:
                             with btn_cols[slot]:
                                 render_p05_agenda_button(rid)
+                            slot += 1
+                        if show_redeploy:
+                            with btn_cols[slot]:
+                                render_redeployment_case_button(rid)
 
     st.markdown("---")
     st.subheader("Add risk into a library slot")

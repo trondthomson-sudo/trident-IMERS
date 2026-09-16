@@ -843,6 +843,15 @@ def heatmap(df, basis):
     return fig
 
 
+
+def input_zone_banner(label="Editable inputs"):
+    """Visual cue: grey banner above data editors that accept user input."""
+    st.markdown(
+        f'<div class="vh-input-banner">{label} — grey cells are where you type or pick values. Save with the button below.</div>',
+        unsafe_allow_html=True,
+    )
+
+
 def editor(key, df, config=None):
     edited = st.data_editor(df, num_rows="dynamic", use_container_width=True, hide_index=True, column_config=config or {}, key=f"editor_{ACTIVE_REGISTER_KEY}_{key}")
     if st.button(f"Save {key}", type="primary", key=f"save_{ACTIVE_REGISTER_KEY}_{key}"):
@@ -1056,6 +1065,29 @@ def apply_brand_theme():
         div[class*="st-key-vh_help"] span {
             color: #ffffff !important;
         }
+
+    
+    /* Editable input grids — grey field so users see what they can type */
+    .vh-input-banner{
+        background:#d9dee5;border:1px solid #9aa3ad;border-radius:8px;
+        padding:8px 12px;margin:0 0 10px 0;color:#00191d;font-size:.92rem;font-weight:600;
+    }
+    div[data-testid="stDataFrame"],
+    div[data-testid="stDataEditor"]{
+        background:#e8ecef !important;
+        border:1px solid #9aa3ad !important;
+        border-radius:8px !important;
+        padding:6px !important;
+    }
+    div[data-testid="stDataFrame"] [role="gridcell"],
+    div[data-testid="stDataEditor"] [role="gridcell"]{
+        background-color:#eef1f4 !important;
+    }
+    div[data-testid="stDataFrame"] [role="columnheader"],
+    div[data-testid="stDataEditor"] [role="columnheader"]{
+        background-color:#d0d6dd !important;
+        font-weight:700 !important;
+    }
 
     </style>
     """, unsafe_allow_html=True)
@@ -3311,6 +3343,7 @@ elif page == "01 Risks & Opportunities" or str(page).startswith("02 Risks"):
         render_risk_library(risks_work, data.get("processes"))
     with t_reg:
         st.write("Shared Strategy & BD risk inventory. Use **Assess & decide** for mitigation, residual score, and appetite.")
+        input_zone_banner("Risk register — editable fields")
         risk_config = {
             "Category": st.column_config.SelectboxColumn(options=RISK_CATEGORIES),
             "Appetite status": st.column_config.SelectboxColumn(options=APPETITE),
@@ -3334,6 +3367,7 @@ elif page == "01 Risks & Opportunities" or str(page).startswith("02 Risks"):
         )
         t_mit, t_res, t_dec = st.tabs(["1. Mitigation -> residual", "2. Residual scores", "3. Accept / appetite"])
         with t_mit:
+            input_zone_banner("1. Mitigation and residual — editable inputs")
             c = ["Risk ID", "Risk title", "Current mitigation", "Treatment decision", "Residual likelihood", "Residual impact"]
             e = st.data_editor(
                 risks_work[c],
@@ -3349,6 +3383,7 @@ elif page == "01 Risks & Opportunities" or str(page).startswith("02 Risks"):
                 update_risks(e, ["Current mitigation", "Treatment decision", "Residual likelihood", "Residual impact"])
         with t_res:
             st.caption("Same residual fields — use if you prefer a tight scoring grid.")
+            input_zone_banner("2. Residual scores — editable inputs")
             c = ["Risk ID", "Risk title", "Inherent likelihood", "Inherent impact", "Residual likelihood", "Residual impact"]
             e = st.data_editor(risks_work[c], hide_index=True, use_container_width=True, key=f"score_res2_{ACTIVE_REGISTER_KEY}")
             if st.button("Save inherent and residual scores", type="primary", key=f"save_residual_{ACTIVE_REGISTER_KEY}"):
@@ -3358,6 +3393,7 @@ elif page == "01 Risks & Opportunities" or str(page).startswith("02 Risks"):
                 "Accept the residual: set Treatment decision = Accept, Appetite = Within appetite (or Approaching with rationale), Status = Accepted. "
                 "Outside appetite usually means Treat or escalate."
             )
+            input_zone_banner("3. Accept / appetite — editable inputs")
             c = ["Risk ID", "Risk title", "Treatment decision", "Appetite status", "Status", "Enterprise escalation", "Evidence / rationale"]
             e = st.data_editor(
                 risks_work[c],

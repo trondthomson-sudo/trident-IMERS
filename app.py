@@ -1003,6 +1003,20 @@ def apply_brand_theme():
     [data-testid="stExpander"]{border-color:#a4c4e9;background:#fff}
     [data-testid="stExpander"] summary p{font-size:.94rem;font-weight:600}
     [data-testid="stCaptionContainer"] p{font-size:.86rem}
+
+    /* Risk library / Context shared ERM chips & panes (always available) */
+    .vh-ref-badge{display:inline-block;color:#00191d;background:#caff74;border:1px solid #90c44f;border-radius:4px;padding:2px 7px;margin-right:8px;font-size:.9rem;font-weight:700;white-space:nowrap}
+    .vh-process-id{display:inline-block;color:#00191d;background:#90c4ce;border:1px solid #255a64;border-radius:4px;padding:2px 7px;margin-right:8px;font-size:.9rem;font-weight:700;white-space:nowrap}
+    .vh-pil-badge{display:inline-block;color:#00191d;background:#90c4ce;border:1px solid #255a64;border-radius:4px;padding:3px 8px;margin-right:8px;font-size:.9rem;font-weight:700;white-space:nowrap}
+    .vh-driver-link,.vh-process-link{margin:0 0 9px 0;font-size:.96rem;line-height:1.6}
+    .vh-process-pillar{margin:11px 0 8px;font-size:.98rem;font-weight:700}
+    .vh-l5-erm-pane{background:rgba(255,107,53,.12);border:1px solid #d94b18;border-radius:8px;padding:12px 12px 8px;min-height:120px;margin-bottom:10px}
+    .vh-l5-pane-title{font-weight:700;color:#00191d;font-size:.96rem;margin:0 0 10px 0}
+    .vh-l5-risk-badge{display:inline-block;color:#00191d;background:#ffc9b0;border:1px solid #d94b18;border-radius:4px;padding:2px 7px;margin-right:8px;font-size:.9rem;font-weight:700;white-space:nowrap}
+    .vh-l5-erm-coverage{font-size:.82rem;color:#8a3a18;margin:2px 0 10px 28px;line-height:1.35}
+    .vh-l5-erm-coverage strong{color:#00191d}
+    .vh-l5-empty-slot{color:#6b7c80;font-size:.85rem;font-style:italic;margin:0 0 9px 0;padding:4px 0}
+    .vh-l5-driver-slot{margin:0 0 9px 0;min-height:1.55em}
     </style>
     """, unsafe_allow_html=True)
 
@@ -1419,6 +1433,25 @@ def extract_operational_questions(cause_text):
 
 def render_risk_library(risks_df, processes_df=None):
     """Risk library in the same visual language as Context ERM (peach pane, chips), with ops questions."""
+    # Belt-and-suspenders: ensure ERM pane classes exist even if brand theme was skipped.
+    st.markdown(
+        """
+        <style>
+        .vh-ref-badge{display:inline-block;color:#00191d;background:#caff74;border:1px solid #90c44f;border-radius:4px;padding:2px 7px;margin-right:8px;font-size:.9rem;font-weight:700;white-space:nowrap}
+        .vh-pil-badge{display:inline-block;color:#00191d;background:#90c4ce;border:1px solid #255a64;border-radius:4px;padding:3px 8px;margin-right:8px;font-size:.9rem;font-weight:700;white-space:nowrap}
+        .vh-driver-link{margin:0 0 9px 0;font-size:.96rem;line-height:1.6}
+        .vh-process-pillar{margin:11px 0 8px;font-size:.98rem;font-weight:700}
+        .vh-l5-erm-pane{background:rgba(255,107,53,.12);border:1px solid #d94b18;border-radius:8px;padding:12px 12px 8px;min-height:120px;margin-bottom:10px}
+        .vh-l5-pane-title{font-weight:700;color:#00191d;font-size:.96rem;margin:0 0 10px 0}
+        .vh-l5-risk-badge{display:inline-block;color:#00191d;background:#ffc9b0;border:1px solid #d94b18;border-radius:4px;padding:2px 7px;margin-right:8px;font-size:.9rem;font-weight:700;white-space:nowrap}
+        .vh-l5-erm-coverage{font-size:.82rem;color:#8a3a18;margin:2px 0 10px 28px;line-height:1.35}
+        .vh-l5-erm-coverage strong{color:#00191d}
+        .vh-l5-empty-slot{color:#6b7c80;font-size:.85rem;font-style:italic;margin:0 0 9px 0;padding:4px 0}
+        .vh-l5-driver-slot{margin:0 0 9px 0;min-height:1.55em}
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
     st.write(
         "Same layout as **Context** Level 5 ERM: pillars → Level 3 drivers → risk chips. "
         "Under each risk: ISO coverage, **operational questions**, and **current mitigation**."
@@ -1449,9 +1482,9 @@ def render_risk_library(risks_df, processes_df=None):
         pillar_id = plain.split("PIL-0")[1][:1] if "PIL-0" in plain else ""
         pillar_code = f"PIL-0{pillar_id}" if pillar_id else ""
         drivers_for_pillar = [row for row in catalog if row["pillar_id"] == pillar_code]
-        pillar_description = plain.split(" · ", 1)[-1] if " · " in plain else plain
+        # Last segment only — avoid "PIL-01 · PIL-01 · Organic EBITDA Growth"
+        pillar_description = plain.rsplit(" · ", 1)[-1].strip() if " · " in plain else plain
 
-        # Count unique risks under this pillar's Level 3 drivers
         pillar_risk_ids = set()
         for row in drivers_for_pillar:
             ref = row["reference"]
@@ -1462,31 +1495,46 @@ def render_risk_library(risks_df, processes_df=None):
         count = len(pillar_risk_ids)
 
         with st.expander(f"{pillar_code} · {pillar_description} ({count})", expanded=(pillar_code == "PIL-01")):
-            header_html = (
-                '<div class="vh-l5-erm-pane">'
-                '<div class="vh-l5-pane-title">Risks under this pillar - by Level 3 driver</div>'
-                f'<div class="vh-process-pillar"><span class="vh-pil-badge">{escape(pillar_code)}</span>'
-                f'{escape(pillar_description)}</div>'
+            st.markdown(
+                (
+                    '<div class="vh-l5-erm-pane">'
+                    '<div class="vh-l5-pane-title">Risks under this pillar - by Level 3 driver</div>'
+                    f'<div class="vh-process-pillar"><span class="vh-pil-badge">{escape(pillar_code)}</span>'
+                    f'{escape(pillar_description)}</div>'
+                    "</div>"
+                ),
+                unsafe_allow_html=True,
             )
-            parts = [header_html]
 
             for row in drivers_for_pillar:
                 ref, driver_name = row["reference"], row["driver"]
                 if scored_risks.empty:
                     linked = scored_risks
                 else:
-                    mask = scored_risks["Level 3 drivers"].astype(str).apply(lambda value, r=ref: r in split_refs(value))
+                    mask = scored_risks["Level 3 drivers"].astype(str).apply(
+                        lambda value, r=ref: r in split_refs(value)
+                    )
                     linked = scored_risks.loc[mask]
                 if "Risk ID" in linked.columns and not linked.empty:
                     linked = linked.sort_values("Risk ID")
 
-                parts.append(
-                    f'<div class="vh-process-pillar" style="margin-top:10px;">'
-                    f'<span class="vh-ref-badge">{escape(ref)}</span>'
-                    f'{escape(driver_name)}</div>'
-                )
+                # Build one self-contained peach pane for this Level 3 driver
+                parts = [
+                    '<div class="vh-l5-erm-pane">',
+                    (
+                        f'<div class="vh-process-pillar">'
+                        f'<span class="vh-ref-badge">{escape(ref)}</span>'
+                        f'{escape(driver_name)}</div>'
+                    ),
+                ]
+
                 if linked.empty:
-                    parts.append('<div class="vh-l5-empty-slot">No risks linked to this Level 3 driver yet.</div>')
+                    parts.append(
+                        '<div class="vh-l5-empty-slot">'
+                        "No risks linked to this Level 3 driver yet.</div>"
+                    )
+                    parts.append("</div>")
+                    st.markdown("".join(parts), unsafe_allow_html=True)
                     continue
 
                 seen = set()
@@ -1512,22 +1560,20 @@ def render_risk_library(risks_df, processes_df=None):
                         f'{escape(title)}{escape(score_txt)}</div>'
                     )
 
-                    # ISO process coverage (same as Context)
                     linked_procs = split_refs(risk_row.get("Processes", ""))
                     if linked_procs:
                         labels = [process_label_by_id.get(pid, pid) for pid in linked_procs]
                         coverage = "; ".join(labels)
                         parts.append(
                             '<div class="vh-l5-erm-coverage"><strong>ISO process coverage:</strong> '
-                            f'{escape(coverage)}</div>'
+                            f"{escape(coverage)}</div>"
                         )
                     else:
                         parts.append(
                             '<div class="vh-l5-erm-coverage"><strong>ISO process coverage:</strong> '
-                            'Not yet linked to an S&amp;BD ISO process definition.</div>'
+                            "Not yet linked to an S&amp;BD ISO process definition.</div>"
                         )
 
-                    # Operational questions + mitigation (library-specific, still in ERM visual language)
                     questions = extract_operational_questions(risk_row.get("Cause", ""))
                     if questions:
                         q_html = "".join(
@@ -1535,13 +1581,14 @@ def render_risk_library(risks_df, processes_df=None):
                         )
                         parts.append(
                             '<div class="vh-l5-erm-coverage"><strong>Operational questions '
-                            '(what we fail to do):</strong><ul style="margin:4px 0 0 18px;padding:0;">'
+                            "(what we fail to do):</strong>"
+                            '<ul style="margin:4px 0 0 18px;padding:0;">'
                             f"{q_html}</ul></div>"
                         )
                     else:
                         parts.append(
                             '<div class="vh-l5-erm-coverage"><strong>Operational questions:</strong> '
-                            'Not yet operationalized — fill Trident-side failure modes in Assess &amp; decide.</div>'
+                            "Not yet operationalized — fill Trident-side failure modes in Assess &amp; decide.</div>"
                         )
 
                     mitigation = str(risk_row.get("Current mitigation", "") or "").strip()
@@ -1549,7 +1596,7 @@ def render_risk_library(risks_df, processes_df=None):
                     if mitigation:
                         mit_line = escape(mitigation)
                         if treatment:
-                            mit_line += f' <em>(Treatment: {escape(treatment)})</em>'
+                            mit_line += f" <em>(Treatment: {escape(treatment)})</em>"
                         parts.append(
                             '<div class="vh-l5-erm-coverage"><strong>What we can do:</strong> '
                             f"{mit_line}</div>"
@@ -1557,11 +1604,11 @@ def render_risk_library(risks_df, processes_df=None):
                     else:
                         parts.append(
                             '<div class="vh-l5-erm-coverage"><strong>What we can do:</strong> '
-                            'No mitigation text yet — fill Current mitigation in Assess &amp; decide.</div>'
+                            "No mitigation text yet — fill Current mitigation in Assess &amp; decide.</div>"
                         )
 
-            parts.append("</div>")
-            st.markdown("".join(parts), unsafe_allow_html=True)
+                parts.append("</div>")
+                st.markdown("".join(parts), unsafe_allow_html=True)
 
     st.markdown("---")
     st.subheader("Add risk into a library slot")
@@ -1580,7 +1627,11 @@ def render_risk_library(risks_df, processes_df=None):
             else:
                 master = load("risks")
                 if "Level 3 drivers" not in master.columns:
-                    insert_at = list(master.columns).index("Value effects") + 1 if "Value effects" in master.columns else len(master.columns)
+                    insert_at = (
+                        list(master.columns).index("Value effects") + 1
+                        if "Value effects" in master.columns
+                        else len(master.columns)
+                    )
                     master.insert(insert_at, "Level 3 drivers", "")
                 if (master["Risk ID"].astype(str) == new_id.strip()).any():
                     st.error(f"Risk ID {new_id.strip()} already exists.")
@@ -1608,6 +1659,8 @@ def render_risk_library(risks_df, processes_df=None):
                     save("risks", master)
                     st.success(f"Created {new_id.strip()} under {ref}.")
                     st.rerun()
+
+
 
 
 

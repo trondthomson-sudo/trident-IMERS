@@ -2036,8 +2036,24 @@ set_active_register("strategy")
 seed_data()
 migrate_existing_data()
 
-st.set_page_config(page_title="Trident IMS & ERM", page_icon="△", layout="wide")
+_ASSETS = Path(__file__).resolve().parent / "assets"
+_LOGO = _ASSETS / "trident_logo.png"
+_ICON = _ASSETS / "trident_icon.png"
+_page_icon = str(_ICON) if _ICON.exists() else "△"
+st.set_page_config(
+    page_title="Trident IMERS",
+    page_icon=_page_icon,
+    layout="wide",
+)
 apply_brand_theme()
+
+if _LOGO.exists():
+    try:
+        st.logo(str(_LOGO), size="large")
+    except TypeError:
+        st.logo(str(_LOGO))
+elif _ICON.exists():
+    st.logo(str(_ICON))
 
 register_options = [name for name, _owner, _title in UNITS] + [ENTERPRISE_REGISTER]
 selected_register = st.sidebar.selectbox("Risk register", register_options, index=0)
@@ -2046,7 +2062,19 @@ with st.sidebar.expander("Configured ERM registers"):
         st.write(f"**{unit}**  \n{owner}, {title}")
     st.write("**Enterprise Risk Register**  \nConsolidated material risks from unit registers")
 
-st.title("Trident Integrated Management & Enterprise Risk System")
+st.markdown(
+    """
+    <div style="margin:4px 0 10px 0;">
+      <div style="font-size:1.75rem;font-weight:800;color:#00191d;line-height:1.15;letter-spacing:.01em;">
+        Trident <span style="color:#00839B;">IMERS</span>
+      </div>
+      <div style="font-size:.95rem;color:#255a64;margin-top:2px;">
+        Integrated Management &amp; Enterprise Risk System
+      </div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
 if selected_register == ENTERPRISE_REGISTER:
     st.caption("Enterprise roll-up | Material risks across all unit registers")

@@ -1479,11 +1479,22 @@ def highlight_playbook_html(escaped_text):
     )
 
 
+@st.dialog("Trident term-playbook")
+def _term_playbook_dialog(risk_id=""):
+    """Modal playbook — works inside expanders where st.popover is often clipped."""
+    if risk_id:
+        st.caption(f"Linked from {risk_id}")
+    st.markdown(TERM_PLAYBOOK_MD)
+
+
 def render_term_playbook_popover(risk_id):
-    """Popover opened from the playbook control under a risk that mentions it."""
-    with st.popover("playbook"):
-        st.caption(f"Linked from {risk_id}" if risk_id else "Trident commercial terms")
-        st.markdown(TERM_PLAYBOOK_MD)
+    """Open term-playbook via button + dialog (unique key per risk)."""
+    if st.button(
+        "playbook",
+        key=f"term_playbook_btn_{ACTIVE_REGISTER_KEY}_{risk_id}",
+        help="Open Trident commercial term-playbook",
+    ):
+        _term_playbook_dialog(risk_id)
 
 
 def extract_mitigation_bullets(mitigation_text):

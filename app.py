@@ -1498,7 +1498,7 @@ def extract_operational_questions(cause_text):
     if "TRIDENT-SIDE" in upper:
         idx = upper.find("TRIDENT-SIDE")
         chunk = text_val[idx:]
-        found = _re.findall(r"\((\d+)\)\s*([^;]+?)(?=\s*\(\d+\)|$)", chunk)
+        found = _re.findall(r"\((\d+)\)\s*([^;]+)", chunk)
         if found:
             return [item.strip(" .;") for _n, item in found if item.strip()]
         after = chunk.split(":", 1)[-1] if ":" in chunk else chunk
@@ -2902,7 +2902,7 @@ def extract_mitigation_bullets(mitigation_text):
     text_val = str(mitigation_text or "").strip()
     if not text_val:
         return []
-    found = _re.findall(r"\((\d+)\)\s*([^;]+?)(?=\s*\(\d+\)|$)", text_val)
+    found = _re.findall(r"\((\d+)\)\s*([^;]+)", text_val)
     if found:
         return [item.strip(" .;") for _n, item in found if item.strip()]
     # Drop a short owner prefix like "S&BD+Commercial:" then split on semicolons

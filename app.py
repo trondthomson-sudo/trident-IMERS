@@ -2413,7 +2413,155 @@ R136 is the risk that **long-term coverage slips under the quality bar** the mul
 """,
 }
 
-RISK_LIBRARY_EXPLAINS = {**PIL01_RISK_EXPLAINS, **PIL02_RISK_EXPLAINS, **PIL03_RISK_EXPLAINS}
+
+PIL04_RISK_EXPLAINS = {
+    "SBD-R122": """
+**SBD-R122 — Working-capital and DSO discipline slips as the group scales**
+
+**In plain words**
+Cash conversion needs **EBITDA to become operating cash** — not just sit in receivables and
+inventory-like working capital. As the group grows and integrates entities, fragmented billing,
+multi-entity processes, or customer payment-term pressure can push **DSO and net working capital**
+above the cash-conversion plan even when reported earnings look fine.
+
+**What we can fail to do** (outcome drivers — not yet fully operationalized)
+We scale Commercial and Ops without equally rigorous **billing, collections, and WC ownership**.
+Payment-term giveaways win awards but silently lengthen cash conversion. Multi-entity processes
+stay fragmented after integration — so free cash flow lags EBITDA and leverage optics worsen.
+
+**What we can do** *(draft S&BD suggestions — fill Current mitigation in Assess & decide)*
+1. Set explicit **DSO / NWC vs cash-conversion plan** corridors with named Finance+Commercial owners (SBD-P05/P13).
+2. Standardize billing and collections across entities before celebrating integration complete.
+3. Cap payment-term concessions in tenders — force a cash-conversion trade-off, not a free giveaway.
+4. Put WC and DSO variance next to EBITDA in operating and Board cash bridges.
+5. Escalate when rolling DSO/NWC drifts above the band assumed in the FCF / NIBD plan.
+
+**One sentence**
+R122 is the risk that we **grow the P&L while working capital quietly eats the cash**.
+""",
+    "SBD-R124": """
+**SBD-R124 — Cash interest burden rises with rates or leverage**
+
+**In plain words**
+EBITDA-to-cash conversion after financing depends on **cash interest** staying inside the plan.
+Higher market rates, refinancing margins, or more NIBD from the growth program can make cash
+interest consume a larger share of operating cash — compressing free cash flow and covenant
+headroom even if operating EBITDA holds.
+
+**What we can fail to do** (outcome drivers — not yet fully operationalized)
+Growth and CapEx cases price EBITDA but underweight **cash interest sensitivity**. Refinancing
+and rate paths are not stress-tested into the cash-conversion corridor. Forums celebrate
+investment EBITDA while cash interest silently crowds out distributions and optionality.
+
+**What we can do** *(draft S&BD suggestions — fill Current mitigation in Assess & decide)*
+1. Embed **cash-interest / FCF bridges** (rate and leverage scenarios) in every material growth and refinancing gate (SBD-P07/P13).
+2. Set a Board-visible cash-interest share-of-OCF band tied to the cash-conversion plan.
+3. Prefer funding mixes and hedge / tenor choices that protect the conversion corridor, not only headline IRR.
+4. Re-cut the cash plan when rates or NIBD path breach the interest burden assumption.
+5. Escalate early when cash interest would breach covenant or distribution headroom under base+stress cases.
+
+**One sentence**
+R124 is the risk that **cash interest eats the conversion** the growth story still assumes is free.
+""",
+    "SBD-R125": """
+**SBD-R125 — Cash-tax leakage exceeds plan across jurisdictions**
+
+**In plain words**
+Cash conversion embeds an assumption about **cash taxes paid**, not just book tax. Cross-border
+structure, limited loss utilization, or changing rules in core farming regions can push cash
+taxes above the conversion plan — so free cash flow and equity value per NOK of EBITDA decline
+even when operating results look on track.
+
+**What we can fail to do** (outcome drivers — not yet fully operationalized)
+Plans use optimistic **effective cash-tax** rates without jurisdiction bridges. Structure and
+loss-utilization opportunities sit outside the operating cash forum. Rule changes land late into
+the FCF bridge — corrective structuring lags the leakage.
+
+**What we can do** *(draft S&BD suggestions — fill Current mitigation in Assess & decide)*
+1. Maintain a living **cash-tax by jurisdiction** bridge vs the cash-conversion plan (Finance ownership with S&BD visibility).
+2. Stress conversion for limited loss utilization and known rule-change scenarios in core regions.
+3. Align entity and financing structure choices with cash-tax outcomes before locking growth footprints.
+4. Put cash-tax variance next to WC and interest in the monthly FCF pack — not only in annual tax notes.
+5. Escalate when cash taxes would breach the conversion band assumed for NIBD and distributions.
+
+**One sentence**
+R125 is the risk that **cash taxes leak** what the EBITDA-to-cash plan thought was convertible.
+""",
+    "SBD-R126": """
+**SBD-R126 — Growth CAPEX timing mismatches cash generation**
+
+**In plain words**
+Cash conversion during the investment cycle needs **growth CapEx timing** to match when
+associated TC cash flows start. Front-loaded newbuild progress payments before contracted cash
+arrives can leave operating cash after maintenance short — forcing incremental debt, leverage
+spikes, and poor cash-conversion optics even if long-run IRR still looks fine.
+
+**What we can fail to do** (outcome drivers — not yet fully operationalized)
+Newbuild and growth cases show returns but not a **month-by-month cash bridge** from progress
+payments to first hire. Maintenance and growth CapEx compete without a forced sequencing rule.
+The cash-conversion narrative ignores the investment-cycle trough until liquidity is already tight.
+
+**What we can do** *(draft S&BD suggestions — fill Current mitigation in Assess & decide)*
+1. Require a **progress-payment vs TC-cash timing bridge** at every material growth CapEx gate (SBD-P04/P07).
+2. Sequence commitments so operating cash after maintenance can fund the curve — or pre-arrange funding explicitly.
+3. Stress leverage and conversion optics for delay / early-payment / late-hire scenarios before signing.
+4. Separate maintenance-capex protection (R123) from growth CapEx so short-term cash pressure does not defer upkeep.
+5. Escalate when the investment curve would breach the cash-conversion / NIBD corridor in the plan.
+
+**One sentence**
+R126 is the risk that we **pay for growth steel before the cash shows up** and conversion optics break mid-cycle.
+""",
+    "SBD-R127": """
+**SBD-R127 — Cash-conversion forecasting and KPI ownership remain weak**
+
+**In plain words**
+You cannot manage **EBITDA-to-cash** if reporting stays EBITDA-centric without equally rigorous
+free-cash bridges, owners, and variance routines. When forecasting and KPI ownership for
+conversion (WC, DSO, maintenance CapEx, interest, tax) stay weak, management detects cash
+shortfalls late — corrective action lags and exit diligence questions cash quality vs earnings.
+
+**What we can fail to do** (outcome drivers — not yet fully operationalized)
+Dashboards stop at EBITDA. FCF bridges are ad hoc. No single owner for **conversion KPI pack**
+(DSO, NWC, maint. CapEx, cash interest, cash tax). Variances are explained after the miss, not
+governed as leading indicators — so the cash-conversion plan is aspiration, not an operating system.
+
+**What we can do** *(draft S&BD suggestions — fill Current mitigation in Assess & decide)*
+1. Institutionalize a monthly **EBITDA → FCF bridge** with named owners per conversion line (SBD-P01/P13).
+2. Put DSO, NWC, maint. CapEx, cash interest, and cash tax on the same operating agenda as EBITDA.
+3. Define variance thresholds that force action before the quarter-end cash miss crystallizes.
+4. Align Board and exit diligence packs to the same cash-quality KPIs Finance uses internally.
+5. Kill “earnings quality” narratives that cannot be reconciled to the live conversion bridge.
+
+**One sentence**
+R127 is the risk that we **manage the P&L in high definition and the cash bridge in fog**.
+""",
+    "SBD-R138": """
+**SBD-R138 — DSO and collection performance slip versus cash-conversion targets**
+
+**In plain words**
+Cash conversion depends on **getting paid on time** — billing quality, dispute handling, and
+customer payment behaviour. As the group scales, DSO and collection outcomes can miss the
+cash-conversion plan even when utilization and rates look healthy — working capital absorbs cash
+and NIBD headroom tightens.
+
+**What we can fail to do** (outcome drivers — not yet fully operationalized)
+Collections stay a back-office chase, not a **commercial+finance KPI**. Disputes linger without
+aging discipline. Billing errors multiply with multi-entity growth. The cash-conversion target
+assumes DSO that operations no longer deliver.
+
+**What we can do** *(draft S&BD suggestions — fill Current mitigation in Assess & decide)*
+1. Set hard **DSO and collection-rate targets** vs the cash-conversion plan with joint Commercial/Finance ownership (SBD-P05).
+2. Fix billing quality at source — reduce dispute root causes, not only chase overdue balances.
+3. Run aging and dispute cadences with escalation at defined days-past-due thresholds.
+4. Tie renewal and credit decisions to payment behaviour, not only rate and tenure.
+5. Escalate when rolling DSO breaches the conversion band — force a collections response plan.
+
+**One sentence**
+R138 is the risk that **slow collections turn contracted EBITDA into trapped cash**.
+""",
+}
+
+RISK_LIBRARY_EXPLAINS = {**PIL01_RISK_EXPLAINS, **PIL02_RISK_EXPLAINS, **PIL03_RISK_EXPLAINS, **PIL04_RISK_EXPLAINS}
 
 _PIL01_EXPLAIN_DIALOG_TITLES = {
     "SBD-R001": "SBD-R001 — fleet capacity vs future demand",
@@ -2454,12 +2602,21 @@ _PIL03_EXPLAIN_DIALOG_TITLES = {
     "SBD-R136": "SBD-R136 — long-term contract coverage vs quality target",
 }
 
-_RISK_EXPLAIN_DIALOG_TITLES = {**_PIL01_EXPLAIN_DIALOG_TITLES, **_PIL02_EXPLAIN_DIALOG_TITLES, **_PIL03_EXPLAIN_DIALOG_TITLES}
+_PIL04_EXPLAIN_DIALOG_TITLES = {
+    "SBD-R122": "SBD-R122 — working-capital / DSO discipline at scale",
+    "SBD-R124": "SBD-R124 — cash interest burden vs conversion",
+    "SBD-R125": "SBD-R125 — cash-tax leakage across jurisdictions",
+    "SBD-R126": "SBD-R126 — growth CapEx timing vs cash generation",
+    "SBD-R127": "SBD-R127 — cash-conversion forecasting / KPI ownership",
+    "SBD-R138": "SBD-R138 — DSO and collection vs conversion targets",
+}
+
+_RISK_EXPLAIN_DIALOG_TITLES = {**_PIL01_EXPLAIN_DIALOG_TITLES, **_PIL02_EXPLAIN_DIALOG_TITLES, **_PIL03_EXPLAIN_DIALOG_TITLES, **_PIL04_EXPLAIN_DIALOG_TITLES}
 
 
 @st.dialog("Risk library explanation")
 def _pil01_risk_explain_dialog(risk_id: str):
-    """Show tailored plain-language explain markdown for a PIL-01/PIL-02/PIL-03 library risk."""
+    """Show tailored plain-language explain markdown for a PIL-01/PIL-02/PIL-03/PIL-04 library risk."""
     title = _RISK_EXPLAIN_DIALOG_TITLES.get(risk_id, risk_id)
     st.caption(title)
     body = RISK_LIBRARY_EXPLAINS.get(risk_id, "")
@@ -2513,12 +2670,18 @@ def render_risk_explain_button(risk_id, driver_ref=""):
         "SBD-R119",
         "SBD-R120",
         "SBD-R121",
+        "SBD-R122",
         "SBD-R123",
+        "SBD-R124",
+        "SBD-R125",
+        "SBD-R126",
+        "SBD-R127",
         "SBD-R129",
         "SBD-R132",
         "SBD-R135",
         "SBD-R136",
         "SBD-R137",
+        "SBD-R138",
     )
     if risk_id not in _help_ids:
         return
@@ -2625,7 +2788,7 @@ def render_risk_library(risks_df, processes_df=None):
     st.write(
         "Same layout as **Context** Level 5 ERM: pillars → Level 3 drivers → risk chips. "
         "Under each risk: **what we can fail to do** and **what we can do** (ISO process links come later). "
-        "Risk chips show failure modes and mitigations. Tailored **explain** buttons cover PIL-01–03 Strategy library risks linked here (PIL-01: R001, R102, R103, R105, R106, R111, R113, R120, R121, R135, R137; PIL-02 adds R003, R005, R107–R110, R112, R129 — plus shared R001/R105/R111/R113; PIL-03 adds R002, R004, R114–R119, R123, R132, R136 — plus shared R003/R005/R102/R103/R110/R120/R121/R137); R101 also has playbook + P05, and R104 has the shared redeployment-case tag — not auto-copied outside this explicit list."
+        "Risk chips show failure modes and mitigations. Tailored **explain** buttons cover PIL-01–04 Strategy library risks linked here (PIL-01: R001, R102, R103, R105, R106, R111, R113, R120, R121, R135, R137; PIL-02 adds R003, R005, R107–R110, R112, R129 — plus shared R001/R105/R111/R113; PIL-03 adds R002, R004, R114–R119, R123, R132, R136 — plus shared R003/R005/R102/R103/R110/R120/R121/R137; PIL-04 adds R122, R124–R127, R138 — plus shared R123); R101 also has playbook + P05, and R104 has the shared redeployment-case tag — not auto-copied outside this explicit list."
     )
     catalog = level3_driver_catalog()
     scored_risks = scored(risks_df) if not risks_df.empty and "Risk ID" in risks_df.columns else risks_df.copy()
@@ -2767,7 +2930,7 @@ def render_risk_library(risks_df, processes_df=None):
                     parts.append("</div>")
                     st.markdown("".join(parts), unsafe_allow_html=True)
                     # Explicit helps only for risks we have tailored (not keyword auto-copy)
-                    if rid in ("SBD-R001", "SBD-R002", "SBD-R003", "SBD-R004", "SBD-R005", "SBD-R101", "SBD-R102", "SBD-R103", "SBD-R104", "SBD-R105", "SBD-R106", "SBD-R107", "SBD-R108", "SBD-R109", "SBD-R110", "SBD-R111", "SBD-R112", "SBD-R113", "SBD-R114", "SBD-R115", "SBD-R116", "SBD-R117", "SBD-R118", "SBD-R119", "SBD-R120", "SBD-R121", "SBD-R123", "SBD-R129", "SBD-R132", "SBD-R135", "SBD-R136", "SBD-R137"):
+                    if rid in ("SBD-R001", "SBD-R002", "SBD-R003", "SBD-R004", "SBD-R005", "SBD-R101", "SBD-R102", "SBD-R103", "SBD-R104", "SBD-R105", "SBD-R106", "SBD-R107", "SBD-R108", "SBD-R109", "SBD-R110", "SBD-R111", "SBD-R112", "SBD-R113", "SBD-R114", "SBD-R115", "SBD-R116", "SBD-R117", "SBD-R118", "SBD-R119", "SBD-R120", "SBD-R121", "SBD-R122", "SBD-R123", "SBD-R124", "SBD-R125", "SBD-R126", "SBD-R127", "SBD-R129", "SBD-R132", "SBD-R135", "SBD-R136", "SBD-R137", "SBD-R138"):
                         render_risk_explain_button(rid, driver_ref=ref)
 
     st.markdown("---")

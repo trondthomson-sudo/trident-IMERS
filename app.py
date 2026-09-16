@@ -1696,15 +1696,46 @@ def _r106_explain_dialog():
 
 
 def render_risk_explain_button(risk_id, driver_ref=""):
-    """Per-risk tailored explanation. Key includes driver_ref (a risk may sit under several Level 3s)."""
-    key = f"risk_explain_btn_{ACTIVE_REGISTER_KEY}_{risk_id}_{driver_ref or 'na'}"
-    if risk_id == "SBD-R106":
-        if st.button(
-            "explain R106",
-            key=key,
-            help="Plain-language explanation of cost inflation vs rate growth",
-        ):
-            _r106_explain_dialog()
+    """Explicit per-risk help buttons only — never auto-copied from keyword matching.
+
+    Keys always include driver_ref so a risk linked to several Level 3 drivers
+    does not hit StreamlitDuplicateElementKey (which previously hid PIL-02–05).
+    """
+    suffix = f"{ACTIVE_REGISTER_KEY}_{risk_id}_{driver_ref or 'na'}"
+    # Tight left cluster; unused slots stay empty
+    c1, c2, c3, _sp = st.columns([1.2, 1.6, 1.8, 3.5])
+
+    if risk_id == "SBD-R101":
+        with c1:
+            if st.button(
+                "playbook",
+                key=f"term_playbook_btn_{suffix}",
+                help="Open Trident commercial term-playbook",
+            ):
+                _term_playbook_dialog(risk_id)
+        with c2:
+            if st.button(
+                "SBD-P05 agenda",
+                key=f"p05_agenda_btn_{suffix}",
+                help="What linking the operating agenda to a renewal means",
+            ):
+                _p05_agenda_dialog(risk_id)
+    elif risk_id == "SBD-R104":
+        with c1:
+            if st.button(
+                "redeployment case",
+                key=f"redeploy_case_btn_{suffix}",
+                help="Redeployment is not liquid — reconstruction, costs, and Chile cannibalisation",
+            ):
+                _redeployment_case_dialog(risk_id)
+    elif risk_id == "SBD-R106":
+        with c1:
+            if st.button(
+                "explain R106",
+                key=f"risk_explain_btn_{suffix}",
+                help="Plain-language explanation of cost inflation vs rate growth",
+            ):
+                _r106_explain_dialog()
 
 
 def extract_mitigation_bullets(mitigation_text):
@@ -1768,7 +1799,7 @@ def render_risk_library(risks_df, processes_df=None):
     st.write(
         "Same layout as **Context** Level 5 ERM: pillars → Level 3 drivers → risk chips. "
         "Under each risk: **what we can fail to do** and **what we can do** (ISO process links come later). "
-        "Risk chips show failure modes and mitigations. Tailored explanation buttons are added risk-by-risk — currently **explain R106**."
+        "Risk chips show failure modes and mitigations. Tailored explanation buttons are added **only** for risks we have written (R101 playbook + P05, R104 redeployment case, R106 explain) — not auto-copied to other risks."
     )
     catalog = level3_driver_catalog()
     scored_risks = scored(risks_df) if not risks_df.empty and "Risk ID" in risks_df.columns else risks_df.copy()
@@ -1909,8 +1940,9 @@ def render_risk_library(risks_df, processes_df=None):
 
                     parts.append("</div>")
                     st.markdown("".join(parts), unsafe_allow_html=True)
-                    # One tailored explain control at a time (unique key per risk+driver)
-                    render_risk_explain_button(rid, driver_ref=ref)
+                    # Explicit helps only for risks we have tailored (not keyword auto-copy)
+                    if rid in ("SBD-R101", "SBD-R104", "SBD-R106"):
+                        render_risk_explain_button(rid, driver_ref=ref)
 
     st.markdown("---")
     st.subheader("Add risk into a library slot")

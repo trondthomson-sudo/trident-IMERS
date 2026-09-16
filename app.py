@@ -845,23 +845,23 @@ def heatmap(df, basis):
 
 
 def input_zone_banner(label="Editable inputs"):
-    """Visual cue: grey banner above data editors that accept user input."""
+    """Visual cue: grey panel around data editors that accept user input."""
     st.markdown(
-        f'<div class="vh-input-banner">{label} — grey cells are where you type or pick values. Save with the button below.</div>',
+        f'<div class="vh-input-banner">{label} — grey panel is the editable grid. Type or pick values, then Save below.</div>',
         unsafe_allow_html=True,
     )
 
-
 def editor(key, df, config=None, height=700):
-    edited = st.data_editor(
-        df,
-        num_rows="dynamic",
-        use_container_width=True,
-        hide_index=True,
-        column_config=config or {},
-        height=height,
-        key=f"editor_{ACTIVE_REGISTER_KEY}_{key}",
-    )
+    with st.container(key=f"vh_input_{ACTIVE_REGISTER_KEY}_{key}"):
+        edited = st.data_editor(
+            df,
+            num_rows="dynamic",
+            use_container_width=True,
+            hide_index=True,
+            column_config=config or {},
+            height=height,
+            key=f"editor_{ACTIVE_REGISTER_KEY}_{key}",
+        )
     if st.button(f"Save {key}", type="primary", key=f"save_{ACTIVE_REGISTER_KEY}_{key}"):
         save(key, edited)
         st.success("Saved.")
@@ -1075,29 +1075,26 @@ def apply_brand_theme():
         }
 
     
-    /* Editable input grids — grey field so users see what they can type */
+    /* Editable input zone — data_editor cells are canvas-drawn; grey the panel. */
     .vh-input-banner{
-        background:#d9dee5;border:1px solid #9aa3ad;border-radius:8px;
+        background:#c5ccd6;border:1px solid #6b7580;border-radius:8px;
         padding:8px 12px;margin:0 0 10px 0;color:#00191d;font-size:.92rem;font-weight:600;
     }
-    div[data-testid="stDataFrame"],
-    div[data-testid="stDataEditor"]{
-        background:#e8ecef !important;
-        border:1px solid #9aa3ad !important;
+    div[class*="st-key-vh_input"]{
+        background:#d7dde5 !important;
+        border:2px solid #6b7580 !important;
+        border-radius:10px !important;
+        padding:12px 12px 8px 12px !important;
+        margin:0 0 10px 0 !important;
+    }
+    div[class*="st-key-vh_input"] [data-testid="stDataEditor"],
+    div[class*="st-key-vh_input"] [data-testid="stDataFrame"]{
+        background:#e4e8ee !important;
+        border:1px solid #8b949e !important;
         border-radius:8px !important;
-        padding:6px !important;
-    }
-    div[data-testid="stDataFrame"] [role="gridcell"],
-    div[data-testid="stDataEditor"] [role="gridcell"]{
-        background-color:#eef1f4 !important;
-    }
-    div[data-testid="stDataFrame"] [role="columnheader"],
-    div[data-testid="stDataEditor"] [role="columnheader"]{
-        background-color:#d0d6dd !important;
-        font-weight:700 !important;
     }
 
-    </style>
+</style>
     """, unsafe_allow_html=True)
 
 
@@ -3377,24 +3374,28 @@ elif page == "01 Risks & Opportunities" or str(page).startswith("02 Risks"):
         with t_mit:
             input_zone_banner("1. Mitigation and residual — editable inputs")
             c = ["Risk ID", "Risk title", "Current mitigation", "Treatment decision", "Residual likelihood", "Residual impact"]
-            e = st.data_editor(
-                risks_work[c],
-                hide_index=True,
-                use_container_width=True,
-                height=620,
-                column_config={
-                    "Treatment decision": st.column_config.SelectboxColumn(options=TREATMENT_DECISIONS),
-                    "Current mitigation": st.column_config.TextColumn(width="large"),
-                },
-                key=f"score_mit_{ACTIVE_REGISTER_KEY}",
-            )
+            with st.container(key=f"vh_input_assess_mit_{ACTIVE_REGISTER_KEY}"):
+                e = st.data_editor(
+                    risks_work[c],
+                    hide_index=True,
+                    use_container_width=True,
+                    height=620,
+                    column_config={
+                        "Treatment decision": st.column_config.SelectboxColumn(options=TREATMENT_DECISIONS),
+                        "Current mitigation": st.column_config.TextColumn(width="large"),
+                    },
+                    key=f"score_mit_{ACTIVE_REGISTER_KEY}",
+                )
+
             if st.button("Save mitigation and residual", type="primary", key=f"save_mit_{ACTIVE_REGISTER_KEY}"):
                 update_risks(e, ["Current mitigation", "Treatment decision", "Residual likelihood", "Residual impact"])
         with t_res:
             st.caption("Same residual fields — use if you prefer a tight scoring grid.")
             input_zone_banner("2. Residual scores — editable inputs")
             c = ["Risk ID", "Risk title", "Inherent likelihood", "Inherent impact", "Residual likelihood", "Residual impact"]
-            e = st.data_editor(risks_work[c], hide_index=True, use_container_width=True, height=520, key=f"score_res2_{ACTIVE_REGISTER_KEY}")
+            with st.container(key=f"vh_input_assess_res_{ACTIVE_REGISTER_KEY}"):
+                e = st.data_editor(risks_work[c], hide_index=True, use_container_width=True, height=520, key=f"score_res2_{ACTIVE_REGISTER_KEY}")
+
             if st.button("Save inherent and residual scores", type="primary", key=f"save_residual_{ACTIVE_REGISTER_KEY}"):
                 update_risks(e, c[-4:])
         with t_dec:
@@ -3404,19 +3405,21 @@ elif page == "01 Risks & Opportunities" or str(page).startswith("02 Risks"):
             )
             input_zone_banner("3. Accept / appetite — editable inputs")
             c = ["Risk ID", "Risk title", "Treatment decision", "Appetite status", "Status", "Enterprise escalation", "Evidence / rationale"]
-            e = st.data_editor(
-                risks_work[c],
-                hide_index=True,
-                use_container_width=True,
-                height=520,
-                column_config={
-                    "Treatment decision": st.column_config.SelectboxColumn(options=TREATMENT_DECISIONS),
-                    "Appetite status": st.column_config.SelectboxColumn(options=APPETITE),
-                    "Status": st.column_config.SelectboxColumn(options=STATUSES),
-                    "Enterprise escalation": st.column_config.SelectboxColumn(options=["Yes", "No"]),
-                },
-                key=f"score_dec_{ACTIVE_REGISTER_KEY}",
-            )
+            with st.container(key=f"vh_input_assess_dec_{ACTIVE_REGISTER_KEY}"):
+                e = st.data_editor(
+                    risks_work[c],
+                    hide_index=True,
+                    use_container_width=True,
+                    height=520,
+                    column_config={
+                        "Treatment decision": st.column_config.SelectboxColumn(options=TREATMENT_DECISIONS),
+                        "Appetite status": st.column_config.SelectboxColumn(options=APPETITE),
+                        "Status": st.column_config.SelectboxColumn(options=STATUSES),
+                        "Enterprise escalation": st.column_config.SelectboxColumn(options=["Yes", "No"]),
+                    },
+                    key=f"score_dec_{ACTIVE_REGISTER_KEY}",
+                )
+
             if st.button("Save acceptance and appetite", type="primary", key=f"save_appetite_{ACTIVE_REGISTER_KEY}"):
                 update_risks(e, ["Treatment decision", "Appetite status", "Status", "Enterprise escalation", "Evidence / rationale"])
         st.info("Detailed multi-step action plans remain under **More modules → Actions & target risk** if you need them later.")

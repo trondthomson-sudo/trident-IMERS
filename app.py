@@ -1493,6 +1493,7 @@ def render_term_playbook_popover(risk_id):
         "playbook",
         key=f"term_playbook_btn_{ACTIVE_REGISTER_KEY}_{risk_id}",
         help="Open Trident commercial term-playbook",
+        type="primary",
     ):
         _term_playbook_dialog(risk_id)
 
@@ -1570,6 +1571,7 @@ def render_p05_agenda_button(risk_id):
         "SBD-P05 agenda",
         key=f"p05_agenda_btn_{ACTIVE_REGISTER_KEY}_{risk_id}",
         help="What linking the operating agenda to a renewal means",
+        type="primary",
     ):
         _p05_agenda_dialog(risk_id)
 
@@ -1609,6 +1611,12 @@ def render_risk_library(risks_df, processes_df=None):
         .vh-l5-empty-slot{color:#6b7c80;font-size:.85rem;font-style:italic;margin:0 0 9px 0;padding:4px 0}
         .vh-l5-driver-slot{margin:0 0 9px 0;min-height:1.55em}
         .vh-playbook-hit{color:#00839B;font-weight:700;text-decoration:underline;text-underline-offset:2px}
+        div[data-testid="stExpander"] div[data-testid="stHorizontalBlock"] .stButton > button[kind="primary"]{
+            background:#00839B;border-color:#006677;min-height:2.1rem;font-weight:700;box-shadow:0 1px 3px rgba(0,25,29,.18)
+        }
+        div[data-testid="stExpander"] div[data-testid="stHorizontalBlock"] .stButton > button[kind="primary"]:hover{
+            background:#006677;border-color:#004d5a
+        }
         </style>
         """,
         unsafe_allow_html=True,
@@ -1770,12 +1778,15 @@ def render_risk_library(risks_df, processes_df=None):
                     parts.append("</div>")
                     st.markdown("".join(parts), unsafe_allow_html=True)
                     if show_playbook or show_p05:
-                        cols = st.columns(2)
+                        # Tight left cluster (not full-width twin columns)
+                        btn_cols = st.columns([1.1, 1.5, 5])
+                        slot = 0
                         if show_playbook:
-                            with cols[0]:
+                            with btn_cols[slot]:
                                 render_term_playbook_popover(rid)
+                            slot += 1
                         if show_p05:
-                            with cols[1 if show_playbook else 0]:
+                            with btn_cols[slot]:
                                 render_p05_agenda_button(rid)
 
     st.markdown("---")

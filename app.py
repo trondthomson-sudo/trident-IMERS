@@ -2121,13 +2121,18 @@ st.markdown(
     [data-testid="stSidebarHeader"] img,
     [data-testid="stLogo"] img,
     div[data-testid="stSidebarCollapsedControl"] img {
-        max-height: 72px !important;
-        height: 72px !important;
+        max-height: 120px !important;
+        height: 120px !important;
         width: auto !important;
         object-fit: contain !important;
     }
     [data-testid="stSidebar"] [data-testid="stLogo"] {
-        margin: 0.4rem 0 0.6rem 0 !important;
+        margin: 0.35rem 0 0.75rem 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    [data-testid="stSidebar"] [data-testid="stLogo"] img {
+        max-width: 100% !important;
     }
     </style>
     """,

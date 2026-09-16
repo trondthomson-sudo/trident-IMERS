@@ -1701,40 +1701,100 @@ def render_redeployment_case_button(risk_id):
 
 
 
-SBD_R121_EXPLAIN_MD = """
-**SBD-R121 — Premium positioning or farmer trust is damaged**
+PIL01_RISK_EXPLAINS = {
+    "SBD-R001": """
+**SBD-R001 — Investment in fleet capacity that does not match future demand**
 
 **In plain words**
-Trident wants to be paid as a **premium** partner (better rate / terms) because farmers trust
-the service. That trust breaks when service fails, biosecurity worries rise, or we look
-inflexible — and then **rate uplift talks get harder**, even when the market could support them.
+We commit money to **new vessels or capacity** based on forecasts of salmon production,
+customer demand, and competitor tonnage. If those forecasts are wrong, we end up with
+**ships that sit underused** — capital tied up, returns weak, and less room for better bets.
 
-**What we can fail to do**
-Renewal talks go ahead as if nothing happened, while Ops/HSEQ know about recent incidents.
-Commercial pushes uplift without seeing open critical issues. The growth story runs ahead of
-what the fleet can reliably deliver. Farmer feedback never makes it back into how we design
-the offer. In short: **we negotiate price while ignoring trust.**
+**What we can fail to do** (outcome drivers — not yet fully operationalized)
+We treat uncertain demand as if it were certain. Capital commits go ahead without a clear
+**demand evidence pack**, without stress-testing competitor orderbooks, and without a
+kill/hold gate when forecasts soften. In short: **we buy capacity before demand is proven.**
 
-**What we can do (treat)**
-1. Tie a clear **premium service standard** to the rate tier (what "premium" means in the contract).
-2. **Incident-to-account alert** before renewal — Ops/HSEQ warn Commercial early.
-3. Put a **trust dashboard** (NPS, complaints, incidents) in the pre-negotiation brief.
-4. **Do not push rate uplift** where open critical incidents still sit on the account.
-5. Keep a **partnership review cadence** with top farmers
-   (**SBD-P05** agenda/rate path; **P09** strategic risk; **P10** sustainability / trust topics).
+**What we can do** *(draft S&BD suggestions — fill Current mitigation in Assess & decide)*
+1. Require a **demand + competitor capacity brief** before each material investment gate (SBD-P02/P04).
+2. Stress-test cases against **low / base / high** production and utilization scenarios.
+3. Stage capital (options, slots, convertible designs) so we can **pause or reshape** if signals turn.
+4. Link investment cadence to the **SBD-P05 / P06 / P07** portfolio and monitoring forums.
+5. Document rejected or deferred cases so weak forecasts do not keep reopening the same bet.
 
 **One sentence**
-R121 is the risk that we ask for premium rates after we have spent the farmer's trust —
-or while an open service wound is still bleeding.
-"""
+R001 is the risk that we **pay for tomorrow’s fleet today** while demand never shows up.
+""",
+    "SBD-R102": """
+**SBD-R102 — Segment orderbook dilutes utilization of the existing fleet**
 
+**In plain words**
+When the industry (or we) deliver **too many similar vessels** into a segment, paid days on
+**existing** ships fall — off-hire rises, utilization slips, and the organic EBITDA plan softens
+even if our own ships are well run.
 
-@st.dialog("SBD-R121 — premium trust and farmer relationships")
-def _r121_explain_dialog():
-    st.markdown(SBD_R121_EXPLAIN_MD)
+**What we can fail to do** (outcome drivers — not yet fully operationalized)
+We watch deliveries as news, not as a **utilization threat to our current book**. Pricing and
+renewal mandates stay optimistic while the segment is clearly overbuilding. Portfolio forums
+do not force a response (idle, redeploy case, terms defence, or delay of our own growth).
 
+**What we can do** *(draft S&BD suggestions — fill Current mitigation in Assess & decide)*
+1. Track a **segment orderbook vs demand intensity** heat map into SBD-P02/P05/P06.
+2. When deliveries spike, tighten **renewal corridors** and utilization assumptions early.
+3. Open a ranked response: defend rates / accept idle / **redeployment case** / delay own growth.
+4. Do not greenlight incremental capacity that **cannibalises** our own paid utilization.
+5. Escalate when existing-fleet utilization drifts below the operating-agenda corridor.
 
-SBD_R106_EXPLAIN_MD = """
+**One sentence**
+R102 is the risk that **everyone’s new ships steal days from our old ones** — including ours.
+""",
+    "SBD-R103": """
+**SBD-R103 — Commercial terms erode (indexation, pass-through, duration)**
+
+**In plain words**
+Customers push to drop **CPI indexation**, **fuel pass-through**, or **multi-year tenure**.
+We can still “win” the renewal on headline rate while the **economic protections** the plan
+assumes quietly disappear — margin and earnings quality then slip.
+
+**What we can fail to do** (outcome drivers — not yet fully operationalized)
+Negotiators trade away indexation and tenure to close volume. There is no clear **terms floor**
+or deal-review gate for material erosions. The operating agenda assumes protections that the
+signed contracts no longer have.
+
+**What we can do** *(draft S&BD suggestions — fill Current mitigation in Assess & decide)*
+1. Put a **term playbook floor** (indexation, pass-through, duration) in every renewal mandate.
+2. Require a signed **pre-negotiation brief** that lists which protections are non-negotiable.
+3. Route below-floor term packages through a **deal review gate** before signature (SBD-P05/P02).
+4. Track **terms quality**, not only headline TC, on the renewal calendar.
+5. Escalate when a cluster of renewals shows systematic term giveaways vs plan.
+
+**One sentence**
+R103 is the risk that we keep the day rate and **give away the contract’s shock absorbers**.
+""",
+    "SBD-R105": """
+**SBD-R105 — Underlying salmon supply growth undershoots consensus**
+
+**In plain words**
+Our growth story assumes farmers keep expanding sea-based production. If **regulation, biology,
+or farmer efficiency** slow that growth, vessel-service demand softens — utilization and rate
+momentum weaken even when we execute well commercially.
+
+**What we can fail to do** (outcome drivers — not yet fully operationalized)
+Investment and utilization plans stay locked to **consensus supply growth** after the
+evidence has turned. S&BD does not refresh the demand bridge when caps, disease, or efficiency
+data worsen. Capital and renewal optimism outrun the biology/regulation reality.
+
+**What we can do** *(draft S&BD suggestions — fill Current mitigation in Assess & decide)*
+1. Maintain a living **salmon supply outlook** (regs, biology, farmer efficiency) into SBD-P01/P02/P09.
+2. Tie investment and utilization corridors to **updated supply scenarios**, not last year’s consensus.
+3. Trigger a portfolio review when core-region supply growth undershoots the plan band.
+4. Prefer flexible capacity and **redeployment options** over hard growth bets in soft-supply windows.
+5. Align the narrative to boards/investors with the same supply evidence pack Commercial uses.
+
+**One sentence**
+R105 is the risk that we plan a busy fleet on **fish that never get into the water**.
+""",
+    "SBD-R106": """
 **SBD-R106 — Crewing and operating-cost inflation outpaces rate growth**
 
 **In plain words**
@@ -1761,12 +1821,180 @@ signals and renewal instructions is the core failure mode.
 **One sentence**
 R106 is the risk that we **sell tomorrow's vessel days at yesterday's prices** while the
 crew and opex bill keeps climbing.
-"""
+""",
+    "SBD-R111": """
+**SBD-R111 — Norway share build fails despite claimed right-to-play**
+
+**In plain words**
+Norway is the large strategic market in the plan. We claim we can win **wellboat / harvest /
+premium service** share — but incumbents, tender rules, thin local presence, or a “too expensive”
+perception can block awards. Growth and diversification then stall.
+
+**What we can fail to do** (outcome drivers — not yet fully operationalized)
+The Norway story stays high-level while **tender criteria, relationships, and local presence**
+are not worked as a campaign. Pricing and offer design ignore how Norwegian buyers actually
+award. Wins are assumed; pipeline quality is not stress-tested against real barriers.
+
+**What we can do** *(draft S&BD suggestions — fill Current mitigation in Assess & decide)*
+1. Build a Norway **account / tender map** with barriers (incumbent, criteria, presence, price).
+2. Sequence presence and partnership moves before expecting material awards (SBD-P03/P08).
+3. Align premium pricing with a clear **right-to-play proof pack** for each tender.
+4. Track Norway pipeline vs plan monthly in SBD-P02/P05 with early escalation on miss.
+5. Prefer a few winnable beachheads over a thin scatter of bids that never convert.
+
+**One sentence**
+R111 is the risk that we **talk Norway share** while the awards keep going to someone already there.
+""",
+    "SBD-R113": """
+**SBD-R113 — Segment mix bets misread demand intensity by vessel type**
+
+**In plain words**
+We overweight growth in **wellboat, premium service, harvest, or feed-carrier** relative to
+what each region’s biology and adoption will actually support. Capital lands in the wrong
+segment; investment EBITDA disappoints and existing ships in the overbuilt type soften.
+
+**What we can fail to do** (outcome drivers — not yet fully operationalized)
+Segment enthusiasm outruns **region-specific demand evidence**. Portfolio choices copy a global
+narrative instead of local adoption and biology drivers. Competitor capacity in the fashionable
+segment is underweighted until utilization proves the miss.
+
+**What we can do** *(draft S&BD suggestions — fill Current mitigation in Assess & decide)*
+1. Require a **segment × region demand brief** (biology, adoption, competitor orderbook) at P02/P03/P04 gates.
+2. Cap capital to any one fashionable segment until utilization evidence clears a hurdle.
+3. Rebalance the mix when leading indicators (tenders, farmer tech, biology) diverge from the bet.
+4. Stress-test investment cases against **wrong-segment** scenarios before commit.
+5. Review segment mix quarterly against realized awards and paid utilization.
+
+**One sentence**
+R113 is the risk that we **buy the popular vessel type** for a market that wanted something else.
+""",
+    "SBD-R120": """
+**SBD-R120 — Farming-technology or regulatory shifts change vessel-demand mix**
+
+**In plain words**
+Faster moves to **closed / semi-closed / land-based / offshore** systems — or abrupt policy
+(e.g. open-cage limits) — can change **which vessels and services** farmers need. Our current
+fleet and pipeline can suddenly look mis-specified for the demand that remains.
+
+**What we can fail to do** (outcome drivers — not yet fully operationalized)
+Technology and policy signals stay in strategy papers, not in **fleet and pipeline decisions**.
+We keep ordering and positioning for yesterday’s farming model. Scenario triggers for
+spec/geographic shift are missing, so the growth narrative keeps promising the old mix.
+
+**What we can do** *(draft S&BD suggestions — fill Current mitigation in Assess & decide)*
+1. Run a standing **farming-tech & policy watch** into SBD-P02/P09/P10 with clear triggers.
+2. Map each material shift to **vessel-spec / service / geography** implications before capital commits.
+3. Prefer adaptable designs and options that survive more than one farming model.
+4. Refresh the multiple-expansion narrative when the demand mix evidence changes.
+5. Escalate when a region’s policy path would obsolete a planned segment bet.
+
+**One sentence**
+R120 is the risk that the **farming system changes under our fleet** while we keep building for open cages.
+""",
+    "SBD-R121": """
+**SBD-R121 — Premium positioning or farmer trust is damaged**
+
+**In plain words**
+Trident wants to be paid as a **premium** partner (better rate / terms) because farmers trust
+the service. That trust breaks when service fails, biosecurity worries rise, or we look
+inflexible — and then **rate uplift talks get harder**, even when the market could support them.
+
+**What we can fail to do**
+Renewal talks go ahead as if nothing happened, while Ops/HSEQ know about recent incidents.
+Commercial pushes uplift without seeing open critical issues. The growth story runs ahead of
+what the fleet can reliably deliver. Farmer feedback never makes it back into how we design
+the offer. In short: **we negotiate price while ignoring trust.**
+
+**What we can do (treat)**
+1. Tie a clear **premium service standard** to the rate tier (what "premium" means in the contract).
+2. **Incident-to-account alert** before renewal — Ops/HSEQ warn Commercial early.
+3. Put a **trust dashboard** (NPS, complaints, incidents) in the pre-negotiation brief.
+4. **Do not push rate uplift** where open critical incidents still sit on the account.
+5. Keep a **partnership review cadence** with top farmers
+   (**SBD-P05** agenda/rate path; **P09** strategic risk; **P10** sustainability / trust topics).
+
+**One sentence**
+R121 is the risk that we ask for premium rates after we have spent the farmer's trust —
+or while an open service wound is still bleeding.
+""",
+    "SBD-R135": """
+**SBD-R135 — Existing-fleet operating performance undershoots plan**
+
+**In plain words**
+Even with decent rates, **reliability, maintenance quality, or operating discipline** can miss
+the organic performance agenda. Contribution margins and off-hire-adjusted results then fall —
+organic EBITDA and cash conversion weaken while the commercial story still looks fine.
+
+**What we can fail to do** (outcome drivers — not yet fully operationalized)
+S&BD tracks rates and renewals but does not force **Ops performance vs plan** into the same
+operating agenda. Soft reliability or maintenance slips stay local until the quarter is lost.
+There is no early bridge from vessel performance signals into portfolio and pricing forums.
+
+**What we can do** *(draft S&BD suggestions — fill Current mitigation in Assess & decide)*
+1. Put **off-hire / reliability / contribution margin** next to rates on the SBD-P05 agenda.
+2. Joint S&BD–Ops–Technical review when performance drifts below the organic corridor (P06/P12).
+3. Do not assume rate wins repair a **performance miss** — treat both legs of EBITDA.
+4. Feed chronic underperformers into redeployment / intervention cases early.
+5. Align incentives so volume wins are not celebrated while operating discipline slips.
+
+**One sentence**
+R135 is the risk that we **price like a premium fleet while we run like an average one**.
+""",
+    "SBD-R137": """
+**SBD-R137 — Vessel EBITDA volatility remains above the multiple-expansion tolerance**
+
+**In plain words**
+Investors (and our own plan) need **steadier vessel EBITDA** to support a higher multiple.
+Spot exposure, off-hire spikes, or wild segment-mix swings keep earnings **noisy** — and the
+multiple-expansion story loses credibility even if average earnings look okay.
+
+**What we can fail to do** (outcome drivers — not yet fully operationalized)
+We chase upside without a **volatility budget**. Contract mix, spot share, and off-hire risk
+are not managed to an explicit tolerance. Period noise is explained away until the exit /
+valuation narrative cracks.
+
+**What we can do** *(draft S&BD suggestions — fill Current mitigation in Assess & decide)*
+1. Define a clear **EBITDA volatility tolerance** tied to the multiple-expansion case (P05/P09).
+2. Manage contract mix (tenure, indexation, spot share) against that tolerance, not only upside.
+3. Attack off-hire and segment-swing drivers jointly with Ops in SBD-P02/P12 forums.
+4. Flag when rolling volatility breaches the band — force a mix or coverage response.
+5. Keep the investor narrative honest: average EBITDA without a volatility path does not sell the multiple.
+
+**One sentence**
+R137 is the risk that earnings **jump around too much** for anyone to pay a premium multiple.
+""",
+}
+
+_PIL01_EXPLAIN_DIALOG_TITLES = {
+    "SBD-R001": "SBD-R001 — fleet capacity vs future demand",
+    "SBD-R102": "SBD-R102 — segment orderbook vs utilization",
+    "SBD-R103": "SBD-R103 — commercial terms erosion",
+    "SBD-R105": "SBD-R105 — salmon supply growth undershoot",
+    "SBD-R106": "SBD-R106 — cost inflation vs rate growth",
+    "SBD-R111": "SBD-R111 — Norway share build",
+    "SBD-R113": "SBD-R113 — segment mix vs demand",
+    "SBD-R120": "SBD-R120 — farming tech / policy demand shift",
+    "SBD-R121": "SBD-R121 — premium trust and farmer relationships",
+    "SBD-R135": "SBD-R135 — existing-fleet operating performance",
+    "SBD-R137": "SBD-R137 — vessel EBITDA volatility",
+}
 
 
-@st.dialog("SBD-R106 — cost inflation vs rate growth")
-def _r106_explain_dialog():
-    st.markdown(SBD_R106_EXPLAIN_MD)
+@st.dialog("PIL-01 risk explanation")
+def _pil01_risk_explain_dialog(risk_id: str):
+    """Show tailored plain-language explain markdown for a PIL-01 library risk."""
+    title = _PIL01_EXPLAIN_DIALOG_TITLES.get(risk_id, risk_id)
+    st.caption(title)
+    body = PIL01_RISK_EXPLAINS.get(risk_id, "")
+    if body:
+        st.markdown(body)
+    else:
+        st.info("No explanation text is defined for this risk yet.")
+
+
+# Keep legacy names pointing at dict entries so any leftover references still resolve.
+SBD_R106_EXPLAIN_MD = PIL01_RISK_EXPLAINS["SBD-R106"]
+SBD_R121_EXPLAIN_MD = PIL01_RISK_EXPLAINS["SBD-R121"]
 
 
 def render_risk_explain_button(risk_id, driver_ref=""):
@@ -1774,11 +2002,29 @@ def render_risk_explain_button(risk_id, driver_ref=""):
 
     Keys always include driver_ref so a risk linked to several Level 3 drivers
     does not hit StreamlitDuplicateElementKey (which previously hid PIL-02–05).
-    Buttons sit in a keyed container so CSS can target .st-key-vh-help-* (Streamlit
+    Buttons sit in a keyed container so CSS can target .st-key-vh_help-* (Streamlit
     default white styles otherwise win).
+
+    R101 / R104 keep shared concept buttons only (no extra explain).
+    Any risk_id in PIL01_RISK_EXPLAINS gets an ``explain Rxxx`` button.
     """
     suffix = f"{ACTIVE_REGISTER_KEY}_{risk_id}_{driver_ref or 'na'}"
-    if risk_id not in ("SBD-R101", "SBD-R104", "SBD-R106", "SBD-R121"):
+    _help_ids = (
+        "SBD-R001",
+        "SBD-R101",
+        "SBD-R102",
+        "SBD-R103",
+        "SBD-R104",
+        "SBD-R105",
+        "SBD-R106",
+        "SBD-R111",
+        "SBD-R113",
+        "SBD-R120",
+        "SBD-R121",
+        "SBD-R135",
+        "SBD-R137",
+    )
+    if risk_id not in _help_ids:
         return
 
     with st.container(key=f"vh_help_{suffix}"):
@@ -1806,22 +2052,15 @@ def render_risk_explain_button(risk_id, driver_ref=""):
                     help="Redeployment is not liquid — reconstruction, costs, and Chile cannibalisation",
                 ):
                     _redeployment_case_dialog(risk_id)
-        elif risk_id == "SBD-R106":
+        elif risk_id in PIL01_RISK_EXPLAINS:
+            short = risk_id.split("-")[-1]  # e.g. R001
             with c1:
                 if st.button(
-                    "explain R106",
+                    f"explain {short}",
                     key=f"risk_explain_btn_{suffix}",
-                    help="Plain-language explanation of cost inflation vs rate growth",
+                    help=f"Plain-language explanation of {risk_id}",
                 ):
-                    _r106_explain_dialog()
-        elif risk_id == "SBD-R121":
-            with c1:
-                if st.button(
-                    "explain R121",
-                    key=f"risk_explain_btn_{suffix}",
-                    help="Plain-language explanation of premium trust and farmer relationships",
-                ):
-                    _r121_explain_dialog()
+                    _pil01_risk_explain_dialog(risk_id)
 
 
 
@@ -1890,7 +2129,7 @@ def render_risk_library(risks_df, processes_df=None):
     st.write(
         "Same layout as **Context** Level 5 ERM: pillars → Level 3 drivers → risk chips. "
         "Under each risk: **what we can fail to do** and **what we can do** (ISO process links come later). "
-        "Risk chips show failure modes and mitigations. Tailored explanation buttons are added **only** for risks we have written (R101 playbook + P05, R104 redeployment case, R106/R121 explain) — not auto-copied to other risks."
+        "Risk chips show failure modes and mitigations. Tailored **explain** buttons cover all PIL-01 library risks linked here (R001, R102, R103, R105, R106, R111, R113, R120, R121, R135, R137); R101 also has playbook + P05, and R104 has the shared redeployment-case tag — not auto-copied outside this explicit list."
     )
     catalog = level3_driver_catalog()
     scored_risks = scored(risks_df) if not risks_df.empty and "Risk ID" in risks_df.columns else risks_df.copy()
@@ -2032,7 +2271,7 @@ def render_risk_library(risks_df, processes_df=None):
                     parts.append("</div>")
                     st.markdown("".join(parts), unsafe_allow_html=True)
                     # Explicit helps only for risks we have tailored (not keyword auto-copy)
-                    if rid in ("SBD-R101", "SBD-R104", "SBD-R106", "SBD-R121"):
+                    if rid in ("SBD-R001", "SBD-R101", "SBD-R102", "SBD-R103", "SBD-R104", "SBD-R105", "SBD-R106", "SBD-R111", "SBD-R113", "SBD-R120", "SBD-R121", "SBD-R135", "SBD-R137"):
                         render_risk_explain_button(rid, driver_ref=ref)
 
     st.markdown("---")

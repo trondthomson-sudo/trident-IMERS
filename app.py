@@ -1470,7 +1470,7 @@ def text_mentions_playbook(*parts):
     return any("playbook" in str(part or "").lower() for part in parts)
 
 
-def highlight_playbook_html(escaped_text):
+def highlight_library_terms_html(escaped_text):
     """After html.escape, mark the word playbook so it reads as clickable."""
     return re.sub(
         r"(?i)playbook",
@@ -1495,6 +1495,83 @@ def render_term_playbook_popover(risk_id):
         help="Open Trident commercial term-playbook",
     ):
         _term_playbook_dialog(risk_id)
+
+
+
+SBD_P05_AGENDA_MD = """
+**SBD-P05 — Long-term operating agenda and rate uplift**
+
+SBD-P05 is the Strategy & BD process that holds Trident’s **operating agenda**: where rate,
+utilization, and commercial terms should go over the planning horizon (by vessel class,
+region, and customer where defined).
+
+**What “link SBD-P05 operating agenda to each material renewal” means**
+
+It is **mostly** “compare to OA / agenda rates” — but wider than a one-line rate check.
+Every material renewal should be an **execution of the agenda**, not a standalone deal.
+
+**1. Pull agenda targets into the mandate**
+- Target TC / corridor, indexation, duration, and any premium tier from the term-playbook,
+  taken from the P05 agenda.
+- Compare the ask to **agenda rates**, not only last year’s fixture or the customer’s opening.
+
+**2. Show the gap before you sign**
+- Proposed renewal vs agenda uplift path.
+- Escalate if you are about to lock below corridor (deal review gate).
+
+**3. Feed the outcome back into P05**
+- Signed rate and terms update the renewal calendar and the P05 monitoring view
+  so the agenda stays live.
+
+**In one line**
+Agenda → mandate → negotiation → signed terms → agenda tracking.
+
+The **term-playbook** is the commercial menu of clauses. **SBD-P05** is the plan those
+numbers should serve.
+"""
+
+
+def text_mentions_p05_agenda(*parts):
+    blob = " ".join(str(part or "") for part in parts).lower()
+    return ("sbd-p05" in blob) or ("operating agenda" in blob)
+
+
+def highlight_library_terms_html(escaped_text):
+    """After html.escape, mark playbook and SBD-P05 / operating agenda cues."""
+    out = re.sub(
+        r"(?i)playbook",
+        '<span class="vh-playbook-hit">playbook</span>',
+        escaped_text,
+    )
+    out = re.sub(
+        r"(?i)SBD-P05",
+        '<span class="vh-playbook-hit">SBD-P05</span>',
+        out,
+    )
+    out = re.sub(
+        r"(?i)operating agenda",
+        '<span class="vh-playbook-hit">operating agenda</span>',
+        out,
+    )
+    return out
+
+
+@st.dialog("SBD-P05 operating agenda")
+def _p05_agenda_dialog(risk_id=""):
+    """Modal explaining how renewals link to the P05 operating agenda."""
+    if risk_id:
+        st.caption(f"Linked from {risk_id}")
+    st.markdown(SBD_P05_AGENDA_MD)
+
+
+def render_p05_agenda_button(risk_id):
+    """Open SBD-P05 agenda explanation via button + dialog."""
+    if st.button(
+        "SBD-P05 agenda",
+        key=f"p05_agenda_btn_{ACTIVE_REGISTER_KEY}_{risk_id}",
+        help="What linking the operating agenda to a renewal means",
+    ):
+        _p05_agenda_dialog(risk_id)
 
 
 def extract_mitigation_bullets(mitigation_text):
@@ -1539,7 +1616,7 @@ def render_risk_library(risks_df, processes_df=None):
     st.write(
         "Same layout as **Context** Level 5 ERM: pillars → Level 3 drivers → risk chips. "
         "Under each risk: **what we can fail to do** and **what we can do** (ISO process links come later). "
-        "Where a failure mode mentions **playbook**, press the **playbook** button to open Trident's term-playbook."
+        "Where text mentions **playbook** or **SBD-P05 / operating agenda**, press the matching button under the risk for the explanation."
     )
     catalog = level3_driver_catalog()
     scored_risks = scored(risks_df) if not risks_df.empty and "Risk ID" in risks_df.columns else risks_df.copy()
@@ -1635,6 +1712,12 @@ def render_risk_library(risks_df, processes_df=None):
                         mitigation,
                         " ".join(bullets),
                     )
+                    show_p05 = text_mentions_p05_agenda(
+                        risk_row.get("Cause", ""),
+                        " ".join(questions),
+                        mitigation,
+                        " ".join(bullets),
+                    )
 
                     parts = [
                         '<div class="vh-l5-erm-pane">',
@@ -1647,7 +1730,7 @@ def render_risk_library(risks_df, processes_df=None):
 
                     if questions:
                         q_html = "".join(
-                            f"<li>{highlight_playbook_html(escape(q.rstrip(' ?')))}?</li>"
+                            f"<li>{highlight_library_terms_html(escape(q.rstrip(' ?')))}?</li>"
                             for q in questions
                         )
                         parts.append(
@@ -1665,7 +1748,7 @@ def render_risk_library(risks_df, processes_df=None):
 
                     if bullets:
                         m_html = "".join(
-                            f"<li>{highlight_playbook_html(escape(b))}</li>" for b in bullets
+                            f"<li>{highlight_library_terms_html(escape(b))}</li>" for b in bullets
                         )
                         treat_note = (
                             f' <em>(Treatment: {escape(treatment)})</em>' if treatment else ""
@@ -1686,8 +1769,14 @@ def render_risk_library(risks_df, processes_df=None):
 
                     parts.append("</div>")
                     st.markdown("".join(parts), unsafe_allow_html=True)
-                    if show_playbook:
-                        render_term_playbook_popover(rid)
+                    if show_playbook or show_p05:
+                        cols = st.columns(2)
+                        if show_playbook:
+                            with cols[0]:
+                                render_term_playbook_popover(rid)
+                        if show_p05:
+                            with cols[1 if show_playbook else 0]:
+                                render_p05_agenda_button(rid)
 
     st.markdown("---")
     st.subheader("Add risk into a library slot")

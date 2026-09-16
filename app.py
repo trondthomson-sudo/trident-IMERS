@@ -1965,6 +1965,194 @@ R137 is the risk that earnings **jump around too much** for anyone to pay a prem
 """,
 }
 
+PIL02_RISK_EXPLAINS = {
+    "SBD-R003": """
+**SBD-R003 — SFaaS expansion creates exposures outside established capabilities**
+
+**In plain words**
+We expand from vessel services into **aquaculture infrastructure / SFaaS**. That can put
+capital, technology, and commercial structure into a model we have not yet proven we can
+operate. If it underperforms, we take **capital loss, operational liabilities, and reputation hits**.
+
+**What we can fail to do** (outcome drivers — not yet fully operationalized)
+We treat SFaaS as a growth slogan rather than a **capability gap**. Operating model, tech,
+and commercial structure are assumed to work without stage gates. Core fleet attention and
+capital are diverted before the new platform has evidence it can deliver.
+
+**What we can do** *(draft S&BD suggestions — fill Current mitigation in Assess & decide)*
+1. Require a **capability & operating-model pack** (tech, commercial, Ops/HSEQ) before material SFaaS commits (SBD-P03/P04/P07/P08).
+2. Stage capital behind **commercial / technical / return milestones** — no full build-out on slides alone.
+3. Cap management attention and capital share until the platform clears a defined evidence hurdle.
+4. Run kill/hold gates when milestones miss; do not “double down” without a refreshed case.
+5. Keep core Investment EBITDA delivery ring-fenced so SFaaS misses cannot quietly consume the plan.
+
+**One sentence**
+R003 is the risk that we **buy into a new business model** before we can actually run it.
+""",
+    "SBD-R005": """
+**SBD-R005 — Acquisitions fail to deliver expected synergies**
+
+**In plain words**
+We buy a business expecting **synergies, scale, and cleaner group governance**. If diligence,
+integration planning, or **ownership of synergies** is weak, the asset sits half-integrated —
+costs rise, synergies slip, and the group stays fragmented.
+
+**What we can fail to do** (outcome drivers — not yet fully operationalized)
+The deal closes on a synergy story nobody owns after day one. Integration plans are thin;
+commercial and Ops workstreams are not staffed. Post-close forums track “integration progress”
+without forcing **identifiable synergy capture** against the investment case.
+
+**What we can do** *(draft S&BD suggestions — fill Current mitigation in Assess & decide)*
+1. Make **synergy ownership** (name, metric, date) a close condition — not a post-close hope (SBD-P08/P12).
+2. Require an integration plan with cost, culture, systems, and commercial workstreams before signing.
+3. Track synergy EBITDA vs case monthly; escalate when the bridge goes red.
+4. Hold back contingent consideration / follow-on capital when integration gates miss.
+5. Prefer fewer, better-integrated platforms over a string of under-owned bolt-ons.
+
+**One sentence**
+R005 is the risk that we **pay for synergies on closing day** and never collect them in cash.
+""",
+    "SBD-R107": """
+**SBD-R107 — Newbuild economics miss approved yield and IRR thresholds**
+
+**In plain words**
+Board-approved newbuilds assume a **yield / IRR**. Yard CAPEX inflation, specification creep,
+delayed delivery, or weaker charter terms than underwritten can make delivered ships earn
+**below the hurdle** — growth that destroys equity value and ties up scarce capital.
+
+**What we can fail to do** (outcome drivers — not yet fully operationalized)
+Underwriting stays frozen while yard prices, specs, and charter markets move. Change orders
+and delays are absorbed without refreshing the **IRR bridge**. Ships are accepted into the
+fleet narrative even when economics no longer clear the Board bar.
+
+**What we can do** *(draft S&BD suggestions — fill Current mitigation in Assess & decide)*
+1. Re-underwrite yield/IRR at each **spec / yard / charter** gate (SBD-P03/P04/P07) — not only at FID.
+2. Cap specification creep with a change-order budget and Board re-approval above threshold.
+3. Stress-test cases for CAPEX inflation and delivery slip before committing slots.
+4. Kill or reshape when refreshed IRR falls below approved criteria — do not “hope into delivery”.
+5. Report Investment EBITDA quality as **hurdle compliance**, not just tonnage delivered.
+
+**One sentence**
+R107 is the risk that we **launch ships that clear the yard but miss the Board’s return bar**.
+""",
+    "SBD-R108": """
+**SBD-R108 — Yard capacity and delivery risk delays growth CAPEX realization**
+
+**In plain words**
+Growth CAPEX only creates Investment EBITDA when ships **actually deliver and start**. Limited
+global yard slots, long equipment lead times, or supplier bottlenecks can slip newbuild /
+reconstruction vs the commercial start-up plan — EBITDA deferred, windows missed, carrying costs up.
+
+**What we can fail to do** (outcome drivers — not yet fully operationalized)
+The plan assumes yard dates are firm. Slot scarcity and supplier lead times stay in Technical
+reports, not in **portfolio timing and cash planning**. Commercial start-up and investor
+narratives keep promising dates the yard cannot hit.
+
+**What we can do** *(draft S&BD suggestions — fill Current mitigation in Assess & decide)*
+1. Maintain a live **yard slot / critical-path equipment** watch into SBD-P07/P04.
+2. Build schedule contingency and alternative yards/suppliers into every growth case.
+3. Align commercial start-up and financing assumptions to **realistic delivery bands**, not optimistic yard quotes.
+4. Escalate early when critical-path slips threaten the Investment EBITDA bridge.
+5. Prefer optionality (convertible slots, staged commits) over single-yard single-path bets.
+
+**One sentence**
+R108 is the risk that **growth CAPEX sits in the yard calendar** while the EBITDA plan assumes it is already sailing.
+""",
+    "SBD-R109": """
+**SBD-R109 — Second-hand vessel or reconstruction investments are mispriced**
+
+**In plain words**
+Buying second-hand or reconstructing can look cheaper than newbuild — until **technical diligence,
+residual value, or upgrade costs** prove optimistic, or an auction forces overpay. The asset then
+misses risk-adjusted hurdles and locks capital in a suboptimal ship.
+
+**What we can fail to do** (outcome drivers — not yet fully operationalized)
+Deal heat and auction clocks compress diligence. Residual-value and upgrade assumptions stay
+optimistic. Portfolio forums celebrate “cheap steel” without a hard **post-integration ROIC** test.
+
+**What we can do** *(draft S&BD suggestions — fill Current mitigation in Assess & decide)*
+1. Mandatory **technical + residual + upgrade-cost** diligence pack before bid (SBD-P03/P04/P06/P07).
+2. Set a walk-away price from risk-adjusted hurdles — do not chase auction heat past the cap.
+3. Stress-test reconstruction cost overruns and off-hire during yard time.
+4. Re-score the case after survey findings; kill if the refreshed ROIC fails the hurdle.
+5. Compare every second-hand case against newbuild and organic alternatives on the same capital stack.
+
+**One sentence**
+R109 is the risk that we **buy cheap steel that turns out expensive** once diligence and upgrades land.
+""",
+    "SBD-R110": """
+**SBD-R110 — Platform M&A overpays or fails to capture identifiable synergies**
+
+**In plain words**
+Platform deals are meant to buy **scale, Investment EBITDA, and a higher multiple**. Aggressive
+bidding, weak commercial diligence, or unclear synergy ownership post-close means acquired
+EBITDA arrives late, diluted, or below case — after integration costs.
+
+**What we can fail to do** (outcome drivers — not yet fully operationalized)
+Winning the auction becomes the goal. Diligence on commercial quality is thin; synergy owners
+are unnamed. Post-close, the investment case is not forced against **actual EBITDA bridges**
+in SBD-P08/P04/P12 forums.
+
+**What we can do** *(draft S&BD suggestions — fill Current mitigation in Assess & decide)*
+1. Separate **price discipline** from deal momentum — Board walk-away tied to identifiable synergies.
+2. Diligence commercial quality and synergy sources with named owners before signing (SBD-P08).
+3. Track acquired EBITDA vs case net of integration costs on a fixed cadence (P04/P12).
+4. Hold governance / earn-out levers when synergies miss; do not refinance hope.
+5. Prefer platforms that clear hurdles on conservative cases, not on peak-cycle synergy dreams.
+
+**One sentence**
+R110 is the risk that we **win the deal and lose the returns** — overpay in, under-deliver out.
+""",
+    "SBD-R112": """
+**SBD-R112 — New growth platforms (e.g., SFaaS) underperform or divert focus**
+
+**In plain words**
+Adjacent growth platforms (SFaaS and similar) can miss **commercial, technical, or capital-return**
+milestones while still consuming management attention and cash. Core Investment EBITDA delivery
+slows; capital and reputation are at risk.
+
+**What we can fail to do** (outcome drivers — not yet fully operationalized)
+New platforms stay on the agenda without **milestone gates**. Attention and capital keep flowing
+after evidence turns. The core fleet plan absorbs the distraction cost invisibly until both
+stories are late.
+
+**What we can do** *(draft S&BD suggestions — fill Current mitigation in Assess & decide)*
+1. Put every new platform on a **milestone dashboard** (commercial, tech, return) with kill/hold rules (SBD-P03/P04/P07/P08).
+2. Cap management hours and capital share until milestones clear — protect core Investment EBITDA.
+3. Require an explicit “continue / reshape / exit” decision when a milestone misses.
+4. Do not open a second adjacent platform while the first is still unproven.
+5. Report distraction cost (leadership time, deferred core decisions) alongside platform P&L.
+
+**One sentence**
+R112 is the risk that a **shiny adjacent platform** burns the calendar and the capital the core fleet needed.
+""",
+    "SBD-R129": """
+**SBD-R129 — ROIC on growth investments stays below cost of capital**
+
+**In plain words**
+Growth CAPEX only creates equity value when **portfolio ROIC clears the cost of capital** after
+stabilization. Optimistic underwriting, cost overrun, or weaker utilization and rates can leave
+balance-sheet capacity consumed without commensurate value creation.
+
+**What we can fail to do** (outcome drivers — not yet fully operationalized)
+Projects are approved on underwriting ROIC and never **re-measured** against realized results.
+Overruns and soft utilization are explained away. Capital keeps flowing to the same pattern
+while hurdle compliance is not forced in SBD-P04/P07/P13.
+
+**What we can do** *(draft S&BD suggestions — fill Current mitigation in Assess & decide)*
+1. Track **post-stabilization ROIC vs WACC/hurdle** for every material growth commitment (SBD-P04/P07/P13).
+2. Re-underwrite when CAPEX, utilization, or rates diverge from case — before more capital follows.
+3. Rank growth uses against debt reduction and distributions under the same capital constraint.
+4. Stop or reshape serial below-hurdle patterns; do not average them away in the portfolio story.
+5. Report Investment EBITDA growth **only alongside** ROIC-vs-hurdle compliance.
+
+**One sentence**
+R129 is the risk that we **grow the balance sheet faster than we grow economic returns**.
+""",
+}
+
+RISK_LIBRARY_EXPLAINS = {**PIL01_RISK_EXPLAINS, **PIL02_RISK_EXPLAINS}
+
 _PIL01_EXPLAIN_DIALOG_TITLES = {
     "SBD-R001": "SBD-R001 — fleet capacity vs future demand",
     "SBD-R102": "SBD-R102 — segment orderbook vs utilization",
@@ -1979,13 +2167,26 @@ _PIL01_EXPLAIN_DIALOG_TITLES = {
     "SBD-R137": "SBD-R137 — vessel EBITDA volatility",
 }
 
+_PIL02_EXPLAIN_DIALOG_TITLES = {
+    "SBD-R003": "SBD-R003 — SFaaS expansion capability gap",
+    "SBD-R005": "SBD-R005 — acquisition synergies miss",
+    "SBD-R107": "SBD-R107 — newbuild yield / IRR miss",
+    "SBD-R108": "SBD-R108 — yard delivery delays growth CAPEX",
+    "SBD-R109": "SBD-R109 — second-hand / reconstruction misprice",
+    "SBD-R110": "SBD-R110 — platform M&A overpay / synergies",
+    "SBD-R112": "SBD-R112 — new growth platforms divert focus",
+    "SBD-R129": "SBD-R129 — growth ROIC below cost of capital",
+}
 
-@st.dialog("PIL-01 risk explanation")
+_RISK_EXPLAIN_DIALOG_TITLES = {**_PIL01_EXPLAIN_DIALOG_TITLES, **_PIL02_EXPLAIN_DIALOG_TITLES}
+
+
+@st.dialog("Risk library explanation")
 def _pil01_risk_explain_dialog(risk_id: str):
-    """Show tailored plain-language explain markdown for a PIL-01 library risk."""
-    title = _PIL01_EXPLAIN_DIALOG_TITLES.get(risk_id, risk_id)
+    """Show tailored plain-language explain markdown for a PIL-01/PIL-02 library risk."""
+    title = _RISK_EXPLAIN_DIALOG_TITLES.get(risk_id, risk_id)
     st.caption(title)
-    body = PIL01_RISK_EXPLAINS.get(risk_id, "")
+    body = RISK_LIBRARY_EXPLAINS.get(risk_id, "")
     if body:
         st.markdown(body)
     else:
@@ -2006,21 +2207,29 @@ def render_risk_explain_button(risk_id, driver_ref=""):
     default white styles otherwise win).
 
     R101 / R104 keep shared concept buttons only (no extra explain).
-    Any risk_id in PIL01_RISK_EXPLAINS gets an ``explain Rxxx`` button.
+    Any risk_id in RISK_LIBRARY_EXPLAINS gets an ``explain Rxxx`` button.
     """
     suffix = f"{ACTIVE_REGISTER_KEY}_{risk_id}_{driver_ref or 'na'}"
     _help_ids = (
         "SBD-R001",
+        "SBD-R003",
+        "SBD-R005",
         "SBD-R101",
         "SBD-R102",
         "SBD-R103",
         "SBD-R104",
         "SBD-R105",
         "SBD-R106",
+        "SBD-R107",
+        "SBD-R108",
+        "SBD-R109",
+        "SBD-R110",
         "SBD-R111",
+        "SBD-R112",
         "SBD-R113",
         "SBD-R120",
         "SBD-R121",
+        "SBD-R129",
         "SBD-R135",
         "SBD-R137",
     )
@@ -2052,7 +2261,7 @@ def render_risk_explain_button(risk_id, driver_ref=""):
                     help="Redeployment is not liquid — reconstruction, costs, and Chile cannibalisation",
                 ):
                     _redeployment_case_dialog(risk_id)
-        elif risk_id in PIL01_RISK_EXPLAINS:
+        elif risk_id in RISK_LIBRARY_EXPLAINS:
             short = risk_id.split("-")[-1]  # e.g. R001
             with c1:
                 if st.button(
@@ -2129,7 +2338,7 @@ def render_risk_library(risks_df, processes_df=None):
     st.write(
         "Same layout as **Context** Level 5 ERM: pillars → Level 3 drivers → risk chips. "
         "Under each risk: **what we can fail to do** and **what we can do** (ISO process links come later). "
-        "Risk chips show failure modes and mitigations. Tailored **explain** buttons cover all PIL-01 library risks linked here (R001, R102, R103, R105, R106, R111, R113, R120, R121, R135, R137); R101 also has playbook + P05, and R104 has the shared redeployment-case tag — not auto-copied outside this explicit list."
+        "Risk chips show failure modes and mitigations. Tailored **explain** buttons cover PIL-01 and PIL-02 Strategy library risks linked here (PIL-01: R001, R102, R103, R105, R106, R111, R113, R120, R121, R135, R137; PIL-02 adds R003, R005, R107–R110, R112, R129 — plus shared R001/R105/R111/R113); R101 also has playbook + P05, and R104 has the shared redeployment-case tag — not auto-copied outside this explicit list."
     )
     catalog = level3_driver_catalog()
     scored_risks = scored(risks_df) if not risks_df.empty and "Risk ID" in risks_df.columns else risks_df.copy()
@@ -2271,7 +2480,7 @@ def render_risk_library(risks_df, processes_df=None):
                     parts.append("</div>")
                     st.markdown("".join(parts), unsafe_allow_html=True)
                     # Explicit helps only for risks we have tailored (not keyword auto-copy)
-                    if rid in ("SBD-R001", "SBD-R101", "SBD-R102", "SBD-R103", "SBD-R104", "SBD-R105", "SBD-R106", "SBD-R111", "SBD-R113", "SBD-R120", "SBD-R121", "SBD-R135", "SBD-R137"):
+                    if rid in ("SBD-R001", "SBD-R003", "SBD-R005", "SBD-R101", "SBD-R102", "SBD-R103", "SBD-R104", "SBD-R105", "SBD-R106", "SBD-R107", "SBD-R108", "SBD-R109", "SBD-R110", "SBD-R111", "SBD-R112", "SBD-R113", "SBD-R120", "SBD-R121", "SBD-R129", "SBD-R135", "SBD-R137"):
                         render_risk_explain_button(rid, driver_ref=ref)
 
     st.markdown("---")

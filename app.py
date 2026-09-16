@@ -2151,7 +2151,269 @@ R129 is the risk that we **grow the balance sheet faster than we grow economic r
 """,
 }
 
-RISK_LIBRARY_EXPLAINS = {**PIL01_RISK_EXPLAINS, **PIL02_RISK_EXPLAINS}
+PIL03_RISK_EXPLAINS = {
+    "SBD-R002": """
+**SBD-R002 — Strategic initiatives fail to translate into accountable execution**
+
+**In plain words**
+Multiple expansion needs **governance and delivery** — contract quality, fleet modernization,
+integration, and exit readiness only move the multiple if initiatives are **owned, staffed, and
+milestoned**. When ownership, capacity, or cross-functional alignment is thin, material programs
+slip or stall half-done and the value-creation story loses credibility.
+
+**What we can fail to do** (outcome drivers — not yet fully operationalized)
+We announce strategic programs without **named owners, capacity, and milestones**. Forums track
+activity, not accountable outcomes. Cross-unit initiatives (coverage, modernization, integration)
+sit between functions with no single throat to choke — so growth, integration, and multiple
+support targets quietly miss.
+
+**What we can do** *(draft S&BD suggestions — fill Current mitigation in Assess & decide)*
+1. Require **owner / capacity / milestone / metric** before any material initiative is marked Active (SBD-P01/P12).
+2. Put a living **initiative dashboard** (RAG vs milestone) into the operating and strategic-risk forums.
+3. Kill or reshape when capacity is missing — do not keep “priority” labels on unstaffed work.
+4. Force cross-functional RACI for initiatives that span Commercial, Ops, Technical, and Finance.
+5. Tie executive reviews to **outcome gates** (coverage, volatility, fleet quality, exit readiness), not slide progress.
+
+**One sentence**
+R002 is the risk that we **write a multiple-expansion plan** and then fail to execute the work that would earn it.
+""",
+    "SBD-R004": """
+**SBD-R004 — Strategic decisions rely on incomplete or unreliable information**
+
+**In plain words**
+Contract coverage, earnings visibility, and fleet-quality bets only support a higher multiple if
+the **data behind them is trustworthy**. When group data and external intelligence are fragmented
+or inconsistent, management decides on untested assumptions — capital misallocates and corrective
+moves come late.
+
+**What we can fail to do** (outcome drivers — not yet fully operationalized)
+Coverage, volatility, and residual-value views live in **disconnected spreadsheets**. External
+farmer / policy / orderbook signals are not reconciled with internal books. Investment and
+renewal gates proceed without a single tested evidence pack — so wrong bets survive too long.
+
+**What we can do** *(draft S&BD suggestions — fill Current mitigation in Assess & decide)*
+1. Define a **single source of truth** for contracted EBITDA, tenure, volatility, and fleet quality (SBD-P01/P02/P04).
+2. Require an **assumption / evidence brief** at every material strategy and capital gate.
+3. Reconcile external intelligence (supply, policy, competitor capacity) with internal utilization and coverage data monthly.
+4. Flag decisions taken on incomplete packs — force a re-open when data quality is red.
+5. Keep the multiple narrative aligned to the same KPI pack Finance and Commercial use in diligence.
+
+**One sentence**
+R004 is the risk that we **steer earnings quality on foggy numbers** and discover the miss too late to fix the multiple.
+""",
+    "SBD-R114": """
+**SBD-R114 — Earnings visibility weakened by lower long-term TC coverage**
+
+**In plain words**
+The multiple-expansion case assumes a healthy share of **contracted EBITDA** and decent
+**remaining tenure**. When expiries cluster, renewals shorten, or more vessels slide to spot /
+short tenors, visibility falls — and buyers discount the exit multiple for unpredictability.
+
+**What we can fail to do** (outcome drivers — not yet fully operationalized)
+We celebrate headline rates while **coverage and duration** quietly erode. The renewal calendar
+has no hard tenure / contracted-EBITDA corridor. Spot share creeps up without a forced response
+in SBD-P05/P02 forums tied to the multiple plan.
+
+**What we can do** *(draft S&BD suggestions — fill Current mitigation in Assess & decide)*
+1. Set explicit targets for **contracted EBITDA share** and **average remaining tenure** vs the multiple case.
+2. Pre-plan clustered expiries with a ranked response (extend / re-tender / accept short / idle).
+3. Put coverage and tenor next to rate on every renewal mandate (SBD-P05/P02).
+4. Escalate when rolling coverage drifts below the earnings-quality band — force mix action.
+5. Do not sell a visibility story to boards/investors that the backlog no longer supports.
+
+**One sentence**
+R114 is the risk that **short tenors and spot creep** hollow out the earnings visibility the multiple needs.
+""",
+    "SBD-R115": """
+**SBD-R115 — Counterparty or top-customer concentration crystallizes**
+
+**In plain words**
+Heavy exposure to a **small set of large farmers or regional counterparties** can look efficient —
+until loss, renegotiation, or distress at one name removes a disproportionate share of
+contracted EBITDA. Visibility, cash collection, and exit-multiple quality then deteriorate fast.
+
+**What we can fail to do** (outcome drivers — not yet fully operationalized)
+Concentration is tolerated as “relationship strength” without **limits or offsets**. Diversification
+targets stay soft. Diligence and renewal forums do not force a concentration bridge when one
+account dominates contracted earnings.
+
+**What we can do** *(draft S&BD suggestions — fill Current mitigation in Assess & decide)*
+1. Track **top-N counterparty share of contracted EBITDA** against a Board-visible concentration band.
+2. Prefer tenure and terms that improve quality **without** deepening single-name dependency beyond limits.
+3. Build diversification offsets (new accounts, regions, segments) into the commercial pipeline (SBD-P02/P05).
+4. Stress-test the multiple case for loss / distress of the largest 1–2 customers.
+5. Escalate early when one account’s renewal or credit signal threatens the visibility narrative.
+
+**One sentence**
+R115 is the risk that **one farmer’s problem becomes Trident’s multiple problem**.
+""",
+    "SBD-R116": """
+**SBD-R116 — Fleet obsolescence erodes residual value and commercial relevance**
+
+**In plain words**
+Multiple support from **fleet quality** assumes vessels stay commercially relevant and residual
+values hold. When technology, size, and fish-handling standards advance faster than modernization
+and divestment, older ships become unattractive — residuals fall and the quality premium fades.
+
+**What we can fail to do** (outcome drivers — not yet fully operationalized)
+Obsolescence signals (spec, gentle-handling, size) stay in Technical reports, not in a
+**forced modernization / divest cadence**. Hold cases stay optimistic while farmer standards
+move. Disposal and replacement plans lag until residuals and commercial relevance are already gone.
+
+**What we can do** *(draft S&BD suggestions — fill Current mitigation in Assess & decide)*
+1. Maintain a living **fleet quality / residual-value scorecard** into SBD-P06/P09 and the portfolio forum.
+2. Link modernization and divest triggers to farmer-spec and residual thresholds — not sentiment.
+3. Prefer disciplined replacement over holding obsolete tonnage for optionality that never pays.
+4. Stress residual assumptions in the multiple case when tech standards jump.
+5. Align CapEx and disposal timing so quality support for the multiple does not silently decay.
+
+**One sentence**
+R116 is the risk that the **fleet ages out of the market** while the valuation still prices a modern peer set.
+""",
+    "SBD-R117": """
+**SBD-R117 — Fleet modernization and disciplined divestments slip**
+
+**In plain words**
+Even with a modernization plan, **sale processes slip**, attachment to underperforming assets
+lingers, or replacement capital is insufficient. Aging vessels stay longer than the quality and
+residual-value plan allows — avoidable opex, downtime, and valuation discounts pile up vs peers.
+
+**What we can fail to do** (outcome drivers — not yet fully operationalized)
+Divest lists exist but **processes stall**. Capital for replacements is deferred. Forums debate
+hold cases without a hard exit gate. The multiple narrative keeps promising a modernized fleet
+the portfolio no longer matches.
+
+**What we can do** *(draft S&BD suggestions — fill Current mitigation in Assess & decide)*
+1. Put named **divest / replace milestones** with owners on every non-core or aging vessel (SBD-P06/P12).
+2. Cap hold-case optimism with a time-boxed re-decision — sell, replace, or reshape.
+3. Ring-fence replacement capital so modernization is not crowded out by growth bets alone.
+4. Track avoidable opex and downtime on aging ships as a cost of delay, not background noise.
+5. Keep the exit-multiple story honest: no quality premium without a delivered modernization path.
+
+**One sentence**
+R117 is the risk that we **talk modernization** while the old ships quietly stay and discount the multiple.
+""",
+    "SBD-R118": """
+**SBD-R118 — Governance, reporting, or scalability gaps impair exit readiness**
+
+**In plain words**
+Buyers and lenders pay for **auditability, KPI reliability, and management bandwidth**. If
+systems, processes, and controls across the combined platform stay incompletely integrated,
+diligence questions the numbers and the team — achievable EV/EBITDA and process certainty fall.
+
+**What we can fail to do** (outcome drivers — not yet fully operationalized)
+Integration of reporting and controls is treated as IT backlog, not as **exit readiness**. KPI
+definitions differ by legacy unit. Management bandwidth is over-committed. The multiple story
+assumes institutional quality that diligence would not yet accept.
+
+**What we can do** *(draft S&BD suggestions — fill Current mitigation in Assess & decide)*
+1. Run an **exit-readiness / diligence pack** (systems, controls, KPI dictionary, ownership) on a fixed cadence (SBD-P08/P12).
+2. Close material reporting and control gaps before marketing a higher-multiple narrative.
+3. Standardize contracted-EBITDA, coverage, and volatility KPIs across the combined platform.
+4. Protect management bandwidth for diligence-critical workstreams — do not overload key people.
+5. Escalate when auditability or KPI reliability would fail a buyer/lender walk-through today.
+
+**One sentence**
+R118 is the risk that **exit diligence fails the governance test** and the multiple we planned never clears.
+""",
+    "SBD-R119": """
+**SBD-R119 — Key-person dependency limits scalable execution**
+
+**In plain words**
+Critical **commercial, technical, or yard relationships** concentrated in a few individuals make
+growth and integration fragile. Loss or overload of those people slows tenders, newbuilds,
+integration, or farmer relationships — and perceived institutional quality that supports the
+multiple weakens.
+
+**What we can fail to do** (outcome drivers — not yet fully operationalized)
+We celebrate rainmakers without **backup coverage, documentation, or succession**. Relationship
+maps live in heads, not in the operating system. Scalability and exit readiness assume a bench
+that does not exist.
+
+**What we can do** *(draft S&BD suggestions — fill Current mitigation in Assess & decide)*
+1. Map **key-person / key-relationship concentration** and force dual coverage on material accounts and yard paths (SBD-P12).
+2. Document commercial and technical playbooks so execution survives absence or departure.
+3. Cap overload — redistribute tenders and integration load before single points of failure burn out.
+4. Include key-person risk in exit-readiness and governance reviews (with R118).
+5. Hire or develop bench strength where concentration exceeds the scalability tolerance.
+
+**One sentence**
+R119 is the risk that the **multiple depends on a few people** the institution has not yet replaced.
+""",
+    "SBD-R123": """
+**SBD-R123 — Maintenance-capex overruns or deferred backlog catch-up**
+
+**In plain words**
+Protecting **uptime and residual value** (and therefore fleet-quality support for the multiple)
+needs realistic dry-dock, upgrade, and compliance spend. Underestimated maintenance CapEx — or
+a deferred backlog that forces lumpy catch-up — hits cash conversion and near-term liquidity
+while the quality story still assumes a well-kept fleet.
+
+**What we can fail to do** (outcome drivers — not yet fully operationalized)
+Maintenance plans stay optimistic; backlog is deferred to “protect” short-term cash. Residual
+and uptime assumptions in the multiple case ignore the **catch-up bill**. Forums do not force a
+honest CapEx corridor when Technical signals turn red.
+
+**What we can do** *(draft S&BD suggestions — fill Current mitigation in Assess & decide)*
+1. Rebase maintenance CapEx and backlog visibility jointly with Ops/Technical/Finance (SBD-P06/P13).
+2. Do not defer dry-dock / compliance spend that protects residual value and contracted uptime.
+3. Stress the cash and liquidity bridge for lumpy catch-up scenarios before they crystallize.
+4. Link fleet-quality / residual KPIs to funded maintenance — not to unfunded aspirations.
+5. Escalate when backlog catch-up would breach the cash-conversion corridor assumed in the plan.
+
+**One sentence**
+R123 is the risk that we **underfund the fleet that is supposed to earn the quality multiple**.
+""",
+    "SBD-R132": """
+**SBD-R132 — Disposal of underperforming assets is delayed or value-destructive**
+
+**In plain words**
+Identified **non-core or underperforming vessels** should leave the portfolio in a disciplined way.
+Thin second-hand markets, optimistic hold cases, or process delays keep capital trapped — ROIC
+dilutes and the modernization narrative that supports the multiple weakens (or forced sales
+destroy value).
+
+**What we can fail to do** (outcome drivers — not yet fully operationalized)
+Disposal lists stall. Hold cases re-open without new evidence. Process ownership is unclear.
+We either wait too long (capital trapped) or dump into a thin market without a prepared path —
+both hurt portfolio quality optics.
+
+**What we can do** *(draft S&BD suggestions — fill Current mitigation in Assess & decide)*
+1. Assign **named disposal owners and deadlines** for every vessel on the non-core list (SBD-P06/P12).
+2. Time-box hold cases; require fresh evidence to extend — default is execute the disposal path.
+3. Prepare sale processes early (surveys, marketing, buyer map) so thin markets do not force fire-sale timing alone.
+4. Track trapped capital and ROIC dilution as an explicit cost of delay in portfolio forums.
+5. Align disposal outcomes with the modernization story used in the multiple-expansion case.
+
+**One sentence**
+R132 is the risk that **underperforming steel stays on the books** and quietly taxes both ROIC and the multiple.
+""",
+    "SBD-R136": """
+**SBD-R136 — Long-term contract coverage falls below the earnings-quality target**
+
+**In plain words**
+Multiple expansion needs a target share of EBITDA on **long-term contracts**. When renewals
+shorten tenure or the contracted backlog is not rebuilt at target duration, long-term coverage
+slips — earnings visibility and valuation support weaken even if near-term utilization looks fine.
+
+**What we can fail to do** (outcome drivers — not yet fully operationalized)
+We track awards and rates but not **long-term coverage vs the earnings-quality target**. Short
+renewals are accepted as temporary. The backlog rebuild plan has no forced cadence when coverage
+drifts below the band assumed in the exit multiple.
+
+**What we can do** *(draft S&BD suggestions — fill Current mitigation in Assess & decide)*
+1. Define a clear **long-term coverage target** (share of EBITDA / tenure band) tied to the multiple case.
+2. Put coverage vs target on the SBD-P05/P02 renewal and portfolio agenda every cycle.
+3. Prefer tenure rebuild actions (extensions, multi-year awards) when coverage is below band — not only rate defense.
+4. Trigger a commercial response plan when rolling coverage breaches the floor.
+5. Keep investor and Board narratives matched to actual long-term backlog, not to the aspirational target alone.
+
+**One sentence**
+R136 is the risk that **long-term coverage slips under the quality bar** the multiple-expansion plan requires.
+""",
+}
+
+RISK_LIBRARY_EXPLAINS = {**PIL01_RISK_EXPLAINS, **PIL02_RISK_EXPLAINS, **PIL03_RISK_EXPLAINS}
 
 _PIL01_EXPLAIN_DIALOG_TITLES = {
     "SBD-R001": "SBD-R001 — fleet capacity vs future demand",
@@ -2178,12 +2440,26 @@ _PIL02_EXPLAIN_DIALOG_TITLES = {
     "SBD-R129": "SBD-R129 — growth ROIC below cost of capital",
 }
 
-_RISK_EXPLAIN_DIALOG_TITLES = {**_PIL01_EXPLAIN_DIALOG_TITLES, **_PIL02_EXPLAIN_DIALOG_TITLES}
+_PIL03_EXPLAIN_DIALOG_TITLES = {
+    "SBD-R002": "SBD-R002 — strategic initiatives lack accountable execution",
+    "SBD-R004": "SBD-R004 — decisions on incomplete / unreliable information",
+    "SBD-R114": "SBD-R114 — long-term TC coverage / earnings visibility",
+    "SBD-R115": "SBD-R115 — counterparty / top-customer concentration",
+    "SBD-R116": "SBD-R116 — fleet obsolescence / residual value",
+    "SBD-R117": "SBD-R117 — modernization and divestment slip",
+    "SBD-R118": "SBD-R118 — governance / exit readiness gaps",
+    "SBD-R119": "SBD-R119 — key-person dependency",
+    "SBD-R123": "SBD-R123 — maintenance-capex / backlog catch-up",
+    "SBD-R132": "SBD-R132 — disposal of underperforming assets",
+    "SBD-R136": "SBD-R136 — long-term contract coverage vs quality target",
+}
+
+_RISK_EXPLAIN_DIALOG_TITLES = {**_PIL01_EXPLAIN_DIALOG_TITLES, **_PIL02_EXPLAIN_DIALOG_TITLES, **_PIL03_EXPLAIN_DIALOG_TITLES}
 
 
 @st.dialog("Risk library explanation")
 def _pil01_risk_explain_dialog(risk_id: str):
-    """Show tailored plain-language explain markdown for a PIL-01/PIL-02 library risk."""
+    """Show tailored plain-language explain markdown for a PIL-01/PIL-02/PIL-03 library risk."""
     title = _RISK_EXPLAIN_DIALOG_TITLES.get(risk_id, risk_id)
     st.caption(title)
     body = RISK_LIBRARY_EXPLAINS.get(risk_id, "")
@@ -2212,7 +2488,9 @@ def render_risk_explain_button(risk_id, driver_ref=""):
     suffix = f"{ACTIVE_REGISTER_KEY}_{risk_id}_{driver_ref or 'na'}"
     _help_ids = (
         "SBD-R001",
+        "SBD-R002",
         "SBD-R003",
+        "SBD-R004",
         "SBD-R005",
         "SBD-R101",
         "SBD-R102",
@@ -2227,10 +2505,19 @@ def render_risk_explain_button(risk_id, driver_ref=""):
         "SBD-R111",
         "SBD-R112",
         "SBD-R113",
+        "SBD-R114",
+        "SBD-R115",
+        "SBD-R116",
+        "SBD-R117",
+        "SBD-R118",
+        "SBD-R119",
         "SBD-R120",
         "SBD-R121",
+        "SBD-R123",
         "SBD-R129",
+        "SBD-R132",
         "SBD-R135",
+        "SBD-R136",
         "SBD-R137",
     )
     if risk_id not in _help_ids:
@@ -2338,7 +2625,7 @@ def render_risk_library(risks_df, processes_df=None):
     st.write(
         "Same layout as **Context** Level 5 ERM: pillars → Level 3 drivers → risk chips. "
         "Under each risk: **what we can fail to do** and **what we can do** (ISO process links come later). "
-        "Risk chips show failure modes and mitigations. Tailored **explain** buttons cover PIL-01 and PIL-02 Strategy library risks linked here (PIL-01: R001, R102, R103, R105, R106, R111, R113, R120, R121, R135, R137; PIL-02 adds R003, R005, R107–R110, R112, R129 — plus shared R001/R105/R111/R113); R101 also has playbook + P05, and R104 has the shared redeployment-case tag — not auto-copied outside this explicit list."
+        "Risk chips show failure modes and mitigations. Tailored **explain** buttons cover PIL-01–03 Strategy library risks linked here (PIL-01: R001, R102, R103, R105, R106, R111, R113, R120, R121, R135, R137; PIL-02 adds R003, R005, R107–R110, R112, R129 — plus shared R001/R105/R111/R113; PIL-03 adds R002, R004, R114–R119, R123, R132, R136 — plus shared R003/R005/R102/R103/R110/R120/R121/R137); R101 also has playbook + P05, and R104 has the shared redeployment-case tag — not auto-copied outside this explicit list."
     )
     catalog = level3_driver_catalog()
     scored_risks = scored(risks_df) if not risks_df.empty and "Risk ID" in risks_df.columns else risks_df.copy()
@@ -2480,7 +2767,7 @@ def render_risk_library(risks_df, processes_df=None):
                     parts.append("</div>")
                     st.markdown("".join(parts), unsafe_allow_html=True)
                     # Explicit helps only for risks we have tailored (not keyword auto-copy)
-                    if rid in ("SBD-R001", "SBD-R003", "SBD-R005", "SBD-R101", "SBD-R102", "SBD-R103", "SBD-R104", "SBD-R105", "SBD-R106", "SBD-R107", "SBD-R108", "SBD-R109", "SBD-R110", "SBD-R111", "SBD-R112", "SBD-R113", "SBD-R120", "SBD-R121", "SBD-R129", "SBD-R135", "SBD-R137"):
+                    if rid in ("SBD-R001", "SBD-R002", "SBD-R003", "SBD-R004", "SBD-R005", "SBD-R101", "SBD-R102", "SBD-R103", "SBD-R104", "SBD-R105", "SBD-R106", "SBD-R107", "SBD-R108", "SBD-R109", "SBD-R110", "SBD-R111", "SBD-R112", "SBD-R113", "SBD-R114", "SBD-R115", "SBD-R116", "SBD-R117", "SBD-R118", "SBD-R119", "SBD-R120", "SBD-R121", "SBD-R123", "SBD-R129", "SBD-R132", "SBD-R135", "SBD-R136", "SBD-R137"):
                         render_risk_explain_button(rid, driver_ref=ref)
 
     st.markdown("---")

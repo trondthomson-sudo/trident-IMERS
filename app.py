@@ -1399,52 +1399,115 @@ def render_value_hierarchy(processes=None, risks=None, controls=None, actions=No
                 st.markdown("".join(list_parts), unsafe_allow_html=True)
 
 
+def extract_operational_questions(cause_text):
+    """Pull Trident-side failure modes / numbered items from Cause for visual display."""
+    import re as _re
+    text_val = str(cause_text or "")
+    upper = text_val.upper()
+    if "TRIDENT-SIDE" in upper:
+        idx = upper.find("TRIDENT-SIDE")
+        chunk = text_val[idx:]
+        found = _re.findall(r"\((\d+)\)\s*([^;]+?)(?=\s*\(\d+\)|$)", chunk)
+        if found:
+            return [item.strip(" .;") for _n, item in found if item.strip()]
+        after = chunk.split(":", 1)[-1] if ":" in chunk else chunk
+        parts = [p.strip(" .;") for p in after.split(";") if p.strip()]
+        return parts[:8]
+    bits = [b.strip() for b in text_val.replace(".", ";").split(";") if b.strip()]
+    return bits[:5]
+
+
 def render_risk_library(risks_df):
-    """Browse and create risks by Pillar → Level 3 driver (full 3.1.1–3.5.7 tree)."""
+    """Browse risks by all five pillars (stacked) with operational questions under each risk."""
     st.write(
-        "The risk library mirrors the five value pillars and every Level 3 driver "
-        "(3.1.1 through 3.5.7). Link risks via the **Level 3 drivers** field (semicolon-separated references). "
-        "Empty slots show where coverage is still missing."
+        "All five value pillars are shown below. Under each risk you see **operational questions** "
+        "(Trident-side failure modes we can act on) and **current mitigation**. "
+        "Link risks via the **Level 3 drivers** field."
     )
     catalog = level3_driver_catalog()
     scored_risks = scored(risks_df) if not risks_df.empty and "Risk ID" in risks_df.columns else risks_df.copy()
     if not scored_risks.empty and "Level 3 drivers" not in scored_risks.columns:
         scored_risks["Level 3 drivers"] = ""
 
-    pillar_options = []
+    # Stack every pillar explicitly (no roll-down selectbox).
     for pillar_label, _drivers in VALUE_HIERARCHY_GROUPS:
         plain = pillar_label.replace("<br>", " · ")
-        pillar_options.append(plain)
-    selected_pillar = st.selectbox("Value pillar", pillar_options, key=f"risklib_pillar_{ACTIVE_REGISTER_KEY}")
-    pillar_id = selected_pillar.split("PIL-0")[1][:1] if "PIL-0" in selected_pillar else ""
-    pillar_code = f"PIL-0{pillar_id}" if pillar_id else ""
-    drivers_for_pillar = [row for row in catalog if row["pillar_id"] == pillar_code]
+        pillar_id = plain.split("PIL-0")[1][:1] if "PIL-0" in plain else ""
+        pillar_code = f"PIL-0{pillar_id}" if pillar_id else ""
+        drivers_for_pillar = [row for row in catalog if row["pillar_id"] == pillar_code]
 
-    covered = 0
-    for row in drivers_for_pillar:
-        ref = row["reference"]
-        if scored_risks.empty:
-            continue
-        hits = scored_risks["Level 3 drivers"].astype(str).apply(lambda value, r=ref: r in split_refs(value))
-        if int(hits.sum()) > 0:
-            covered += 1
-    st.caption(f"{pillar_code}: {covered} of {len(drivers_for_pillar)} Level 3 drivers have at least one linked risk.")
+        covered = 0
+        for row in drivers_for_pillar:
+            ref = row["reference"]
+            if scored_risks.empty:
+                continue
+            hits = scored_risks["Level 3 drivers"].astype(str).apply(lambda value, r=ref: r in split_refs(value))
+            if int(hits.sum()) > 0:
+                covered += 1
 
-    for row in drivers_for_pillar:
-        ref, driver_name = row["reference"], row["driver"]
-        if scored_risks.empty:
-            linked = scored_risks
-            count = 0
-        else:
-            mask = scored_risks["Level 3 drivers"].astype(str).apply(lambda value, r=ref: r in split_refs(value))
-            linked = scored_risks.loc[mask]
-            count = len(linked)
-        with st.expander(f"{ref} · {driver_name}  ({count} risk{'s' if count != 1 else ''})"):
-            if count == 0:
-                st.info(f"Library slot open — no risks linked to **{ref}** yet. Add a risk in the Risk register tab and set Level 3 drivers to include `{ref}`.")
+        st.markdown(f"### {plain}")
+        st.caption(f"{pillar_code}: {covered} of {len(drivers_for_pillar)} Level 3 drivers have at least one linked risk.")
+
+        for row in drivers_for_pillar:
+            ref, driver_name = row["reference"], row["driver"]
+            if scored_risks.empty:
+                linked = scored_risks
+                count = 0
             else:
-                show = [c for c in ["Risk ID", "Risk title", "Value pillars", "Level 3 drivers", "Residual score", "Appetite status", "Status", "Enterprise escalation"] if c in linked.columns]
-                st.dataframe(linked[show], hide_index=True, use_container_width=True)
+                mask = scored_risks["Level 3 drivers"].astype(str).apply(lambda value, r=ref: r in split_refs(value))
+                linked = scored_risks.loc[mask]
+                count = len(linked)
+            with st.expander(f"{ref} · {driver_name}  ({count} risk{'s' if count != 1 else ''})", expanded=(ref == "3.1.1")):
+                if count == 0:
+                    st.info(
+                        f"Library slot open — no risks linked to **{ref}** yet. "
+                        f"Add a risk below or in the Risk register and set Level 3 drivers to include `{ref}`."
+                    )
+                    continue
+
+                seen_ids = set()
+                for _, risk_row in linked.sort_values("Risk ID").iterrows():
+                    rid = str(risk_row.get("Risk ID", "")).strip()
+                    if not rid or rid in seen_ids:
+                        continue
+                    seen_ids.add(rid)
+                    title = str(risk_row.get("Risk title", ""))
+                    residual = risk_row.get("Residual score", "")
+                    try:
+                        score_txt = f" · residual {int(float(residual))}" if str(residual).strip() != "" else ""
+                    except (TypeError, ValueError):
+                        score_txt = ""
+                    appetite = str(risk_row.get("Appetite status", "") or "")
+                    status = str(risk_row.get("Status", "") or "")
+                    meta = " · ".join([x for x in [appetite, status] if x])
+
+                    st.markdown(f"**{escape(rid)}** — {escape(title)}{escape(score_txt)}")
+                    if meta:
+                        st.caption(meta)
+
+                    questions = extract_operational_questions(risk_row.get("Cause", ""))
+                    mitigation = str(risk_row.get("Current mitigation", "") or "").strip()
+                    treatment = str(risk_row.get("Treatment decision", "") or "").strip()
+
+                    st.markdown("**Operational questions (what we fail to do → this outcome)**")
+                    if questions:
+                        for q in questions:
+                            # Avoid double question marks
+                            q_clean = q.rstrip(" ?")
+                            st.markdown(f"- {escape(q_clean)}?")
+                    else:
+                        st.caption("Not yet operationalized — add Trident-side failure modes in Cause (Assess & decide).")
+
+                    st.markdown("**What we can do (current mitigation)**")
+                    if mitigation:
+                        st.write(mitigation)
+                    else:
+                        st.caption("No mitigation text yet — fill Current mitigation in Assess & decide.")
+                    if treatment:
+                        st.caption(f"Treatment decision: {treatment}")
+                    st.markdown("---")
+
+        st.markdown("")
 
     st.markdown("---")
     st.subheader("Add risk into a library slot")

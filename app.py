@@ -1700,6 +1700,40 @@ def render_redeployment_case_button(risk_id):
 
 
 
+
+SBD_R121_EXPLAIN_MD = """
+**SBD-R121 — Premium positioning or farmer trust is damaged**
+
+**In plain words**
+Trident wants to be paid as a **premium** partner (better rate / terms) because farmers trust
+the service. That trust breaks when service fails, biosecurity worries rise, or we look
+inflexible — and then **rate uplift talks get harder**, even when the market could support them.
+
+**What we can fail to do**
+Renewal talks go ahead as if nothing happened, while Ops/HSEQ know about recent incidents.
+Commercial pushes uplift without seeing open critical issues. The growth story runs ahead of
+what the fleet can reliably deliver. Farmer feedback never makes it back into how we design
+the offer. In short: **we negotiate price while ignoring trust.**
+
+**What we can do (treat)**
+1. Tie a clear **premium service standard** to the rate tier (what "premium" means in the contract).
+2. **Incident-to-account alert** before renewal — Ops/HSEQ warn Commercial early.
+3. Put a **trust dashboard** (NPS, complaints, incidents) in the pre-negotiation brief.
+4. **Do not push rate uplift** where open critical incidents still sit on the account.
+5. Keep a **partnership review cadence** with top farmers
+   (**SBD-P05** agenda/rate path; **P09** strategic risk; **P10** sustainability / trust topics).
+
+**One sentence**
+R121 is the risk that we ask for premium rates after we have spent the farmer's trust —
+or while an open service wound is still bleeding.
+"""
+
+
+@st.dialog("SBD-R121 — premium trust and farmer relationships")
+def _r121_explain_dialog():
+    st.markdown(SBD_R121_EXPLAIN_MD)
+
+
 SBD_R106_EXPLAIN_MD = """
 **SBD-R106 — Crewing and operating-cost inflation outpaces rate growth**
 
@@ -1744,7 +1778,7 @@ def render_risk_explain_button(risk_id, driver_ref=""):
     default white styles otherwise win).
     """
     suffix = f"{ACTIVE_REGISTER_KEY}_{risk_id}_{driver_ref or 'na'}"
-    if risk_id not in ("SBD-R101", "SBD-R104", "SBD-R106"):
+    if risk_id not in ("SBD-R101", "SBD-R104", "SBD-R106", "SBD-R121"):
         return
 
     with st.container(key=f"vh_help_{suffix}"):
@@ -1780,6 +1814,14 @@ def render_risk_explain_button(risk_id, driver_ref=""):
                     help="Plain-language explanation of cost inflation vs rate growth",
                 ):
                     _r106_explain_dialog()
+        elif risk_id == "SBD-R121":
+            with c1:
+                if st.button(
+                    "explain R121",
+                    key=f"risk_explain_btn_{suffix}",
+                    help="Plain-language explanation of premium trust and farmer relationships",
+                ):
+                    _r121_explain_dialog()
 
 
 
@@ -1848,7 +1890,7 @@ def render_risk_library(risks_df, processes_df=None):
     st.write(
         "Same layout as **Context** Level 5 ERM: pillars → Level 3 drivers → risk chips. "
         "Under each risk: **what we can fail to do** and **what we can do** (ISO process links come later). "
-        "Risk chips show failure modes and mitigations. Tailored explanation buttons are added **only** for risks we have written (R101 playbook + P05, R104 redeployment case, R106 explain) — not auto-copied to other risks."
+        "Risk chips show failure modes and mitigations. Tailored explanation buttons are added **only** for risks we have written (R101 playbook + P05, R104 redeployment case, R106/R121 explain) — not auto-copied to other risks."
     )
     catalog = level3_driver_catalog()
     scored_risks = scored(risks_df) if not risks_df.empty and "Risk ID" in risks_df.columns else risks_df.copy()
@@ -1990,7 +2032,7 @@ def render_risk_library(risks_df, processes_df=None):
                     parts.append("</div>")
                     st.markdown("".join(parts), unsafe_allow_html=True)
                     # Explicit helps only for risks we have tailored (not keyword auto-copy)
-                    if rid in ("SBD-R101", "SBD-R104", "SBD-R106"):
+                    if rid in ("SBD-R101", "SBD-R104", "SBD-R106", "SBD-R121"):
                         render_risk_explain_button(rid, driver_ref=ref)
 
     st.markdown("---")

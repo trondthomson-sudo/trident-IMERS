@@ -1417,97 +1417,151 @@ def extract_operational_questions(cause_text):
     return bits[:5]
 
 
-def render_risk_library(risks_df):
-    """Browse risks by all five pillars (stacked) with operational questions under each risk."""
+def render_risk_library(risks_df, processes_df=None):
+    """Risk library in the same visual language as Context ERM (peach pane, chips), with ops questions."""
     st.write(
-        "All five value pillars are shown below. Under each risk you see **operational questions** "
-        "(Trident-side failure modes we can act on) and **current mitigation**. "
-        "Link risks via the **Level 3 drivers** field."
+        "Same layout as **Context** Level 5 ERM: pillars → Level 3 drivers → risk chips. "
+        "Under each risk: ISO coverage, **operational questions**, and **current mitigation**."
     )
     catalog = level3_driver_catalog()
     scored_risks = scored(risks_df) if not risks_df.empty and "Risk ID" in risks_df.columns else risks_df.copy()
     if not scored_risks.empty and "Level 3 drivers" not in scored_risks.columns:
         scored_risks["Level 3 drivers"] = ""
 
-    # Stack every pillar explicitly (no roll-down selectbox).
+    # Process ID → "section · id · name" for ISO coverage lines (match Context)
+    process_label_by_id = {}
+    if processes_df is None:
+        try:
+            processes_df = load("processes")
+        except Exception:
+            processes_df = pd.DataFrame()
+    if processes_df is not None and not processes_df.empty:
+        for _, prow in processes_df.iterrows():
+            pid = str(prow.get("Process ID", "")).strip()
+            if not pid:
+                continue
+            section = str(prow.get("S&BD Manual section", "")).strip()
+            pname = str(prow.get("Process", "")).strip()
+            process_label_by_id[pid] = f"{section} · {pid} · {pname}" if section else f"{pid} · {pname}"
+
     for pillar_label, _drivers in VALUE_HIERARCHY_GROUPS:
         plain = pillar_label.replace("<br>", " · ")
         pillar_id = plain.split("PIL-0")[1][:1] if "PIL-0" in plain else ""
         pillar_code = f"PIL-0{pillar_id}" if pillar_id else ""
         drivers_for_pillar = [row for row in catalog if row["pillar_id"] == pillar_code]
+        pillar_description = plain.split(" · ", 1)[-1] if " · " in plain else plain
 
-        covered = 0
+        # Count unique risks under this pillar's Level 3 drivers
+        pillar_risk_ids = set()
         for row in drivers_for_pillar:
             ref = row["reference"]
             if scored_risks.empty:
                 continue
-            hits = scored_risks["Level 3 drivers"].astype(str).apply(lambda value, r=ref: r in split_refs(value))
-            if int(hits.sum()) > 0:
-                covered += 1
+            mask = scored_risks["Level 3 drivers"].astype(str).apply(lambda value, r=ref: r in split_refs(value))
+            pillar_risk_ids.update(scored_risks.loc[mask, "Risk ID"].astype(str).tolist())
+        count = len(pillar_risk_ids)
 
-        st.markdown(f"### {plain}")
-        st.caption(f"{pillar_code}: {covered} of {len(drivers_for_pillar)} Level 3 drivers have at least one linked risk.")
+        with st.expander(f"{pillar_code} · {pillar_description} ({count})", expanded=(pillar_code == "PIL-01")):
+            header_html = (
+                '<div class="vh-l5-erm-pane">'
+                '<div class="vh-l5-pane-title">Risks under this pillar - by Level 3 driver</div>'
+                f'<div class="vh-process-pillar"><span class="vh-pil-badge">{escape(pillar_code)}</span>'
+                f'{escape(pillar_description)}</div>'
+            )
+            parts = [header_html]
 
-        for row in drivers_for_pillar:
-            ref, driver_name = row["reference"], row["driver"]
-            if scored_risks.empty:
-                linked = scored_risks
-                count = 0
-            else:
-                mask = scored_risks["Level 3 drivers"].astype(str).apply(lambda value, r=ref: r in split_refs(value))
-                linked = scored_risks.loc[mask]
-                count = len(linked)
-            with st.expander(f"{ref} · {driver_name}  ({count} risk{'s' if count != 1 else ''})", expanded=(ref == "3.1.1")):
-                if count == 0:
-                    st.info(
-                        f"Library slot open — no risks linked to **{ref}** yet. "
-                        f"Add a risk below or in the Risk register and set Level 3 drivers to include `{ref}`."
-                    )
+            for row in drivers_for_pillar:
+                ref, driver_name = row["reference"], row["driver"]
+                if scored_risks.empty:
+                    linked = scored_risks
+                else:
+                    mask = scored_risks["Level 3 drivers"].astype(str).apply(lambda value, r=ref: r in split_refs(value))
+                    linked = scored_risks.loc[mask]
+                if "Risk ID" in linked.columns and not linked.empty:
+                    linked = linked.sort_values("Risk ID")
+
+                parts.append(
+                    f'<div class="vh-process-pillar" style="margin-top:10px;">'
+                    f'<span class="vh-ref-badge">{escape(ref)}</span>'
+                    f'{escape(driver_name)}</div>'
+                )
+                if linked.empty:
+                    parts.append('<div class="vh-l5-empty-slot">No risks linked to this Level 3 driver yet.</div>')
                     continue
 
-                seen_ids = set()
-                for _, risk_row in linked.sort_values("Risk ID").iterrows():
+                seen = set()
+                for _, risk_row in linked.iterrows():
                     rid = str(risk_row.get("Risk ID", "")).strip()
-                    if not rid or rid in seen_ids:
+                    if not rid or rid in seen:
                         continue
-                    seen_ids.add(rid)
+                    seen.add(rid)
                     title = str(risk_row.get("Risk title", ""))
                     residual = risk_row.get("Residual score", "")
                     try:
-                        score_txt = f" · residual {int(float(residual))}" if str(residual).strip() != "" else ""
+                        score_txt = (
+                            f" · residual {int(float(residual))}"
+                            if residual is not None and str(residual).strip() != ""
+                            else ""
+                        )
                     except (TypeError, ValueError):
                         score_txt = ""
-                    appetite = str(risk_row.get("Appetite status", "") or "")
-                    status = str(risk_row.get("Status", "") or "")
-                    meta = " · ".join([x for x in [appetite, status] if x])
 
-                    st.markdown(f"**{escape(rid)}** — {escape(title)}{escape(score_txt)}")
-                    if meta:
-                        st.caption(meta)
+                    parts.append(
+                        f'<div class="vh-driver-link vh-l5-driver-slot">'
+                        f'<span class="vh-l5-risk-badge">{escape(rid)}</span>'
+                        f'{escape(title)}{escape(score_txt)}</div>'
+                    )
 
+                    # ISO process coverage (same as Context)
+                    linked_procs = split_refs(risk_row.get("Processes", ""))
+                    if linked_procs:
+                        labels = [process_label_by_id.get(pid, pid) for pid in linked_procs]
+                        coverage = "; ".join(labels)
+                        parts.append(
+                            '<div class="vh-l5-erm-coverage"><strong>ISO process coverage:</strong> '
+                            f'{escape(coverage)}</div>'
+                        )
+                    else:
+                        parts.append(
+                            '<div class="vh-l5-erm-coverage"><strong>ISO process coverage:</strong> '
+                            'Not yet linked to an S&amp;BD ISO process definition.</div>'
+                        )
+
+                    # Operational questions + mitigation (library-specific, still in ERM visual language)
                     questions = extract_operational_questions(risk_row.get("Cause", ""))
+                    if questions:
+                        q_html = "".join(
+                            f"<li>{escape(q.rstrip(' ?'))}?</li>" for q in questions
+                        )
+                        parts.append(
+                            '<div class="vh-l5-erm-coverage"><strong>Operational questions '
+                            '(what we fail to do):</strong><ul style="margin:4px 0 0 18px;padding:0;">'
+                            f"{q_html}</ul></div>"
+                        )
+                    else:
+                        parts.append(
+                            '<div class="vh-l5-erm-coverage"><strong>Operational questions:</strong> '
+                            'Not yet operationalized — fill Trident-side failure modes in Assess &amp; decide.</div>'
+                        )
+
                     mitigation = str(risk_row.get("Current mitigation", "") or "").strip()
                     treatment = str(risk_row.get("Treatment decision", "") or "").strip()
-
-                    st.markdown("**Operational questions (what we fail to do → this outcome)**")
-                    if questions:
-                        for q in questions:
-                            # Avoid double question marks
-                            q_clean = q.rstrip(" ?")
-                            st.markdown(f"- {escape(q_clean)}?")
-                    else:
-                        st.caption("Not yet operationalized — add Trident-side failure modes in Cause (Assess & decide).")
-
-                    st.markdown("**What we can do (current mitigation)**")
                     if mitigation:
-                        st.write(mitigation)
+                        mit_line = escape(mitigation)
+                        if treatment:
+                            mit_line += f' <em>(Treatment: {escape(treatment)})</em>'
+                        parts.append(
+                            '<div class="vh-l5-erm-coverage"><strong>What we can do:</strong> '
+                            f"{mit_line}</div>"
+                        )
                     else:
-                        st.caption("No mitigation text yet — fill Current mitigation in Assess & decide.")
-                    if treatment:
-                        st.caption(f"Treatment decision: {treatment}")
-                    st.markdown("---")
+                        parts.append(
+                            '<div class="vh-l5-erm-coverage"><strong>What we can do:</strong> '
+                            'No mitigation text yet — fill Current mitigation in Assess &amp; decide.</div>'
+                        )
 
-        st.markdown("")
+            parts.append("</div>")
+            st.markdown("".join(parts), unsafe_allow_html=True)
 
     st.markdown("---")
     st.subheader("Add risk into a library slot")
@@ -1688,7 +1742,7 @@ elif page == "01 Risks & Opportunities" or str(page).startswith("02 Risks"):
     data["risks"] = risks_work
     t_lib, t_reg, t_assess, t_opp = st.tabs(["Risk library", "Risk register", "Assess & decide", "Opportunities"])
     with t_lib:
-        render_risk_library(risks_work)
+        render_risk_library(risks_work, data.get("processes"))
     with t_reg:
         st.write("Shared Strategy & BD risk inventory. Use **Assess & decide** for mitigation, residual score, and appetite.")
         risk_config = {

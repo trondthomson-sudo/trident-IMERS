@@ -1431,6 +1431,26 @@ def extract_operational_questions(cause_text):
     return bits[:5]
 
 
+
+
+def extract_mitigation_bullets(mitigation_text):
+    """Split Current mitigation into successive action bullets (numbered or semicolon lists)."""
+    import re as _re
+    text_val = str(mitigation_text or "").strip()
+    if not text_val:
+        return []
+    found = _re.findall(r"\((\d+)\)\s*([^;]+?)(?=\s*\(\d+\)|$)", text_val)
+    if found:
+        return [item.strip(" .;") for _n, item in found if item.strip()]
+    # Drop a short owner prefix like "S&BD+Commercial:" then split on semicolons
+    if ":" in text_val and text_val.index(":") < 40:
+        after = text_val.split(":", 1)[1].strip()
+        if after:
+            text_val = after
+    parts = [p.strip(" .;") for p in text_val.split(";") if p.strip()]
+    return parts if len(parts) > 1 else ([text_val] if text_val else [])
+
+
 def render_risk_library(risks_df, processes_df=None):
     """Risk library in the same visual language as Context ERM (peach pane, chips), with ops questions."""
     # Belt-and-suspenders: ensure ERM pane classes exist even if brand theme was skipped.
@@ -1454,28 +1474,12 @@ def render_risk_library(risks_df, processes_df=None):
     )
     st.write(
         "Same layout as **Context** Level 5 ERM: pillars → Level 3 drivers → risk chips. "
-        "Under each risk: ISO coverage, **operational questions**, and **current mitigation**."
+        "Under each risk: **what we can fail to do** and **what we can do** (ISO process links come later)."
     )
     catalog = level3_driver_catalog()
     scored_risks = scored(risks_df) if not risks_df.empty and "Risk ID" in risks_df.columns else risks_df.copy()
     if not scored_risks.empty and "Level 3 drivers" not in scored_risks.columns:
         scored_risks["Level 3 drivers"] = ""
-
-    # Process ID → "section · id · name" for ISO coverage lines (match Context)
-    process_label_by_id = {}
-    if processes_df is None:
-        try:
-            processes_df = load("processes")
-        except Exception:
-            processes_df = pd.DataFrame()
-    if processes_df is not None and not processes_df.empty:
-        for _, prow in processes_df.iterrows():
-            pid = str(prow.get("Process ID", "")).strip()
-            if not pid:
-                continue
-            section = str(prow.get("S&BD Manual section", "")).strip()
-            pname = str(prow.get("Process", "")).strip()
-            process_label_by_id[pid] = f"{section} · {pid} · {pname}" if section else f"{pid} · {pname}"
 
     for pillar_label, _drivers in VALUE_HIERARCHY_GROUPS:
         plain = pillar_label.replace("<br>", " · ")
@@ -1560,51 +1564,44 @@ def render_risk_library(risks_df, processes_df=None):
                         f'{escape(title)}{escape(score_txt)}</div>'
                     )
 
-                    linked_procs = split_refs(risk_row.get("Processes", ""))
-                    if linked_procs:
-                        labels = [process_label_by_id.get(pid, pid) for pid in linked_procs]
-                        coverage = "; ".join(labels)
-                        parts.append(
-                            '<div class="vh-l5-erm-coverage"><strong>ISO process coverage:</strong> '
-                            f"{escape(coverage)}</div>"
-                        )
-                    else:
-                        parts.append(
-                            '<div class="vh-l5-erm-coverage"><strong>ISO process coverage:</strong> '
-                            "Not yet linked to an S&amp;BD ISO process definition.</div>"
-                        )
-
                     questions = extract_operational_questions(risk_row.get("Cause", ""))
                     if questions:
                         q_html = "".join(
                             f"<li>{escape(q.rstrip(' ?'))}?</li>" for q in questions
                         )
                         parts.append(
-                            '<div class="vh-l5-erm-coverage"><strong>Operational questions '
-                            "(what we fail to do):</strong>"
+                            '<div class="vh-l5-erm-coverage"><strong>What we can fail to do:</strong>'
                             '<ul style="margin:4px 0 0 18px;padding:0;">'
                             f"{q_html}</ul></div>"
                         )
                     else:
                         parts.append(
-                            '<div class="vh-l5-erm-coverage"><strong>Operational questions:</strong> '
-                            "Not yet operationalized — fill Trident-side failure modes in Assess &amp; decide.</div>"
+                            '<div class="vh-l5-erm-coverage"><strong>What we can fail to do:</strong>'
+                            '<ul style="margin:4px 0 0 18px;padding:0;">'
+                            "<li>Not yet operationalized — fill Trident-side failure modes in Assess &amp; decide.</li>"
+                            "</ul></div>"
                         )
 
                     mitigation = str(risk_row.get("Current mitigation", "") or "").strip()
                     treatment = str(risk_row.get("Treatment decision", "") or "").strip()
-                    if mitigation:
-                        mit_line = escape(mitigation)
-                        if treatment:
-                            mit_line += f" <em>(Treatment: {escape(treatment)})</em>"
+                    bullets = extract_mitigation_bullets(mitigation)
+                    if bullets:
+                        m_html = "".join(f"<li>{escape(b)}</li>" for b in bullets)
+                        treat_note = (
+                            f' <em>(Treatment: {escape(treatment)})</em>' if treatment else ""
+                        )
                         parts.append(
-                            '<div class="vh-l5-erm-coverage"><strong>What we can do:</strong> '
-                            f"{mit_line}</div>"
+                            '<div class="vh-l5-erm-coverage"><strong>What we can do:</strong>'
+                            f"{treat_note}"
+                            '<ul style="margin:4px 0 0 18px;padding:0;">'
+                            f"{m_html}</ul></div>"
                         )
                     else:
                         parts.append(
-                            '<div class="vh-l5-erm-coverage"><strong>What we can do:</strong> '
-                            "No mitigation text yet — fill Current mitigation in Assess &amp; decide.</div>"
+                            '<div class="vh-l5-erm-coverage"><strong>What we can do:</strong>'
+                            '<ul style="margin:4px 0 0 18px;padding:0;">'
+                            "<li>No mitigation text yet — fill Current mitigation in Assess &amp; decide.</li>"
+                            "</ul></div>"
                         )
 
                 parts.append("</div>")

@@ -2561,7 +2561,130 @@ R138 is the risk that **slow collections turn contracted EBITDA into trapped cas
 """,
 }
 
-RISK_LIBRARY_EXPLAINS = {**PIL01_RISK_EXPLAINS, **PIL02_RISK_EXPLAINS, **PIL03_RISK_EXPLAINS, **PIL04_RISK_EXPLAINS}
+PIL05_RISK_EXPLAINS = {
+    "SBD-R128": """
+**SBD-R128 — Capital deployed to lower risk-adjusted uses than available alternatives**
+
+**In plain words**
+Capital allocation is a **ranking problem under scarce cash and debt capacity**. Organic growth,
+M&A, debt reduction, and distributions compete. When ranking is incomplete or soft, cash goes to
+projects or hold decisions with **inferior risk-adjusted equity-value creation** — ROIC and value
+per NOK deployed miss the mandate even if individual cases still look “fine” in isolation.
+
+**What we can fail to do** (outcome drivers — not yet fully operationalized)
+We approve uses one-by-one without a binding **cross-alternative stack** (growth vs delever vs
+distributions). Hold cases for weak assets are not forced against disposal or redeployment.
+Capital constraints stay narrative — so inferior uses win by inertia, not by Board rule.
+
+**What we can do** *(draft S&BD suggestions — fill Current mitigation in Assess & decide)*
+1. Run a living **capital stack** ranking organic, M&A, debt reduction, and distributions under the same constraint (SBD-P03/P04/P07/P13).
+2. Require risk-adjusted equity-value per NOK for every material use — reject orphan approvals outside the stack.
+3. Force hold-vs-dispose / hold-vs-delever trade-offs into the same forum as growth gates.
+4. Re-cut the stack when cash conversion, rates, or leverage bands shift — do not freeze last quarter’s ranking.
+5. Escalate when capital is committed to a use that ranks below a clearly available alternative on the Board stack.
+
+**One sentence**
+R128 is the risk that we **spend scarce capital on the second-best use** because we never forced a real ranking.
+""",
+    "SBD-R130": """
+**SBD-R130 — NIBD and leverage exceed target band during growth**
+
+**In plain words**
+Growth only preserves optionality if **NIBD and leverage stay inside the Board band**. Simultaneous
+newbuild commitments, softer cash conversion, or delayed EBITDA from deliveries can push
+NIBD/EBITDA and related metrics through internal targets toward covenants — constraining
+financing flexibility, distributions, and exit readiness.
+
+**What we can fail to do** (outcome drivers — not yet fully operationalized)
+Investment cases clear IRR gates without a **rolling NIBD / leverage bridge** through the delivery
+trough. Soft conversion and late EBITDA ramp are treated as surprises. Forums celebrate capacity
+growth while leverage optics breach the band assumed in the capital plan.
+
+**What we can do** *(draft S&BD suggestions — fill Current mitigation in Assess & decide)*
+1. Embed a **NIBD and leverage corridor** (base + stress) in every material growth commitment gate (SBD-P07/P13).
+2. Sequence newbuilds and funding so peak leverage stays inside the Board band — or pre-arrange equity/debt explicitly.
+3. Re-forecast leverage monthly when cash conversion or delivery EBITDA diverges from plan.
+4. Tie distribution and further CapEx capacity to remaining headroom inside the band — not to headline EBITDA alone.
+5. Escalate early when the path would breach internal targets or approach covenants under base+stress cases.
+
+**One sentence**
+R130 is the risk that **growth steel and soft cash push leverage through the band** the Board thought it owned.
+""",
+    "SBD-R131": """
+**SBD-R131 — Liquidity or covenant headroom becomes insufficient**
+
+**In plain words**
+Liquidity and **covenant headroom** are the last lines before forced action. Undrawn facility
+limits, progress-payment peaks, or EBITDA shortfalls versus covenant definitions can drop
+available liquidity or headroom below Board tolerance — inviting emergency refinancing, forced
+sales, or a hard stop on investment capacity.
+
+**What we can fail to do** (outcome drivers — not yet fully operationalized)
+Plans track facilities at close but not **peak draw vs undrawn** through the CapEx calendar.
+Covenant definitions (add-backs, EBITDA timing) sit outside operating forums. Headroom is assumed
+until a payment peak or EBITDA miss crystallizes the squeeze.
+
+**What we can do** *(draft S&BD suggestions — fill Current mitigation in Assess & decide)*
+1. Maintain a forward **liquidity and covenant-headroom bridge** through progress-payment and EBITDA troughs (SBD-P07/P09/P13).
+2. Stress undrawn limits and covenant EBITDA definitions — not only book leverage at year-end.
+3. Pre-arrange amendments, RCF headroom, or funding before peaks that would pierce Board tolerance.
+4. Link CapEx commitment gates to remaining liquidity/covenant buffer, not only to IRR.
+5. Escalate immediately when forecast headroom falls below the Board floor under base or defined stress.
+
+**One sentence**
+R131 is the risk that we **discover we are out of liquidity or covenant room** only when the next payment is due.
+""",
+    "SBD-R133": """
+**SBD-R133 — Refinancing or financing flexibility is constrained at need**
+
+**In plain words**
+Strategy assumes **financing flexibility when we need it** — new facilities, amendments, or
+bond/bank capacity on acceptable terms. Credit-market tightness, vessel-collateral perceptions, or
+ownership/exit-timing uncertainty can make that capacity unavailable or punitive exactly when
+growth or refinancing windows open — pausing investments and hurting exit readiness.
+
+**What we can fail to do** (outcome drivers — not yet fully operationalized)
+We underwrite growth on today’s markets and treat refinancing as a future admin task. Collateral
+and ownership narratives are not stress-tested into **access and pricing** scenarios. Optionality
+is assumed until the market (or lenders) say no.
+
+**What we can do** *(draft S&BD suggestions — fill Current mitigation in Assess & decide)*
+1. Keep a living **financing-flexibility scorecard** (tenor, undrawn, amendment room, collateral headroom) on the Board agenda (SBD-P01/P07/P13).
+2. Pre-negotiate capacity and amendment paths before large CapEx or refinance cliffs — not after.
+3. Stress access and pricing for credit-tight and exit-timing scenarios in every material funding plan.
+4. Align vessel quality, documentation, and ownership clarity with what lenders and buyers will underwrite.
+5. Escalate when forecast need would rely on markets or terms we cannot currently evidence.
+
+**One sentence**
+R133 is the risk that **the balance sheet is inflexible exactly when strategy needs it to flex**.
+""",
+    "SBD-R134": """
+**SBD-R134 — Debt reduction versus growth trade-offs lack a binding decision rule**
+
+**In plain words**
+Under stress, the Board must choose **delever versus fund accretive projects** with clear
+thresholds — not vibes. Without a binding decision rule, capital choices oscillate between
+over-investment and excessive conservatism: leverage risk rises in good moods, and value-accretive
+opportunities are systematically forgone when fear dominates.
+
+**What we can fail to do** (outcome drivers — not yet fully operationalized)
+Thresholds for when to **stop growth CapEx and delever** (or the reverse) stay undefined.
+Stress scenarios are discussed qualitatively. Ad hoc calls replace a published rule — so
+execution teams cannot plan, and equity value is left on the table or put at risk by inconsistency.
+
+**What we can do** *(draft S&BD suggestions — fill Current mitigation in Assess & decide)*
+1. Codify Board **delever-vs-invest thresholds** (leverage band, covenant buffer, ROIC hurdle) under base and stress (SBD-P01/P07/P13).
+2. Publish the rule into capital gates so S&BD and Finance apply the same switch — not quarterly mood.
+3. Pre-authorize which growth uses survive a stress trigger and which pause automatically.
+4. Review the rule when WACC, credit markets, or cash conversion regimes shift — amend explicitly, do not freestyle.
+5. Escalate when proposed capital actions would violate the published trade-off rule without a Board exception.
+
+**One sentence**
+R134 is the risk that **without a binding delever-vs-grow rule, we lurch between over-betting and under-investing**.
+""",
+}
+
+RISK_LIBRARY_EXPLAINS = {**PIL01_RISK_EXPLAINS, **PIL02_RISK_EXPLAINS, **PIL03_RISK_EXPLAINS, **PIL04_RISK_EXPLAINS, **PIL05_RISK_EXPLAINS}
 
 _PIL01_EXPLAIN_DIALOG_TITLES = {
     "SBD-R001": "SBD-R001 — fleet capacity vs future demand",
@@ -2611,12 +2734,20 @@ _PIL04_EXPLAIN_DIALOG_TITLES = {
     "SBD-R138": "SBD-R138 — DSO and collection vs conversion targets",
 }
 
-_RISK_EXPLAIN_DIALOG_TITLES = {**_PIL01_EXPLAIN_DIALOG_TITLES, **_PIL02_EXPLAIN_DIALOG_TITLES, **_PIL03_EXPLAIN_DIALOG_TITLES, **_PIL04_EXPLAIN_DIALOG_TITLES}
+_PIL05_EXPLAIN_DIALOG_TITLES = {
+    "SBD-R128": "SBD-R128 — capital stack / inferior risk-adjusted uses",
+    "SBD-R130": "SBD-R130 — NIBD and leverage vs target band",
+    "SBD-R131": "SBD-R131 — liquidity / covenant headroom",
+    "SBD-R133": "SBD-R133 — refinancing / financing flexibility at need",
+    "SBD-R134": "SBD-R134 — debt reduction vs growth decision rule",
+}
+
+_RISK_EXPLAIN_DIALOG_TITLES = {**_PIL01_EXPLAIN_DIALOG_TITLES, **_PIL02_EXPLAIN_DIALOG_TITLES, **_PIL03_EXPLAIN_DIALOG_TITLES, **_PIL04_EXPLAIN_DIALOG_TITLES, **_PIL05_EXPLAIN_DIALOG_TITLES}
 
 
 @st.dialog("Risk library explanation")
 def _pil01_risk_explain_dialog(risk_id: str):
-    """Show tailored plain-language explain markdown for a PIL-01/PIL-02/PIL-03/PIL-04 library risk."""
+    """Show tailored plain-language explain markdown for a PIL-01/PIL-02/PIL-03/PIL-04/PIL-05 library risk."""
     title = _RISK_EXPLAIN_DIALOG_TITLES.get(risk_id, risk_id)
     st.caption(title)
     body = RISK_LIBRARY_EXPLAINS.get(risk_id, "")
@@ -2676,8 +2807,13 @@ def render_risk_explain_button(risk_id, driver_ref=""):
         "SBD-R125",
         "SBD-R126",
         "SBD-R127",
+        "SBD-R128",
         "SBD-R129",
+        "SBD-R130",
+        "SBD-R131",
         "SBD-R132",
+        "SBD-R133",
+        "SBD-R134",
         "SBD-R135",
         "SBD-R136",
         "SBD-R137",
@@ -2788,7 +2924,7 @@ def render_risk_library(risks_df, processes_df=None):
     st.write(
         "Same layout as **Context** Level 5 ERM: pillars → Level 3 drivers → risk chips. "
         "Under each risk: **what we can fail to do** and **what we can do** (ISO process links come later). "
-        "Risk chips show failure modes and mitigations. Tailored **explain** buttons cover PIL-01–04 Strategy library risks linked here (PIL-01: R001, R102, R103, R105, R106, R111, R113, R120, R121, R135, R137; PIL-02 adds R003, R005, R107–R110, R112, R129 — plus shared R001/R105/R111/R113; PIL-03 adds R002, R004, R114–R119, R123, R132, R136 — plus shared R003/R005/R102/R103/R110/R120/R121/R137; PIL-04 adds R122, R124–R127, R138 — plus shared R123); R101 also has playbook + P05, and R104 has the shared redeployment-case tag — not auto-copied outside this explicit list."
+        "Risk chips show failure modes and mitigations. Tailored **explain** buttons cover PIL-01–05 Strategy library risks linked here (PIL-01: R001, R102, R103, R105, R106, R111, R113, R120, R121, R135, R137; PIL-02 adds R003, R005, R107–R110, R112, R129 — plus shared R001/R105/R111/R113; PIL-03 adds R002, R004, R114–R119, R123, R132, R136 — plus shared R003/R005/R102/R103/R110/R120/R121/R137; PIL-04 adds R122, R124–R127, R138 — plus shared R123; PIL-05 adds R128, R130, R131, R133, R134 — plus shared R001/R005/R107/R109/R110/R116/R117/R124/R126/R129/R132); R101 also has playbook + P05, and R104 has the shared redeployment-case tag — not auto-copied outside this explicit list."
     )
     catalog = level3_driver_catalog()
     scored_risks = scored(risks_df) if not risks_df.empty and "Risk ID" in risks_df.columns else risks_df.copy()
@@ -2930,7 +3066,7 @@ def render_risk_library(risks_df, processes_df=None):
                     parts.append("</div>")
                     st.markdown("".join(parts), unsafe_allow_html=True)
                     # Explicit helps only for risks we have tailored (not keyword auto-copy)
-                    if rid in ("SBD-R001", "SBD-R002", "SBD-R003", "SBD-R004", "SBD-R005", "SBD-R101", "SBD-R102", "SBD-R103", "SBD-R104", "SBD-R105", "SBD-R106", "SBD-R107", "SBD-R108", "SBD-R109", "SBD-R110", "SBD-R111", "SBD-R112", "SBD-R113", "SBD-R114", "SBD-R115", "SBD-R116", "SBD-R117", "SBD-R118", "SBD-R119", "SBD-R120", "SBD-R121", "SBD-R122", "SBD-R123", "SBD-R124", "SBD-R125", "SBD-R126", "SBD-R127", "SBD-R129", "SBD-R132", "SBD-R135", "SBD-R136", "SBD-R137", "SBD-R138"):
+                    if rid in ("SBD-R001", "SBD-R002", "SBD-R003", "SBD-R004", "SBD-R005", "SBD-R101", "SBD-R102", "SBD-R103", "SBD-R104", "SBD-R105", "SBD-R106", "SBD-R107", "SBD-R108", "SBD-R109", "SBD-R110", "SBD-R111", "SBD-R112", "SBD-R113", "SBD-R114", "SBD-R115", "SBD-R116", "SBD-R117", "SBD-R118", "SBD-R119", "SBD-R120", "SBD-R121", "SBD-R122", "SBD-R123", "SBD-R124", "SBD-R125", "SBD-R126", "SBD-R127", "SBD-R128", "SBD-R129", "SBD-R130", "SBD-R131", "SBD-R132", "SBD-R133", "SBD-R134", "SBD-R135", "SBD-R136", "SBD-R137", "SBD-R138"):
                         render_risk_explain_button(rid, driver_ref=ref)
 
     st.markdown("---")

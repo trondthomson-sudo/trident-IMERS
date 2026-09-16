@@ -852,8 +852,16 @@ def input_zone_banner(label="Editable inputs"):
     )
 
 
-def editor(key, df, config=None):
-    edited = st.data_editor(df, num_rows="dynamic", use_container_width=True, hide_index=True, column_config=config or {}, key=f"editor_{ACTIVE_REGISTER_KEY}_{key}")
+def editor(key, df, config=None, height=700):
+    edited = st.data_editor(
+        df,
+        num_rows="dynamic",
+        use_container_width=True,
+        hide_index=True,
+        column_config=config or {},
+        height=height,
+        key=f"editor_{ACTIVE_REGISTER_KEY}_{key}",
+    )
     if st.button(f"Save {key}", type="primary", key=f"save_{ACTIVE_REGISTER_KEY}_{key}"):
         save(key, edited)
         st.success("Saved.")
@@ -3352,7 +3360,7 @@ elif page == "01 Risks & Opportunities" or str(page).startswith("02 Risks"):
             "Enterprise escalation": st.column_config.SelectboxColumn(options=["Yes", "No"]),
             "Treatment decision": st.column_config.SelectboxColumn(options=TREATMENT_DECISIONS),
         }
-        editor("risks", risks_work, risk_config)
+        editor("risks", risks_work, risk_config, height=780)
     with t_assess:
         st.markdown(
             """
@@ -3373,6 +3381,7 @@ elif page == "01 Risks & Opportunities" or str(page).startswith("02 Risks"):
                 risks_work[c],
                 hide_index=True,
                 use_container_width=True,
+                height=620,
                 column_config={
                     "Treatment decision": st.column_config.SelectboxColumn(options=TREATMENT_DECISIONS),
                     "Current mitigation": st.column_config.TextColumn(width="large"),
@@ -3385,7 +3394,7 @@ elif page == "01 Risks & Opportunities" or str(page).startswith("02 Risks"):
             st.caption("Same residual fields — use if you prefer a tight scoring grid.")
             input_zone_banner("2. Residual scores — editable inputs")
             c = ["Risk ID", "Risk title", "Inherent likelihood", "Inherent impact", "Residual likelihood", "Residual impact"]
-            e = st.data_editor(risks_work[c], hide_index=True, use_container_width=True, key=f"score_res2_{ACTIVE_REGISTER_KEY}")
+            e = st.data_editor(risks_work[c], hide_index=True, use_container_width=True, height=520, key=f"score_res2_{ACTIVE_REGISTER_KEY}")
             if st.button("Save inherent and residual scores", type="primary", key=f"save_residual_{ACTIVE_REGISTER_KEY}"):
                 update_risks(e, c[-4:])
         with t_dec:
@@ -3399,6 +3408,7 @@ elif page == "01 Risks & Opportunities" or str(page).startswith("02 Risks"):
                 risks_work[c],
                 hide_index=True,
                 use_container_width=True,
+                height=520,
                 column_config={
                     "Treatment decision": st.column_config.SelectboxColumn(options=TREATMENT_DECISIONS),
                     "Appetite status": st.column_config.SelectboxColumn(options=APPETITE),

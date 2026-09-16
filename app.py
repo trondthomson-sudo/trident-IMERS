@@ -1659,6 +1659,54 @@ def render_redeployment_case_button(risk_id):
         _redeployment_case_dialog(risk_id)
 
 
+
+SBD_R106_EXPLAIN_MD = """
+**SBD-R106 — Crewing and operating-cost inflation outpaces rate growth**
+
+**In plain words**
+Trident's **cost to run the vessels** (crew wages, operating costs) can rise faster than
+what customers pay on renewals. Even if the **day rate (TC)** looks fine on paper, the
+**margin** can shrink — busy ships that earn less than the plan assumed.
+
+**What we can fail to do**
+Cost news arrives (crewing, opex), but renewal instructions to Commercial stay on the old
+numbers. People negotiate **as if costs were still yesterday's**. That lag between cost
+signals and renewal instructions is the core failure mode.
+
+**What we can do (treat)**
+1. Every quarter, pull a **cost-inflation outlook** from Crewing / Ops / Finance into the
+   pricing corridor.
+2. When costs are rising hard, renewals must include **indexation or pass-through** —
+   do not lock a flat rate into a rising-cost year.
+3. Before talks: a short **rate-vs-cost bridge** (what we need on rate given where costs
+   are going).
+4. **Reject or escalate** deals that freeze rates while costs are climbing.
+5. Manage to **margin after crewing/opex**, not only the headline TC
+   (**SBD-P05** operating agenda / rate path; **SBD-P12** execution monitoring).
+
+**One sentence**
+R106 is the risk that we **sell tomorrow's vessel days at yesterday's prices** while the
+crew and opex bill keeps climbing.
+"""
+
+
+@st.dialog("SBD-R106 — cost inflation vs rate growth")
+def _r106_explain_dialog():
+    st.markdown(SBD_R106_EXPLAIN_MD)
+
+
+def render_risk_explain_button(risk_id, driver_ref=""):
+    """Per-risk tailored explanation. Key includes driver_ref (a risk may sit under several Level 3s)."""
+    key = f"risk_explain_btn_{ACTIVE_REGISTER_KEY}_{risk_id}_{driver_ref or 'na'}"
+    if risk_id == "SBD-R106":
+        if st.button(
+            "explain R106",
+            key=key,
+            help="Plain-language explanation of cost inflation vs rate growth",
+        ):
+            _r106_explain_dialog()
+
+
 def extract_mitigation_bullets(mitigation_text):
     """Split Current mitigation into successive action bullets (numbered or semicolon lists)."""
     import re as _re
@@ -1694,15 +1742,24 @@ def render_risk_library(risks_df, processes_df=None):
         .vh-l5-empty-slot{color:#6b7c80;font-size:.85rem;font-style:italic;margin:0 0 9px 0;padding:4px 0}
         .vh-l5-driver-slot{margin:0 0 9px 0;min-height:1.55em}
         .vh-playbook-hit{color:#00839B;font-weight:700;text-decoration:underline;text-underline-offset:2px}
-        div[data-testid="stExpander"] div[data-testid="stHorizontalBlock"] .stButton > button{
-            background:#90c4ce;border:1px solid #255a64;color:#00191d;min-height:2.1rem;font-weight:700;
-            box-shadow:0 1px 2px rgba(0,25,29,.12)
+        /* Risk-library explain buttons — PIL aqua (Streamlit often overrides without !important) */
+        div[data-testid="stExpander"] .stButton > button,
+        div[data-testid="stExpander"] .stButton > button[kind="secondary"],
+        div[data-testid="stExpander"] .stButton > button[kind="primary"]{
+            background-color:#90c4ce !important;
+            border:1px solid #255a64 !important;
+            color:#00191d !important;
+            min-height:2.1rem;
+            font-weight:700 !important;
+            box-shadow:0 1px 2px rgba(0,25,29,.12);
         }
-        div[data-testid="stExpander"] div[data-testid="stHorizontalBlock"] .stButton > button:hover{
-            background:#6eb0bd;border-color:#00191d;color:#00191d
+        div[data-testid="stExpander"] .stButton > button:hover{
+            background-color:#6eb0bd !important;
+            border-color:#00191d !important;
+            color:#00191d !important;
         }
-        div[data-testid="stExpander"] div[data-testid="stHorizontalBlock"] .stButton > button p{
-            color:#00191d
+        div[data-testid="stExpander"] .stButton > button p{
+            color:#00191d !important;
         }
         </style>
         """,
@@ -1711,7 +1768,7 @@ def render_risk_library(risks_df, processes_df=None):
     st.write(
         "Same layout as **Context** Level 5 ERM: pillars → Level 3 drivers → risk chips. "
         "Under each risk: **what we can fail to do** and **what we can do** (ISO process links come later). "
-        "Where text mentions **playbook**, **SBD-P05 / operating agenda**, or **redeployment**, press the matching grey button under the risk for the explanation."
+        "Risk chips show failure modes and mitigations. Tailored explanation buttons are added risk-by-risk — currently **explain R106**."
     )
     catalog = level3_driver_catalog()
     scored_risks = scored(risks_df) if not risks_df.empty and "Risk ID" in risks_df.columns else risks_df.copy()
@@ -1801,24 +1858,6 @@ def render_risk_library(risks_df, processes_df=None):
                     mitigation = str(risk_row.get("Current mitigation", "") or "").strip()
                     treatment = str(risk_row.get("Treatment decision", "") or "").strip()
                     bullets = extract_mitigation_bullets(mitigation)
-                    show_playbook = text_mentions_playbook(
-                        risk_row.get("Cause", ""),
-                        " ".join(questions),
-                        mitigation,
-                        " ".join(bullets),
-                    )
-                    show_p05 = text_mentions_p05_agenda(
-                        risk_row.get("Cause", ""),
-                        " ".join(questions),
-                        mitigation,
-                        " ".join(bullets),
-                    )
-                    show_redeploy = rid == "SBD-R104" or text_mentions_redeployment(
-                        risk_row.get("Cause", ""),
-                        " ".join(questions),
-                        mitigation,
-                        " ".join(bullets),
-                    )
 
                     parts = [
                         '<div class="vh-l5-erm-pane">',
@@ -1870,21 +1909,8 @@ def render_risk_library(risks_df, processes_df=None):
 
                     parts.append("</div>")
                     st.markdown("".join(parts), unsafe_allow_html=True)
-                    if show_playbook or show_p05 or show_redeploy:
-                        # Tight left cluster of grey help buttons
-                        btn_cols = st.columns([1.1, 1.5, 1.7, 4])
-                        slot = 0
-                        if show_playbook:
-                            with btn_cols[slot]:
-                                render_term_playbook_popover(rid)
-                            slot += 1
-                        if show_p05:
-                            with btn_cols[slot]:
-                                render_p05_agenda_button(rid)
-                            slot += 1
-                        if show_redeploy:
-                            with btn_cols[slot]:
-                                render_redeployment_case_button(rid)
+                    # One tailored explain control at a time (unique key per risk+driver)
+                    render_risk_explain_button(rid, driver_ref=ref)
 
     st.markdown("---")
     st.subheader("Add risk into a library slot")

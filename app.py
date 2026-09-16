@@ -1017,6 +1017,30 @@ def apply_brand_theme():
     .vh-l5-erm-coverage strong{color:#00191d}
     .vh-l5-empty-slot{color:#6b7c80;font-size:.85rem;font-style:italic;margin:0 0 9px 0;padding:4px 0}
     .vh-l5-driver-slot{margin:0 0 9px 0;min-height:1.55em}
+    
+        /* Help buttons: Streamlit stamps class st-key-vh_help_* on keyed containers */
+        div[class*="st-key-vh_help"] button,
+        div[class*="st-key-vh_help"] [data-testid="stBaseButton-secondary"],
+        div[class*="st-key-vh_help"] [data-testid="baseButton-secondary"] {
+            background-color: #5a6570 !important;
+            background-image: none !important;
+            border: 1px solid #3d4650 !important;
+            color: #ffffff !important;
+            min-height: 2.1rem !important;
+            font-weight: 700 !important;
+            box-shadow: 0 1px 2px rgba(0,25,29,.14) !important;
+        }
+        div[class*="st-key-vh_help"] button:hover,
+        div[class*="st-key-vh_help"] [data-testid="stBaseButton-secondary"]:hover {
+            background-color: #3d4650 !important;
+            border-color: #2a3138 !important;
+            color: #ffffff !important;
+        }
+        div[class*="st-key-vh_help"] button p,
+        div[class*="st-key-vh_help"] span {
+            color: #ffffff !important;
+        }
+
     </style>
     """, unsafe_allow_html=True)
 
@@ -1700,42 +1724,47 @@ def render_risk_explain_button(risk_id, driver_ref=""):
 
     Keys always include driver_ref so a risk linked to several Level 3 drivers
     does not hit StreamlitDuplicateElementKey (which previously hid PIL-02–05).
+    Buttons sit in a keyed container so CSS can target .st-key-vh-help-* (Streamlit
+    default white styles otherwise win).
     """
     suffix = f"{ACTIVE_REGISTER_KEY}_{risk_id}_{driver_ref or 'na'}"
-    # Tight left cluster; unused slots stay empty
-    c1, c2, c3, _sp = st.columns([1.2, 1.6, 1.8, 3.5])
+    if risk_id not in ("SBD-R101", "SBD-R104", "SBD-R106"):
+        return
 
-    if risk_id == "SBD-R101":
-        with c1:
-            if st.button(
-                "playbook",
-                key=f"term_playbook_btn_{suffix}",
-                help="Open Trident commercial term-playbook",
-            ):
-                _term_playbook_dialog(risk_id)
-        with c2:
-            if st.button(
-                "SBD-P05 agenda",
-                key=f"p05_agenda_btn_{suffix}",
-                help="What linking the operating agenda to a renewal means",
-            ):
-                _p05_agenda_dialog(risk_id)
-    elif risk_id == "SBD-R104":
-        with c1:
-            if st.button(
-                "redeployment case",
-                key=f"redeploy_case_btn_{suffix}",
-                help="Redeployment is not liquid — reconstruction, costs, and Chile cannibalisation",
-            ):
-                _redeployment_case_dialog(risk_id)
-    elif risk_id == "SBD-R106":
-        with c1:
-            if st.button(
-                "explain R106",
-                key=f"risk_explain_btn_{suffix}",
-                help="Plain-language explanation of cost inflation vs rate growth",
-            ):
-                _r106_explain_dialog()
+    with st.container(key=f"vh_help_{suffix}"):
+        c1, c2, c3, _sp = st.columns([1.2, 1.6, 1.8, 3.5])
+        if risk_id == "SBD-R101":
+            with c1:
+                if st.button(
+                    "playbook",
+                    key=f"term_playbook_btn_{suffix}",
+                    help="Open Trident commercial term-playbook",
+                ):
+                    _term_playbook_dialog(risk_id)
+            with c2:
+                if st.button(
+                    "SBD-P05 agenda",
+                    key=f"p05_agenda_btn_{suffix}",
+                    help="What linking the operating agenda to a renewal means",
+                ):
+                    _p05_agenda_dialog(risk_id)
+        elif risk_id == "SBD-R104":
+            with c1:
+                if st.button(
+                    "redeployment case",
+                    key=f"redeploy_case_btn_{suffix}",
+                    help="Redeployment is not liquid — reconstruction, costs, and Chile cannibalisation",
+                ):
+                    _redeployment_case_dialog(risk_id)
+        elif risk_id == "SBD-R106":
+            with c1:
+                if st.button(
+                    "explain R106",
+                    key=f"risk_explain_btn_{suffix}",
+                    help="Plain-language explanation of cost inflation vs rate growth",
+                ):
+                    _r106_explain_dialog()
+
 
 
 def extract_mitigation_bullets(mitigation_text):
@@ -1773,26 +1802,30 @@ def render_risk_library(risks_df, processes_df=None):
         .vh-l5-empty-slot{color:#6b7c80;font-size:.85rem;font-style:italic;margin:0 0 9px 0;padding:4px 0}
         .vh-l5-driver-slot{margin:0 0 9px 0;min-height:1.55em}
         .vh-playbook-hit{color:#00839B;font-weight:700;text-decoration:underline;text-underline-offset:2px}
-        /* Risk-library explain buttons — PIL aqua (Streamlit often overrides without !important) */
-        div[data-testid="stExpander"] .stButton > button,
-        div[data-testid="stExpander"] .stButton > button[kind="secondary"],
-        div[data-testid="stExpander"] .stButton > button[kind="primary"]{
-            background-color:#90c4ce !important;
-            border:1px solid #255a64 !important;
-            color:#00191d !important;
-            min-height:2.1rem;
-            font-weight:700 !important;
-            box-shadow:0 1px 2px rgba(0,25,29,.12);
+
+        /* Help buttons: Streamlit stamps class st-key-vh_help_* on keyed containers */
+        div[class*="st-key-vh_help"] button,
+        div[class*="st-key-vh_help"] [data-testid="stBaseButton-secondary"],
+        div[class*="st-key-vh_help"] [data-testid="baseButton-secondary"] {
+            background-color: #5a6570 !important;
+            background-image: none !important;
+            border: 1px solid #3d4650 !important;
+            color: #ffffff !important;
+            min-height: 2.1rem !important;
+            font-weight: 700 !important;
+            box-shadow: 0 1px 2px rgba(0,25,29,.14) !important;
         }
-        div[data-testid="stExpander"] .stButton > button:hover{
-            background-color:#6eb0bd !important;
-            border-color:#00191d !important;
-            color:#00191d !important;
+        div[class*="st-key-vh_help"] button:hover,
+        div[class*="st-key-vh_help"] [data-testid="stBaseButton-secondary"]:hover {
+            background-color: #3d4650 !important;
+            border-color: #2a3138 !important;
+            color: #ffffff !important;
         }
-        div[data-testid="stExpander"] .stButton > button p{
-            color:#00191d !important;
+        div[class*="st-key-vh_help"] button p,
+        div[class*="st-key-vh_help"] span {
+            color: #ffffff !important;
         }
-        </style>
+</style>
         """,
         unsafe_allow_html=True,
     )

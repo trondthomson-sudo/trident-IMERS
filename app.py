@@ -2979,7 +2979,7 @@ def render_risk_library(risks_df, processes_df=None):
             pillar_risk_ids.update(scored_risks.loc[mask, "Risk ID"].astype(str).tolist())
         count = len(pillar_risk_ids)
 
-        with st.expander(f"{pillar_code} · {pillar_description} ({count})", expanded=(pillar_code == "PIL-01")):
+        with st.expander(f"{pillar_code} · {pillar_description} ({count})", expanded=False):
             st.markdown(
                 (
                     '<div class="vh-l5-erm-pane">'

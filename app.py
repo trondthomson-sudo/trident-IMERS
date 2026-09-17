@@ -3158,6 +3158,366 @@ def render_risk_library(risks_df, processes_df=None):
 
 
 
+def render_assess_and_decide(risks_df):
+    """Pedagogical Assess & decide: read failure modes / mitigations, score residual, choose treatment."""
+    st.markdown(
+        """
+        <style>
+        .vh-assess-score-green{display:inline-block;background:#caff74;border:1px solid #90c44f;color:#00191d;border-radius:6px;padding:6px 12px;font-weight:800;font-size:1.05rem}
+        .vh-assess-score-amber{display:inline-block;background:#ffe08a;border:1px solid #c9a227;color:#00191d;border-radius:6px;padding:6px 12px;font-weight:800;font-size:1.05rem}
+        .vh-assess-score-red{display:inline-block;background:#ffc9b0;border:1px solid #d94b18;color:#00191d;border-radius:6px;padding:6px 12px;font-weight:800;font-size:1.05rem}
+        .vh-assess-hint{color:#6b7c80;font-size:.88rem;font-style:italic;margin:4px 0 8px 0}
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        f"""
+**Assess & decide — five steps**
+
+1. **Pick a risk** — one at a time (filter by pillar if helpful).
+2. **Read failure modes** — *What we can fail to do* (from Cause).
+3. **Read current mitigations** — *What we can do* (from Current mitigation).
+4. **Score residual** — likelihood × impact **after** current mitigation (feeds the heatmap). Material line: residual ≥ **{MATERIAL_RESIDUAL_THRESHOLD}**.
+5. **Choose treatment & appetite** — Treat / Accept / Monitor / Transfer / Avoid, then save.
+        """.strip()
+    )
+
+    if risks_df is None or risks_df.empty or "Risk ID" not in risks_df.columns:
+        st.warning("No risks in this register yet. Add them in **Risk library** or **Risk register**.")
+        return
+
+    work = ensure_risk_treatment_columns(risks_df)
+    scored_df = scored(work)
+
+    # --- metrics ---
+    outside_n = int((scored_df.get("Appetite status", pd.Series(dtype=str)).astype(str).str.strip() == "Outside appetite").sum())
+    resid = pd.to_numeric(scored_df.get("Residual score", pd.Series(dtype=float)), errors="coerce")
+    material_n = int((resid.fillna(0) >= MATERIAL_RESIDUAL_THRESHOLD).sum())
+    rl = pd.to_numeric(scored_df.get("Residual likelihood", pd.Series(dtype=float)), errors="coerce")
+    ri = pd.to_numeric(scored_df.get("Residual impact", pd.Series(dtype=float)), errors="coerce")
+    missing_n = int(((rl.isna()) | (ri.isna()) | (rl.fillna(0) <= 0) | (ri.fillna(0) <= 0)).sum())
+    m1, m2, m3 = st.columns(3)
+    m1.metric("Outside appetite", outside_n)
+    m2.metric(f"Residual ≥ {MATERIAL_RESIDUAL_THRESHOLD}", material_n)
+    m3.metric("Missing residual scores", missing_n)
+
+    # --- picker (optional pillar filter) ---
+    pillar_options = ["All pillars"]
+    for pillar_label, _drivers in VALUE_HIERARCHY_GROUPS:
+        plain = pillar_label.replace("<br>", " · ")
+        pillar_id = plain.split("PIL-0")[1][:1] if "PIL-0" in plain else ""
+        pillar_code = f"PIL-0{pillar_id}" if pillar_id else ""
+        if pillar_code:
+            pillar_options.append(pillar_code)
+
+    fcol, scol = st.columns([1, 2])
+    with fcol:
+        pillar_filter = st.selectbox(
+            "Pillar filter",
+            pillar_options,
+            key=f"assess_pillar_filter_{ACTIVE_REGISTER_KEY}",
+        )
+    filtered = scored_df
+    if pillar_filter != "All pillars" and "Value pillars" in filtered.columns:
+        filtered = filtered[
+            filtered["Value pillars"].astype(str).str.contains(pillar_filter, na=False)
+        ]
+    if filtered.empty:
+        st.info("No risks match this pillar filter.")
+        return
+
+    def _picker_label(row):
+        rid = str(row.get("Risk ID", "")).strip()
+        title = str(row.get("Risk title", "") or "").strip()
+        try:
+            score = int(float(row.get("Residual score", 0) or 0))
+        except (TypeError, ValueError):
+            score = 0
+        try:
+            lik = int(float(row.get("Residual likelihood", 0) or 0))
+            imp = int(float(row.get("Residual impact", 0) or 0))
+            lxI = f"{lik}×{imp}={score}"
+        except (TypeError, ValueError):
+            lxI = str(score)
+        return f"{rid} — {title} (residual {lxI})"
+
+    labels = []
+    id_by_label = {}
+    for _, row in filtered.sort_values("Risk ID").iterrows():
+        lab = _picker_label(row)
+        labels.append(lab)
+        id_by_label[lab] = str(row.get("Risk ID", "")).strip()
+
+    with scol:
+        chosen_label = st.selectbox(
+            "Select risk",
+            labels,
+            key=f"assess_risk_picker_{ACTIVE_REGISTER_KEY}",
+        )
+    rid = id_by_label.get(chosen_label, "")
+    if not rid:
+        st.warning("Select a risk to assess.")
+        return
+
+    risk_rows = scored_df[scored_df["Risk ID"].astype(str) == rid]
+    if risk_rows.empty:
+        st.error(f"Risk {rid} not found.")
+        return
+    risk_row = risk_rows.iloc[0]
+    title = str(risk_row.get("Risk title", "") or "")
+    try:
+        residual_score = int(float(risk_row.get("Residual score", 0) or 0))
+    except (TypeError, ValueError):
+        residual_score = 0
+    try:
+        cur_lik = int(float(risk_row.get("Residual likelihood", 0) or 0))
+        cur_imp = int(float(risk_row.get("Residual impact", 0) or 0))
+        score_badge = f"{cur_lik}×{cur_imp} = {residual_score}"
+    except (TypeError, ValueError):
+        score_badge = str(residual_score)
+
+    questions = extract_operational_questions(risk_row.get("Cause", ""))
+    bullets = extract_mitigation_bullets(risk_row.get("Current mitigation", ""))
+
+    # --- selected risk card (library visual language) ---
+    st.markdown(
+        (
+            '<div class="vh-l5-erm-pane">'
+            f'<div class="vh-l5-pane-title">'
+            f'<span class="vh-l5-risk-badge">{escape(rid)}</span>'
+            f'{escape(title)}'
+            f' &nbsp; <span class="vh-l5-risk-badge">residual {escape(score_badge)}</span>'
+            f"</div></div>"
+        ),
+        unsafe_allow_html=True,
+    )
+
+    left, right = st.columns(2)
+    with left:
+        if questions:
+            q_html = "".join(
+                f"<li>{highlight_library_terms_html(escape(q.rstrip(' ?')))}?</li>"
+                for q in questions
+            )
+            st.markdown(
+                (
+                    '<div class="vh-l5-erm-pane">'
+                    '<div class="vh-l5-pane-title">What we can fail to do</div>'
+                    '<div class="vh-l5-erm-coverage">'
+                    '<ul style="margin:4px 0 0 18px;padding:0;">'
+                    f"{q_html}</ul></div></div>"
+                ),
+                unsafe_allow_html=True,
+            )
+        else:
+            st.markdown(
+                (
+                    '<div class="vh-l5-erm-pane">'
+                    '<div class="vh-l5-pane-title">What we can fail to do</div>'
+                    '<div class="vh-l5-empty-slot">No failure modes yet — add Trident-side items in '
+                    "<strong>Cause</strong> via Risk register / library.</div></div>"
+                ),
+                unsafe_allow_html=True,
+            )
+    with right:
+        if bullets:
+            m_html = "".join(
+                f"<li>{highlight_library_terms_html(escape(b))}</li>" for b in bullets
+            )
+            st.markdown(
+                (
+                    '<div class="vh-l5-erm-pane">'
+                    '<div class="vh-l5-pane-title">What we can do</div>'
+                    '<div class="vh-l5-erm-coverage">'
+                    '<ul style="margin:4px 0 0 18px;padding:0;">'
+                    f"{m_html}</ul></div></div>"
+                ),
+                unsafe_allow_html=True,
+            )
+        else:
+            st.markdown(
+                (
+                    '<div class="vh-l5-erm-pane">'
+                    '<div class="vh-l5-pane-title">What we can do</div>'
+                    '<div class="vh-l5-empty-slot">No mitigations yet — fill '
+                    "<strong>Current mitigation</strong> in Risk register / library.</div></div>"
+                ),
+                unsafe_allow_html=True,
+            )
+
+    def _clamp_1_5(val, default=3):
+        try:
+            n = int(float(val))
+            if n < 1 or n > 5:
+                return default
+            return n
+        except (TypeError, ValueError):
+            return default
+
+    def _opt_index(options, value, default=0):
+        v = str(value or "").strip()
+        if v in options:
+            return options.index(v)
+        return default
+
+    # --- score & decide strip ---
+    input_zone_banner("Score & decide — residual after current mitigation")
+    with st.container(key=f"vh_input_assess_score_{ACTIVE_REGISTER_KEY}_{rid}"):
+        c1, c2, c3 = st.columns([1, 1, 1.2])
+        with c1:
+            new_lik = st.selectbox(
+                "Residual likelihood (1–5)",
+                [1, 2, 3, 4, 5],
+                index=_clamp_1_5(risk_row.get("Residual likelihood", 3), 3) - 1,
+                key=f"assess_rl_{ACTIVE_REGISTER_KEY}_{rid}",
+            )
+        with c2:
+            new_imp = st.selectbox(
+                "Residual impact (1–5)",
+                [1, 2, 3, 4, 5],
+                index=_clamp_1_5(risk_row.get("Residual impact", 3), 3) - 1,
+                key=f"assess_ri_{ACTIVE_REGISTER_KEY}_{rid}",
+            )
+        live_score = int(new_lik) * int(new_imp)
+        if live_score >= MATERIAL_RESIDUAL_THRESHOLD:
+            score_class = "vh-assess-score-red"
+            score_note = "material / escalate attention"
+        elif live_score >= 9:
+            score_class = "vh-assess-score-amber"
+            score_note = "approaching material line"
+        else:
+            score_class = "vh-assess-score-green"
+            score_note = "below material line"
+        with c3:
+            st.markdown("**Residual score** (likelihood × impact)")
+            st.markdown(
+                f'<span class="{score_class}">{new_lik} × {new_imp} = {live_score}</span>'
+                f' <span class="vh-assess-hint">{escape(score_note)}</span>',
+                unsafe_allow_html=True,
+            )
+
+        d1, d2 = st.columns(2)
+        with d1:
+            treatment = st.selectbox(
+                "Treatment decision",
+                TREATMENT_DECISIONS,
+                index=_opt_index(TREATMENT_DECISIONS, risk_row.get("Treatment decision", ""), 0),
+                key=f"assess_treat_{ACTIVE_REGISTER_KEY}_{rid}",
+            )
+        with d2:
+            appetite = st.selectbox(
+                "Appetite status",
+                APPETITE,
+                index=_opt_index(APPETITE, risk_row.get("Appetite status", ""), 0),
+                key=f"assess_app_{ACTIVE_REGISTER_KEY}_{rid}",
+            )
+
+        with st.expander("Accept / escalate", expanded=False):
+            status = st.selectbox(
+                "Status",
+                STATUSES,
+                index=_opt_index(STATUSES, risk_row.get("Status", ""), 0),
+                key=f"assess_status_{ACTIVE_REGISTER_KEY}_{rid}",
+            )
+            esc_opts = ["No", "Yes"]
+            esc_cur = str(risk_row.get("Enterprise escalation", "No") or "No").strip()
+            if esc_cur not in esc_opts:
+                esc_cur = "No"
+            escalation = st.selectbox(
+                "Enterprise escalation",
+                esc_opts,
+                index=esc_opts.index(esc_cur),
+                key=f"assess_esc_{ACTIVE_REGISTER_KEY}_{rid}",
+            )
+            evidence = st.text_area(
+                "Evidence / rationale",
+                value=str(risk_row.get("Evidence / rationale", "") or ""),
+                height=100,
+                key=f"assess_evidence_{ACTIVE_REGISTER_KEY}_{rid}",
+            )
+
+        if st.button(
+            "Save assessment for this risk",
+            type="primary",
+            key=f"assess_save_{ACTIVE_REGISTER_KEY}_{rid}",
+        ):
+            # Ensure Accept/escalate fields exist even if expander never opened (Streamlit still runs widgets)
+            row = pd.DataFrame(
+                [
+                    {
+                        "Risk ID": rid,
+                        "Residual likelihood": new_lik,
+                        "Residual impact": new_imp,
+                        "Treatment decision": treatment,
+                        "Appetite status": appetite,
+                        "Status": status,
+                        "Enterprise escalation": escalation,
+                        "Evidence / rationale": evidence,
+                    }
+                ]
+            )
+            update_risks(
+                row,
+                [
+                    "Residual likelihood",
+                    "Residual impact",
+                    "Treatment decision",
+                    "Appetite status",
+                    "Status",
+                    "Enterprise escalation",
+                    "Evidence / rationale",
+                ],
+            )
+
+    st.caption(
+        "To edit the five mitigations or failure modes, use **Risk register** "
+        "(or refine in library source fields)."
+    )
+
+    # --- optional bulk grid ---
+    with st.expander("Bulk residual score grid", expanded=False):
+        st.caption("Power-user grid: inherent and residual L/I only — no mitigation prose.")
+        bulk_cols = [
+            "Risk ID",
+            "Risk title",
+            "Inherent likelihood",
+            "Inherent impact",
+            "Residual likelihood",
+            "Residual impact",
+        ]
+        present = [c for c in bulk_cols if c in work.columns]
+        input_zone_banner("Bulk residual scores — editable inputs")
+        with st.container(key=f"vh_input_assess_bulk_{ACTIVE_REGISTER_KEY}"):
+            bulk_edited = st.data_editor(
+                work[present],
+                hide_index=True,
+                use_container_width=True,
+                height=360,
+                key=f"assess_bulk_editor_{ACTIVE_REGISTER_KEY}",
+            )
+        if st.button(
+            "Save bulk residual scores",
+            type="primary",
+            key=f"assess_bulk_save_{ACTIVE_REGISTER_KEY}",
+        ):
+            update_cols = [
+                c
+                for c in [
+                    "Inherent likelihood",
+                    "Inherent impact",
+                    "Residual likelihood",
+                    "Residual impact",
+                ]
+                if c in present
+            ]
+            update_risks(bulk_edited, update_cols)
+
+    st.info(
+        "Detailed multi-step action plans remain under **More modules → Actions & target risk** "
+        "if you need them later."
+    )
+
 
 
 # Strategy retains seed + migration on strategy_*.csv (backward compatible).
@@ -3359,70 +3719,7 @@ elif page == "01 Risks & Opportunities" or str(page).startswith("02 Risks"):
         }
         editor("risks", risks_work, risk_config, height=780)
     with t_assess:
-        st.markdown(
-            """
-**How to use this tab (Strategy & BD fast path)**
-
-1. **Current mitigation** — what already reduces the risk (process, control, contract term, review).
-2. **Residual** — score likelihood and impact **after** that mitigation (1–5 each). This feeds the heatmap.
-3. **Treatment decision** — Treat / Accept / Monitor / Transfer / Avoid.
-4. **Appetite** — Within / Approaching / Outside. If you **Accept**, set Status to Accepted and Appetite to Within (or Approaching with a reason).
-5. Open **02 Heatmap** when residual scores are good enough to review.
-            """.strip()
-        )
-        t_mit, t_res, t_dec = st.tabs(["1. Mitigation -> residual", "2. Residual scores", "3. Accept / appetite"])
-        with t_mit:
-            input_zone_banner("1. Mitigation and residual — editable inputs")
-            c = ["Risk ID", "Risk title", "Current mitigation", "Treatment decision", "Residual likelihood", "Residual impact"]
-            with st.container(key=f"vh_input_assess_mit_{ACTIVE_REGISTER_KEY}"):
-                e = st.data_editor(
-                    risks_work[c],
-                    hide_index=True,
-                    use_container_width=True,
-                    height=620,
-                    column_config={
-                        "Treatment decision": st.column_config.SelectboxColumn(options=TREATMENT_DECISIONS),
-                        "Current mitigation": st.column_config.TextColumn(width="large"),
-                    },
-                    key=f"score_mit_{ACTIVE_REGISTER_KEY}",
-                )
-
-            if st.button("Save mitigation and residual", type="primary", key=f"save_mit_{ACTIVE_REGISTER_KEY}"):
-                update_risks(e, ["Current mitigation", "Treatment decision", "Residual likelihood", "Residual impact"])
-        with t_res:
-            st.caption("Same residual fields — use if you prefer a tight scoring grid.")
-            input_zone_banner("2. Residual scores — editable inputs")
-            c = ["Risk ID", "Risk title", "Inherent likelihood", "Inherent impact", "Residual likelihood", "Residual impact"]
-            with st.container(key=f"vh_input_assess_res_{ACTIVE_REGISTER_KEY}"):
-                e = st.data_editor(risks_work[c], hide_index=True, use_container_width=True, height=520, key=f"score_res2_{ACTIVE_REGISTER_KEY}")
-
-            if st.button("Save inherent and residual scores", type="primary", key=f"save_residual_{ACTIVE_REGISTER_KEY}"):
-                update_risks(e, c[-4:])
-        with t_dec:
-            st.caption(
-                "Accept the residual: set Treatment decision = Accept, Appetite = Within appetite (or Approaching with rationale), Status = Accepted. "
-                "Outside appetite usually means Treat or escalate."
-            )
-            input_zone_banner("3. Accept / appetite — editable inputs")
-            c = ["Risk ID", "Risk title", "Treatment decision", "Appetite status", "Status", "Enterprise escalation", "Evidence / rationale"]
-            with st.container(key=f"vh_input_assess_dec_{ACTIVE_REGISTER_KEY}"):
-                e = st.data_editor(
-                    risks_work[c],
-                    hide_index=True,
-                    use_container_width=True,
-                    height=520,
-                    column_config={
-                        "Treatment decision": st.column_config.SelectboxColumn(options=TREATMENT_DECISIONS),
-                        "Appetite status": st.column_config.SelectboxColumn(options=APPETITE),
-                        "Status": st.column_config.SelectboxColumn(options=STATUSES),
-                        "Enterprise escalation": st.column_config.SelectboxColumn(options=["Yes", "No"]),
-                    },
-                    key=f"score_dec_{ACTIVE_REGISTER_KEY}",
-                )
-
-            if st.button("Save acceptance and appetite", type="primary", key=f"save_appetite_{ACTIVE_REGISTER_KEY}"):
-                update_risks(e, ["Treatment decision", "Appetite status", "Status", "Enterprise escalation", "Evidence / rationale"])
-        st.info("Detailed multi-step action plans remain under **More modules → Actions & target risk** if you need them later.")
+        render_assess_and_decide(risks_work)
     with t_opp:
         editor("opportunities", data["opportunities"])
 elif page == "03 Ownership" or page == "04 Ownership" or str(page).startswith("03 Ownership"):

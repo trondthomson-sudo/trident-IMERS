@@ -38,6 +38,44 @@ On **00 Value Hierarchy & Context**, each Level 5 process expander includes:
 - **Green — 4.1 ISO-aligned delivery**: process owner, interfaces, activities, outputs, review cadence, linked Level 3 drivers, and matching ISO alignment-matrix elements.
 - **Orange — 4.2 ERM monitoring**: risks that list that Process ID, plus controls and treatment actions for those risks.
 
+## Department folders
+
+The top of the app has one folder tab per executive function (CEO, Strategy & BD, Finance, Commercial, Vessel Operations,
+Technical & HSEQ, HR, Admin & ICT, Legal & Compliance) plus **Enterprise**. Folders with more than one register show a
+register selector (Vessel Operations: Vessel Operations / Chile / Shetland; HR: Crewing / Onshore Employees; Admin & ICT:
+Administration / ICT). Levels 0–3 are identical in every folder; on **00 Context** the Level 3 drivers are marked for the
+selected function: solid teal = accountable, light teal = contributing, dashed orange = not in scope but tagged by this
+register's risks, faded = not in scope. Levels 1 and 2 show the accountable/contributing counts.
+
+## Value driver ownership (every function traces to value)
+
+Every executive function (CEO + eight departments) traces to the value hierarchy through Level 3:
+Level 3 driver → Level 2 pillar → Level 1 lever (EBITDA, Multiple, Cash) → Level 0 equity value.
+
+- **2.3 Multiple Expansion** is split into *earnings quality* (3.3.1–3.3.6) and a **strong operating platform** (3.3.7–3.3.12):
+  3.3.7 Governance and reliable reporting · 3.3.8 Scalable operating model and integration capability ·
+  3.3.9 People, competence, leadership and succession · 3.3.10 HSEQ performance (safety, environment, quality, ESG) ·
+  3.3.11 Regulatory compliance and legal robustness · 3.3.12 Digital, data and cyber resilience.
+- `data/driver_ownership.csv` holds one **accountable function** per driver plus **contributing functions**. Edit it under
+  **Enterprise Risk Register → Value driver ownership**. Seed values are proposals and need validation by each function head.
+- **Enterprise Risk Register → Value coverage** shows, per driver, linked processes and risks across all registers and flags gaps
+  (no accountable function, no processes, no risks).
+- Each unit's **00 Context** page shows the drivers that function is accountable for and contributes to.
+  Crewing and Onshore Employees map to HR; Administration and ICT map to Administration & ICT; Chile and Shetland are
+  geographies that contribute to the functions' drivers.
+- Key-person risk (SBD-R119) moved from 3.3.8 to 3.3.9.
+
+### Scope rule for risk tags
+
+A register's risks may only be tagged to Level 3 drivers in that function's scope (accountable or contributing).
+Drivers that belong to another function are recorded in the risk's **Handed-over drivers** column, and risks with no
+in-scope driver are moved to the accountable function's register. The Risk register tab warns about out-of-scope tags,
+and the Risk library shows only the function's drivers by default.
+
+Strategy & BD retag (Nov 2026): 35 risks kept and trimmed to the 16 S&BD drivers; SBD-R122, R124, R125, R127, R137, R138
+moved to Finance and SBD-R102, R135 to Vessel Operations (marked "Transferred from"). Backup:
+`data/strategy_risks_backup_before_scope_retag.csv`.
+
 ## Risk library (pillar → Level 3 → risks)
 
 On **03 Risks & Opportunities**, the **Risk library** tab mirrors all five pillars and every Level 3 driver from **3.1.1 through 3.5.7**. Risks link via the optional **Level 3 drivers** field. Empty slots highlight coverage gaps; draft risks can be created into a chosen slot.

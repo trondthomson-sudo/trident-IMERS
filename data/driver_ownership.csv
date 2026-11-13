@@ -1,0 +1,36 @@
+Level 3 ref,Accountable function,Contributing functions,Notes
+3.1.1,Commercial,Strategy & Business Development; Vessel Operations,Proposed - validate with function head
+3.1.2,Vessel Operations,Commercial; Technical & HSEQ; HR,Proposed - validate with function head
+3.1.3,Commercial,Legal & Compliance; Finance,Proposed - validate with function head
+3.1.4,Vessel Operations,Technical & HSEQ; HR,Proposed - validate with function head
+3.1.5,Vessel Operations,HR; Administration & ICT; Technical & HSEQ,Proposed - validate with function head
+3.2.1,Strategy & Business Development,Finance; Technical & HSEQ; Commercial,Proposed - validate with function head
+3.2.2,Strategy & Business Development,Technical & HSEQ; Finance; Vessel Operations,Proposed - validate with function head
+3.2.3,Strategy & Business Development,Finance; Technical & HSEQ; Legal & Compliance,Proposed - validate with function head
+3.2.4,Strategy & Business Development,Finance; Legal & Compliance; HR,Proposed - validate with function head
+3.2.5,Strategy & Business Development,Finance; Commercial; Technical & HSEQ,Proposed - validate with function head
+3.3.1,Commercial,Strategy & Business Development; Finance,Proposed - validate with function head
+3.3.2,Commercial,Legal & Compliance; Strategy & Business Development,Proposed - validate with function head
+3.3.3,Commercial,Finance; Legal & Compliance,Proposed - validate with function head
+3.3.4,Finance,Commercial; Vessel Operations,Proposed - validate with function head
+3.3.5,Technical & HSEQ,Strategy & Business Development; Vessel Operations,Proposed - validate with function head
+3.3.6,Strategy & Business Development,Technical & HSEQ; Finance,Proposed - validate with function head
+3.3.7,Finance,CEO; Administration & ICT; Legal & Compliance,Proposed - validate with function head
+3.3.8,CEO,Strategy & Business Development; HR; Administration & ICT,Proposed - validate with function head
+3.3.9,HR,CEO; Vessel Operations,Proposed - validate with function head
+3.3.10,Technical & HSEQ,Vessel Operations; HR,Proposed - validate with function head
+3.3.11,Legal & Compliance,Technical & HSEQ; Finance,Proposed - validate with function head
+3.3.12,Administration & ICT,Finance; Vessel Operations,Proposed - validate with function head
+3.4.1,Finance,Commercial; Vessel Operations,Proposed - validate with function head
+3.4.2,Technical & HSEQ,Vessel Operations; Finance,Proposed - validate with function head
+3.4.3,Finance,Commercial; Administration & ICT,Proposed - validate with function head
+3.4.4,Finance,Commercial,Proposed - validate with function head
+3.4.5,Finance,,Proposed - validate with function head
+3.4.6,Finance,Legal & Compliance,Proposed - validate with function head
+3.5.1,CEO,Finance; Strategy & Business Development,Proposed - validate with function head
+3.5.2,Finance,Strategy & Business Development,Proposed - validate with function head
+3.5.3,Finance,Strategy & Business Development,Proposed - validate with function head
+3.5.4,Strategy & Business Development,Finance; Technical & HSEQ,Proposed - validate with function head
+3.5.5,Finance,,Proposed - validate with function head
+3.5.6,Finance,,Proposed - validate with function head
+3.5.7,Finance,Strategy & Business Development,Proposed - validate with function head

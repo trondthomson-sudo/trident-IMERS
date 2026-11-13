@@ -14,6 +14,7 @@ DATA_DIR.mkdir(exist_ok=True)
 
 DATASET_KEYS = ["objectives", "value_drivers", "processes", "risks", "controls", "actions", "opportunities"]
 UNITS = [
+    ("CEO Office", "CEO", "Chief Executive Officer"),
     ("Strategy & Business Development", "Trond V. Thomson", "Chief Strategy & Business Developer"),
     ("Finance", "Øyvind Folland", "CFO"),
     ("Commercial", "Joar Gjerde", "Chief Commercial Officer"),
@@ -28,6 +29,7 @@ UNITS = [
     ("Shetland Operations", "Dean Johnson", "Managing Director, Shetland"),
 ]
 REGISTER_KEYS = {
+    "CEO Office": "ceo",
     "Strategy & Business Development": "strategy",
     "Finance": "finance",
     "Commercial": "commercial",
@@ -43,6 +45,91 @@ REGISTER_KEYS = {
 }
 ENTERPRISE_REGISTER = "Enterprise Risk Register"
 UNIT_BY_NAME = {name: (owner, title) for name, owner, title in UNITS}
+
+# Executive functions (CEO + eight departments) used for Level 3 driver ownership.
+FUNCTIONS = [
+    ("CEO", "Chief Executive Officer"),
+    ("Strategy & Business Development", "Trond V. Thomson"),
+    ("Finance", "Øyvind Folland"),
+    ("Commercial", "Joar Gjerde"),
+    ("Vessel Operations", "Kjetil Opshaug"),
+    ("Technical & HSEQ", "Raymond Kaspersen"),
+    ("HR", "Hanne Beate Melby"),
+    ("Administration & ICT", "Ida Juul-Jørgensen"),
+    ("Legal & Compliance", "Ove Paulsen"),
+]
+FUNCTION_NAMES = [name for name, _head in FUNCTIONS]
+# Unit registers -> executive function. Chile and Shetland are geographies that contribute to
+# the same drivers as the functions; they have no driver ownership of their own.
+REGISTER_FUNCTION = {
+    "CEO Office": "CEO",
+    "Chile Operations": "Vessel Operations",
+    "Shetland Operations": "Vessel Operations",
+    "Strategy & Business Development": "Strategy & Business Development",
+    "Finance": "Finance",
+    "Commercial": "Commercial",
+    "Vessel Operations": "Vessel Operations",
+    "Technical & HSEQ": "Technical & HSEQ",
+    "Crewing": "HR",
+    "Onshore Employees & Organization": "HR",
+    "Administration": "Administration & ICT",
+    "ICT": "Administration & ICT",
+    "Legal & Compliance": "Legal & Compliance",
+}
+# Department folders: one per executive function, plus the Enterprise roll-up.
+# (folder label, function name, registers inside the folder)
+FOLDERS = [
+    ("CEO", "CEO", ["CEO Office"]),
+    ("Strategy & BD", "Strategy & Business Development", ["Strategy & Business Development"]),
+    ("Finance", "Finance", ["Finance"]),
+    ("Commercial", "Commercial", ["Commercial"]),
+    ("Vessel Operations", "Vessel Operations", ["Vessel Operations", "Chile Operations", "Shetland Operations"]),
+    ("Technical & HSEQ", "Technical & HSEQ", ["Technical & HSEQ"]),
+    ("HR", "HR", ["Crewing", "Onshore Employees & Organization"]),
+    ("Admin & ICT", "Administration & ICT", ["Administration", "ICT"]),
+    ("Legal & Compliance", "Legal & Compliance", ["Legal & Compliance"]),
+    ("Enterprise", None, ["Enterprise Risk Register"]),
+]
+DEFAULT_FOLDER = "Strategy & BD"
+DRIVER_OWNERSHIP_COLUMNS = ["Level 3 ref", "Accountable function", "Contributing functions", "Notes"]
+_SBD, _FIN, _COM, _OPS, _TEC, _HR, _ADM, _LEG = FUNCTION_NAMES[1:]
+DRIVER_OWNERSHIP_SEED = [
+    ("3.1.1", _COM, [_SBD, _OPS]),
+    ("3.1.2", _OPS, [_COM, _TEC, _HR]),
+    ("3.1.3", _COM, [_LEG, _FIN]),
+    ("3.1.4", _OPS, [_TEC, _HR]),
+    ("3.1.5", _OPS, [_HR, _ADM, _TEC]),
+    ("3.2.1", _SBD, [_FIN, _TEC, _COM]),
+    ("3.2.2", _SBD, [_TEC, _FIN, _OPS]),
+    ("3.2.3", _SBD, [_FIN, _TEC, _LEG]),
+    ("3.2.4", _SBD, [_FIN, _LEG, _HR]),
+    ("3.2.5", _SBD, [_FIN, _COM, _TEC]),
+    ("3.3.1", _COM, [_SBD, _FIN]),
+    ("3.3.2", _COM, [_LEG, _SBD]),
+    ("3.3.3", _COM, [_FIN, _LEG]),
+    ("3.3.4", _FIN, [_COM, _OPS]),
+    ("3.3.5", _TEC, [_SBD, _OPS]),
+    ("3.3.6", _SBD, [_TEC, _FIN]),
+    ("3.3.7", _FIN, ["CEO", _ADM, _LEG]),
+    ("3.3.8", "CEO", [_SBD, _HR, _ADM]),
+    ("3.3.9", _HR, ["CEO", _OPS]),
+    ("3.3.10", _TEC, [_OPS, _HR]),
+    ("3.3.11", _LEG, [_TEC, _FIN]),
+    ("3.3.12", _ADM, [_FIN, _OPS]),
+    ("3.4.1", _FIN, [_COM, _OPS]),
+    ("3.4.2", _TEC, [_OPS, _FIN]),
+    ("3.4.3", _FIN, [_COM, _ADM]),
+    ("3.4.4", _FIN, [_COM]),
+    ("3.4.5", _FIN, []),
+    ("3.4.6", _FIN, [_LEG]),
+    ("3.5.1", "CEO", [_FIN, _SBD]),
+    ("3.5.2", _FIN, [_SBD]),
+    ("3.5.3", _FIN, [_SBD]),
+    ("3.5.4", _SBD, [_FIN, _TEC]),
+    ("3.5.5", _FIN, []),
+    ("3.5.6", _FIN, []),
+    ("3.5.7", _FIN, [_SBD]),
+]
 RISK_CATEGORIES = ["Strategy execution", "Market development", "Fleet & capacity", "Capital allocation", "M&A & integration", "Customer concentration", "Technology", "New business models", "Geographic expansion", "Competitive position", "Financing & ownership", "Organizational capacity", "Data & assumptions", "Sustainability & regulation", "Reputation & partnerships"]
 APPETITE = ["Within appetite", "Approaching appetite", "Outside appetite"]
 TREATMENT_DECISIONS = ["Treat", "Accept", "Monitor", "Transfer", "Avoid"]
@@ -102,7 +189,13 @@ VALUE_HIERARCHY_GROUPS = [
         ("3.3.3", "Customer and counterparty quality"), ("3.3.4", "Reduced EBITDA volatility"),
         ("3.3.5", "Fleet quality and residual-value protection"),
         ("3.3.6", "Modernize through vessel divestments and replacements"),
-        ("3.3.7", "Governance and reliable reporting"), ("3.3.8", "Scalability and reduced key-person risk"),
+        ("divider", "Strong operating platform"),
+        ("3.3.7", "Governance and reliable reporting"),
+        ("3.3.8", "Scalable operating model and integration capability"),
+        ("3.3.9", "People, competence, leadership and succession"),
+        ("3.3.10", "HSEQ performance: safety, environment, quality and ESG"),
+        ("3.3.11", "Regulatory compliance and legal robustness"),
+        ("3.3.12", "Digital, data and cyber resilience"),
     ]),
     ("2.4 · PIL-04<br>Cash Conversion", [
         ("3.4.1", "EBITDA-to-operating-cash conversion"), ("3.4.2", "Maintenance-capex discipline"),
@@ -411,6 +504,7 @@ def migrate_existing_data():
         "3.1.1", "3.1.2", "3.1.3", "3.1.4", "3.1.5",
         "3.2.1", "3.2.2", "3.2.3", "3.2.4", "3.2.5",
         "3.3.1", "3.3.2", "3.3.3", "3.3.4", "3.3.5", "3.3.6", "3.3.7", "3.3.8",
+        "3.3.9", "3.3.10", "3.3.11", "3.3.12",
         "3.4.1", "3.4.2", "3.4.3", "3.4.4", "3.4.5", "3.4.6",
         "3.5.1", "3.5.2", "3.5.3", "3.5.4", "3.5.5", "3.5.6", "3.5.7",
     ])
@@ -522,6 +616,172 @@ def load(key):
 
 def save(key, df):
     df.to_csv(FILES[key], index=False)
+
+
+def driver_ownership_path():
+    """Group-level Level 3 driver ownership (shared across all registers)."""
+    return DATA_DIR / "driver_ownership.csv"
+
+
+def load_driver_ownership():
+    """Load driver ownership; seed it and add any Level 3 drivers missing from the file."""
+    path = driver_ownership_path()
+    seed(
+        path,
+        [[ref, acc, "; ".join(contrib), "Proposed - validate with function head"] for ref, acc, contrib in DRIVER_OWNERSHIP_SEED],
+        DRIVER_OWNERSHIP_COLUMNS,
+    )
+    df = safe_read_csv(path, columns=DRIVER_OWNERSHIP_COLUMNS)
+    for col in DRIVER_OWNERSHIP_COLUMNS:
+        if col not in df.columns:
+            df[col] = ""
+    known = set(df["Level 3 ref"].astype(str))
+    seed_lookup = {ref: (acc, contrib) for ref, acc, contrib in DRIVER_OWNERSHIP_SEED}
+    missing = []
+    for item in level3_driver_catalog():
+        ref = item["reference"]
+        if ref not in known:
+            acc, contrib = seed_lookup.get(ref, ("", []))
+            missing.append({"Level 3 ref": ref, "Accountable function": acc, "Contributing functions": "; ".join(contrib), "Notes": "Added with hierarchy update - validate"})
+    if missing:
+        df = pd.concat([df, pd.DataFrame(missing)], ignore_index=True)
+        df[DRIVER_OWNERSHIP_COLUMNS].to_csv(path, index=False)
+    return df[DRIVER_OWNERSHIP_COLUMNS]
+
+
+def driver_ownership_with_names(df=None):
+    """Ownership table in hierarchy order, with pillar and driver names attached."""
+    df = load_driver_ownership() if df is None else df
+    catalog = level3_driver_catalog()
+    order = {item["reference"]: i for i, item in enumerate(catalog)}
+    names = {item["reference"]: item["driver"] for item in catalog}
+    pillars = {item["reference"]: item["pillar_id"] for item in catalog}
+    out = df.copy()
+    out.insert(1, "Pillar", out["Level 3 ref"].map(pillars).fillna("Not in hierarchy"))
+    out.insert(2, "Value driver", out["Level 3 ref"].map(names).fillna("(not in current hierarchy)"))
+    out["_order"] = out["Level 3 ref"].map(order).fillna(999)
+    return out.sort_values("_order").drop(columns="_order").reset_index(drop=True)
+
+
+def drivers_for_function(function_name, ownership=None):
+    """Return (accountable_refs, contributing_refs) for one executive function."""
+    ownership = driver_ownership_with_names(ownership)
+    acc = ownership[ownership["Accountable function"].astype(str).str.strip() == function_name]
+    contrib = ownership[ownership["Contributing functions"].map(lambda v: function_name in split_refs(v))]
+    return acc, contrib
+
+
+def function_scope(function_name, ownership=None):
+    """Level 3 refs a function is accountable for or contributes to."""
+    if not function_name:
+        return set()
+    acc, contrib = drivers_for_function(function_name, ownership)
+    return set(acc["Level 3 ref"]).union(set(contrib["Level 3 ref"]))
+
+
+def out_of_scope_tags(risks_df, function_name):
+    """Risk ID -> Level 3 refs tagged outside the function's scope."""
+    scope = function_scope(function_name)
+    result = {}
+    if not scope or risks_df is None or risks_df.empty or "Level 3 drivers" not in risks_df.columns:
+        return result
+    for _, row in risks_df.iterrows():
+        outside = [ref for ref in split_refs(row.get("Level 3 drivers", "")) if ref not in scope]
+        if outside:
+            result[str(row.get("Risk ID", ""))] = outside
+    return result
+
+
+def collect_all_register_rows(dataset):
+    """All rows of one dataset across unit registers, with source unit."""
+    frames = []
+    for unit_name, _owner, _title in UNITS:
+        register_key = REGISTER_KEYS[unit_name]
+        ensure_register_files(register_key)
+        df = safe_read_csv(files_for(register_key)[dataset], columns=schema_columns_for(dataset, register_key))
+        if df.empty:
+            continue
+        df = df.copy()
+        df.insert(0, "Source unit", unit_name)
+        frames.append(df)
+    return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
+
+
+def value_coverage(ownership=None):
+    """Per Level 3 driver: ownership, linked processes and risks across all registers, and gaps."""
+    table = driver_ownership_with_names(ownership)
+    risks = collect_all_register_rows("risks")
+    processes = collect_all_register_rows("processes")
+    risk_refs, risk_units, risk_resid = {}, {}, {}
+    if not risks.empty and "Level 3 drivers" in risks.columns:
+        risks = scored(risks)
+        for _, row in risks.iterrows():
+            for ref in split_refs(row.get("Level 3 drivers", "")):
+                risk_refs[ref] = risk_refs.get(ref, 0) + 1
+                risk_units.setdefault(ref, set()).add(row["Source unit"])
+                risk_resid[ref] = max(risk_resid.get(ref, 0), int(pd.to_numeric(row.get("Residual score", 0), errors="coerce") or 0))
+    proc_refs = {}
+    if not processes.empty and "Linked Level 3 drivers" in processes.columns:
+        for _, row in processes.iterrows():
+            for ref in split_refs(row.get("Linked Level 3 drivers", "")):
+                proc_refs[ref] = proc_refs.get(ref, 0) + 1
+    rows = []
+    for _, row in table.iterrows():
+        ref = row["Level 3 ref"]
+        acc = str(row["Accountable function"]).strip()
+        gaps = []
+        if not acc:
+            gaps.append("No accountable function")
+        elif acc not in FUNCTION_NAMES:
+            gaps.append("Accountable function not recognised")
+        if proc_refs.get(ref, 0) == 0:
+            gaps.append("No processes")
+        if risk_refs.get(ref, 0) == 0:
+            gaps.append("No risks")
+        rows.append({
+            "Level 3 ref": ref,
+            "Pillar": row["Pillar"],
+            "Value driver": row["Value driver"],
+            "Accountable function": acc,
+            "Contributing functions": row["Contributing functions"],
+            "Processes": proc_refs.get(ref, 0),
+            "Risks": risk_refs.get(ref, 0),
+            "Registers with risks": "; ".join(sorted(risk_units.get(ref, set()))),
+            "Highest residual": risk_resid.get(ref, 0),
+            "Gaps": "; ".join(gaps) if gaps else "Covered",
+        })
+    return pd.DataFrame(rows)
+
+
+def function_driver_matrix(ownership=None):
+    """Drivers x functions grid with A (accountable) / C (contributing)."""
+    table = driver_ownership_with_names(ownership)
+    rows = []
+    for _, row in table.iterrows():
+        contributors = split_refs(row["Contributing functions"])
+        rec = {"Level 3 ref": row["Level 3 ref"], "Value driver": row["Value driver"]}
+        for fn in FUNCTION_NAMES:
+            rec[fn] = "A" if str(row["Accountable function"]).strip() == fn else ("C" if fn in contributors else "")
+        rows.append(rec)
+    return pd.DataFrame(rows)
+
+
+def function_summary(ownership=None):
+    """Per function: number of accountable and contributing drivers, and pillars touched."""
+    table = driver_ownership_with_names(ownership)
+    rows = []
+    for fn, head in FUNCTIONS:
+        acc, contrib = drivers_for_function(fn, table[DRIVER_OWNERSHIP_COLUMNS])
+        pillars = sorted(set(acc["Pillar"]).union(set(contrib["Pillar"])))
+        rows.append({
+            "Function": fn,
+            "Head": head,
+            "Accountable drivers": len(acc),
+            "Contributing drivers": len(contrib),
+            "Pillars touched": ", ".join(pillars),
+            "Status": "OK" if len(acc) > 0 else "No accountable driver - check mapping",
+        })
+    return pd.DataFrame(rows)
 
 
 def ownership_path():
@@ -912,10 +1172,135 @@ def workbook(data, *, enterprise_risks=None, enterprise_actions=None, source_lab
         if enterprise_actions is not None and not enterprise_actions.empty:
             enterprise_actions.to_excel(writer, sheet_name="Enterprise Actions", index=False)
         pd.DataFrame(UNITS, columns=["Risk register", "Accountable executive", "Title"]).to_excel(writer, sheet_name="ERM Structure", index=False)
+        driver_ownership_with_names().to_excel(writer, sheet_name="Driver Ownership", index=False)
+        function_driver_matrix().to_excel(writer, sheet_name="Function x Driver", index=False)
+        if source_label == ENTERPRISE_REGISTER:
+            value_coverage().to_excel(writer, sheet_name="Value Coverage", index=False)
     return bio.getvalue()
 
 
 def render_enterprise_view():
+    t_mat, t_own, t_cov = st.tabs(["Material risks", "Value driver ownership", "Value coverage"])
+    with t_mat:
+        render_material_risks()
+    with t_own:
+        render_driver_ownership_editor()
+    with t_cov:
+        render_value_coverage()
+
+
+def render_driver_ownership_editor():
+    st.subheader("Value driver ownership")
+    st.write(
+        "Every function traces to the value hierarchy through Level 3. Each driver has **one accountable function** "
+        "(owns delivery) and any number of **contributing functions** (their processes feed the driver). "
+        "Mapping at Level 3 automatically places the function under its pillar (Level 2) and value lever (Level 1)."
+    )
+    ownership = load_driver_ownership()
+    summary = function_summary(ownership)
+    st.markdown("**Functions at a glance**")
+    st.dataframe(summary, hide_index=True, use_container_width=True)
+    if (summary["Accountable drivers"] == 0).any():
+        st.warning("Some functions have no accountable driver. Either assign one, or the Level 3 tree is not refined enough for that function.")
+
+    st.markdown("**Edit ownership**")
+    st.caption("Contributing functions: separate with semicolons, using the function names above.")
+    input_zone_banner("Driver ownership — editable fields")
+    view = driver_ownership_with_names(ownership)
+    edited = st.data_editor(
+        view,
+        hide_index=True,
+        use_container_width=True,
+        height=760,
+        disabled=["Level 3 ref", "Pillar", "Value driver"],
+        column_config={
+            "Accountable function": st.column_config.SelectboxColumn(options=FUNCTION_NAMES, required=False),
+            "Contributing functions": st.column_config.TextColumn(width="large"),
+            "Notes": st.column_config.TextColumn(width="medium"),
+        },
+        key="driver_ownership_editor",
+    )
+    if st.button("Save driver ownership", type="primary", key="save_driver_ownership"):
+        unknown = sorted({
+            fn for v in edited["Contributing functions"] for fn in split_refs(v) if fn not in FUNCTION_NAMES
+        })
+        if unknown:
+            st.error("Unknown function name(s) in Contributing functions: " + ", ".join(unknown))
+        else:
+            edited[DRIVER_OWNERSHIP_COLUMNS].fillna("").to_csv(driver_ownership_path(), index=False)
+            st.success("Driver ownership saved.")
+
+    with st.expander("Matrix view (A = accountable, C = contributing)"):
+        st.dataframe(function_driver_matrix(ownership), hide_index=True, use_container_width=True, height=700)
+
+
+def render_value_coverage():
+    st.subheader("Value coverage across all registers")
+    st.write(
+        "For each Level 3 driver: who owns it, how many processes deliver it and how many risks protect it, "
+        "counted across all unit registers. A driver is fully covered when it has an accountable function, "
+        "at least one process and at least one risk."
+    )
+    coverage = value_coverage()
+    covered = int((coverage["Gaps"] == "Covered").sum())
+    no_owner = int(coverage["Gaps"].str.contains("No accountable|not recognised").sum())
+    no_proc = int(coverage["Gaps"].str.contains("No processes").sum())
+    no_risk = int(coverage["Gaps"].str.contains("No risks").sum())
+    cols = st.columns(4)
+    cols[0].metric("Drivers fully covered", f"{covered} / {len(coverage)}")
+    cols[1].metric("Without accountable function", no_owner)
+    cols[2].metric("Without processes", no_proc)
+    cols[3].metric("Without risks", no_risk)
+
+    st.markdown("**Coverage by pillar**")
+    by_pillar = (
+        coverage.assign(Covered=coverage["Gaps"].eq("Covered"))
+        .groupby("Pillar")
+        .agg(Drivers=("Level 3 ref", "count"), Covered=("Covered", "sum"), Risks=("Risks", "sum"), Processes=("Processes", "sum"))
+        .reset_index()
+    )
+    st.dataframe(by_pillar, hide_index=True, use_container_width=True)
+
+    only_gaps = st.toggle("Show only drivers with gaps", value=False, key="coverage_only_gaps")
+    view = coverage[coverage["Gaps"] != "Covered"] if only_gaps else coverage
+    st.dataframe(
+        view,
+        hide_index=True,
+        use_container_width=True,
+        height=760,
+        column_config={"Highest residual": st.column_config.ProgressColumn(min_value=0, max_value=25, format="%d")},
+    )
+    st.caption("Most departments have not filled in their registers yet, so gaps are expected until each function has mapped its processes and risks.")
+
+
+def render_function_value_map(selected_register):
+    """On a unit's Context page: where this function sits in the value hierarchy."""
+    function_name = REGISTER_FUNCTION.get(selected_register)
+    if not function_name:
+        st.info(
+            f"**{selected_register}** is a geography rather than an executive function. Its processes and risks "
+            "should link to the same Level 3 drivers as the functions it supports (see Enterprise Risk Register → Value driver ownership)."
+        )
+        return
+    acc, contrib = drivers_for_function(function_name)
+    with st.expander(f"Where {function_name} sits in the value hierarchy — {len(acc)} accountable, {len(contrib)} contributing drivers", expanded=False):
+        left, right = st.columns(2)
+        with left:
+            st.markdown("**Accountable for**")
+            if acc.empty:
+                st.caption("No accountable drivers yet.")
+            else:
+                st.dataframe(acc[["Level 3 ref", "Pillar", "Value driver"]], hide_index=True, use_container_width=True)
+        with right:
+            st.markdown("**Contributes to**")
+            if contrib.empty:
+                st.caption("No contributing drivers yet.")
+            else:
+                st.dataframe(contrib[["Level 3 ref", "Pillar", "Value driver", "Accountable function"]], hide_index=True, use_container_width=True)
+        st.caption("Link this register's processes and risks to these drivers. Ownership is maintained in Enterprise Risk Register → Value driver ownership.")
+
+
+def render_material_risks():
     st.subheader("Enterprise Risk Register")
     st.info(
         "**Materiality criteria (roll-up):** a risk is included when "
@@ -1098,7 +1483,7 @@ def apply_brand_theme():
     """, unsafe_allow_html=True)
 
 
-def render_value_hierarchy(processes=None, risks=None, controls=None, actions=None):
+def render_value_hierarchy(processes=None, risks=None, controls=None, actions=None, function_name=None):
     st.markdown("""
     <style>
     .vh-box{border:1px solid #255a64;padding:11px 9px;text-align:center;margin-bottom:8px;background:#fff;color:#00191d;font-size:1rem;line-height:1.35}
@@ -1151,16 +1536,48 @@ def render_value_hierarchy(processes=None, risks=None, controls=None, actions=No
         box-shadow:0 3px 8px rgba(0,25,29,.18);transform:translateY(-1px);
     }
     div[data-testid="stPopover"] > button p{font-size:.92rem;font-weight:600;line-height:1.3}
+    div[class*="st-key-l3acc_"] button[data-testid="stPopoverButton"]{background:#00839B !important;border:2px solid #006677 !important;color:#fff !important}
+    div[class*="st-key-l3acc_"] button[data-testid="stPopoverButton"] p{color:#fff !important;font-weight:700 !important}
+    div[class*="st-key-l3con_"] button[data-testid="stPopoverButton"]{background:#d6f0f4 !important;border:2px solid #00839B !important}
+    div[class*="st-key-l3tag_"] button[data-testid="stPopoverButton"]{background:#fff !important;border:2px dashed #d94b18 !important}
+    div[class*="st-key-l3non_"] button[data-testid="stPopoverButton"]{opacity:.38}
+    .vh-mark-count{display:block;font-size:.8rem;font-weight:600;margin-top:4px;opacity:.95}
+    .vh-legend{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;font-size:.84rem;color:#255a64;margin:2px 0 10px}
+    .vh-legend span{display:inline-flex;align-items:center;gap:6px}
+    .vh-legend i{display:inline-block;width:22px;height:13px;border-radius:3px}
     </style>
     <div class="vh-level">Level 0 · Overall objective</div>
     <div class="vh-box vh-top">0 · Maximize shareholder value in Trident<br><span style="font-weight:400">Equity Value ≈ (EBITDA × EV/EBITDA multiple) − NIBD</span></div>
     <div class="vh-level">Level 1 · AIP value levers</div>
     """, unsafe_allow_html=True)
+    driver_roles = {}
+    if function_name:
+        own = load_driver_ownership()
+        for _, orow in own.iterrows():
+            ref = str(orow["Level 3 ref"]).strip()
+            if str(orow["Accountable function"]).strip() == function_name:
+                driver_roles[ref] = "acc"
+            elif function_name in split_refs(orow["Contributing functions"]):
+                driver_roles[ref] = "con"
+
+    def role_counts(pillar_numbers):
+        refs = [item["reference"] for item in level3_driver_catalog() if item["reference"].split(".")[1] in pillar_numbers]
+        a = sum(1 for r in refs if driver_roles.get(r) == "acc")
+        c = sum(1 for r in refs if driver_roles.get(r) == "con")
+        return a, c
+
+    def count_html(a, c):
+        if not function_name:
+            return ""
+        if a == 0 and c == 0:
+            return '<span class="vh-mark-count">not in scope</span>'
+        return f'<span class="vh-mark-count">{a} accountable · {c} contributing</span>'
+
     aip_cols = st.columns([2, 1, 2])
     aip_labels = [
-        '<span class="vh-aip-badge">1.1</span> EBITDA',
-        '<span class="vh-aip-badge">1.2</span> Multiple',
-        '<span class="vh-aip-badge">1.3</span> Cash',
+        '<span class="vh-aip-badge">1.1</span> EBITDA' + count_html(*role_counts(["1", "2"])),
+        '<span class="vh-aip-badge">1.2</span> Multiple' + count_html(*role_counts(["3"])),
+        '<span class="vh-aip-badge">1.3</span> Cash' + count_html(*role_counts(["4", "5"])),
     ]
     for column, label in zip(aip_cols, aip_labels):
         with column:
@@ -1198,22 +1615,45 @@ def render_value_hierarchy(processes=None, risks=None, controls=None, actions=No
 
     st.markdown('<div class="vh-level">Level 2 · Trident value pillars — where Trident creates and protects value</div>', unsafe_allow_html=True)
     pillar_cols = st.columns(5)
-    for column, (pillar, drivers) in zip(pillar_cols, groups):
+    for idx, (column, (pillar, drivers)) in enumerate(zip(pillar_cols, groups), start=1):
         with column:
-            st.markdown(f'<div class="vh-box vh-pil">{pillar}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="vh-box vh-pil"><div>{pillar}{count_html(*role_counts([str(idx)]))}</div></div>', unsafe_allow_html=True)
 
     st.markdown('<div class="vh-level">Level 3 · Value drivers — how each pillar is delivered</div>', unsafe_allow_html=True)
+    if function_name:
+        st.markdown(
+            '<div class="vh-legend">'
+            f'<span><i style="background:#00839B;border:2px solid #006677"></i>{escape(function_name)} accountable</span>'
+            '<span><i style="background:#d6f0f4;border:2px solid #00839B"></i>Contributing</span>'
+            '<span><i style="background:#fff;border:2px dashed #d94b18"></i>Not in scope, but tagged by this register\'s risks</span>'
+            '<span><i style="background:#fff;border:1px solid #a4c4e9;opacity:.38"></i>Not in scope</span>'
+            '</div>',
+            unsafe_allow_html=True,
+        )
     driver_cols = st.columns(5)
     for column, (pillar, drivers) in zip(driver_cols, groups):
         with column:
-            with st.container(border=True, height=420):
+            with st.container(border=True, height=640):
                 for reference, driver in drivers:
                     if reference == "divider":
                         st.markdown(f'<div class="vh-cfo-divider">{driver}</div>', unsafe_allow_html=True)
                         continue
                     linked_processes = linked_processes_by_driver.get(reference, [])
                     linked_risks = linked_risks_by_driver.get(reference, [])
-                    with st.popover(f"{reference} · {driver}", use_container_width=True):
+                    if function_name:
+                        state = driver_roles.get(reference) or ("tag" if linked_risks else "non")
+                    else:
+                        state = "all"
+                    with st.container(key=f"l3{state}_{reference.replace('.', '_')}_{ACTIVE_REGISTER_KEY}"), \
+                            st.popover(f"{reference} · {driver}", use_container_width=True):
+                        if function_name:
+                            role_text = {
+                                "acc": f"**{function_name} is accountable** for this driver.",
+                                "con": f"**{function_name} contributes** to this driver.",
+                                "tag": f"Not in {function_name}'s scope, but risks in this register are tagged to it. Either move those risks to the accountable function's register or add {function_name} as contributor.",
+                                "non": f"Not in {function_name}'s scope.",
+                            }[state]
+                            st.markdown(role_text)
                         st.markdown("**Linked ISO-aligned S&BD processes**")
                         if linked_processes:
                             for process_link in linked_processes:
@@ -2914,7 +3354,7 @@ def extract_mitigation_bullets(mitigation_text):
     return parts if len(parts) > 1 else ([text_val] if text_val else [])
 
 
-def render_risk_library(risks_df, processes_df=None):
+def render_risk_library(risks_df, processes_df=None, function_name=None):
     """Risk library in the same visual language as Context ERM (peach pane, chips), with ops questions."""
     st.markdown(
         """
@@ -2964,6 +3404,16 @@ def render_risk_library(risks_df, processes_df=None):
         "Risk chips show failure modes and mitigations. Tailored **explain** buttons cover PIL-01–05 Strategy library risks linked here (PIL-01: R001, R102, R103, R105, R106, R111, R113, R120, R121, R135, R137; PIL-02 adds R003, R005, R107–R110, R112, R129 — plus shared R001/R105/R111/R113; PIL-03 adds R002, R004, R114–R119, R123, R132, R136 — plus shared R003/R005/R102/R103/R110/R120/R121/R137; PIL-04 adds R122, R124–R127, R138 — plus shared R123; PIL-05 adds R128, R130, R131, R133, R134 — plus shared R001/R005/R107/R109/R110/R116/R117/R124/R126/R129/R132); R101 also has playbook + P05, and R104 has the shared redeployment-case tag — not auto-copied outside this explicit list."
     )
     catalog = level3_driver_catalog()
+    scope = function_scope(function_name)
+    only_scope = False
+    if scope:
+        only_scope = st.toggle(
+            f"Show only {function_name}'s Level 3 drivers ({len(scope)})",
+            value=True,
+            key=f"lib_scope_{ACTIVE_REGISTER_KEY}",
+        )
+    if only_scope:
+        catalog = [row for row in catalog if row["reference"] in scope]
     scored_risks = scored(risks_df) if not risks_df.empty and "Risk ID" in risks_df.columns else risks_df.copy()
     if not scored_risks.empty and "Level 3 drivers" not in scored_risks.columns:
         scored_risks["Level 3 drivers"] = ""
@@ -2973,6 +3423,8 @@ def render_risk_library(risks_df, processes_df=None):
         pillar_id = plain.split("PIL-0")[1][:1] if "PIL-0" in plain else ""
         pillar_code = f"PIL-0{pillar_id}" if pillar_id else ""
         drivers_for_pillar = [row for row in catalog if row["pillar_id"] == pillar_code]
+        if only_scope and not drivers_for_pillar:
+            continue
         pillar_description = plain.rsplit(" · ", 1)[-1].strip() if " · " in plain else plain
 
         pillar_risk_ids = set()
@@ -3570,12 +4022,11 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-register_options = [name for name, _owner, _title in UNITS] + [ENTERPRISE_REGISTER]
-selected_register = st.sidebar.selectbox("Risk register", register_options, index=0)
+folder_labels = [label for label, _fn, _regs in FOLDERS]
 with st.sidebar.expander("Configured ERM registers"):
     for unit, owner, title in UNITS:
         st.write(f"**{unit}**  \n{owner}, {title}")
-    st.write("**Enterprise Risk Register**  \nConsolidated material risks from unit registers")
+    st.write("**Enterprise Risk Register**  \nConsolidated material risks, value driver ownership and value coverage")
 
 st.markdown(
     """
@@ -3590,6 +4041,43 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+
+st.markdown(
+    """
+    <style>
+    .st-key-folder_tabs [role="radiogroup"]{gap:0 !important;flex-wrap:wrap;border-bottom:3px solid #00839B;margin-bottom:2px}
+    .st-key-folder_tabs [role="radiogroup"] label{
+        margin:0 2px 0 0 !important;padding:6px 11px 5px !important;border:1px solid #a4c4e9;border-bottom:none;
+        border-radius:9px 9px 0 0;background:#eef4f6;cursor:pointer}
+    .st-key-folder_tabs [role="radiogroup"] label > div:first-child:not(:has([data-testid="stMarkdownContainer"])){display:none}
+    .st-key-folder_tabs [role="radiogroup"] label div:has(> div:empty):not(:has([data-testid="stMarkdownContainer"])){display:none}
+    .st-key-folder_tabs [role="radiogroup"] label p{font-size:.86rem;white-space:nowrap;font-weight:600;color:#255a64}
+    .st-key-folder_tabs [role="radiogroup"] label:has(input:checked){background:#00839B;border-color:#00839B}
+    .st-key-folder_tabs [role="radiogroup"] label:has(input:checked) p{color:#fff}
+    .st-key-folder_tabs [role="radiogroup"] label:hover{background:#d9ecef}
+    .st-key-folder_tabs [role="radiogroup"] label:has(input:checked):hover{background:#006677}
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+with st.container(key="folder_tabs"):
+    selected_folder = st.radio(
+        "Department folder",
+        folder_labels,
+        index=folder_labels.index(DEFAULT_FOLDER),
+        horizontal=True,
+        label_visibility="collapsed",
+        key="department_folder",
+    )
+_folder_label, selected_function, folder_registers = next(f for f in FOLDERS if f[0] == selected_folder)
+if len(folder_registers) > 1:
+    selected_register = st.selectbox(
+        f"Register in the {selected_folder} folder",
+        folder_registers,
+        key=f"folder_register_{selected_folder}",
+    )
+else:
+    selected_register = folder_registers[0]
 
 if selected_register == ENTERPRISE_REGISTER:
     st.caption("Enterprise roll-up | Material risks across all unit registers")
@@ -3695,7 +4183,8 @@ if page == "02 Heatmap" or page == "03 Heatmap" or str(page).startswith("01 Dash
     render_dashboard_heatmap(risks, data["actions"])
 elif page == "00 Context" or str(page).startswith("00 Value"):
     st.subheader("Shareholder value framework")
-    render_value_hierarchy(data["processes"], data["risks"], data["controls"], data["actions"])
+    render_function_value_map(selected_register)
+    render_value_hierarchy(data["processes"], data["risks"], data["controls"], data["actions"], function_name=selected_function)
     st.caption(
         "Context for Strategy & BD. Risks should link to Level 3 drivers and pillars. "
         "Score risks in **01 Risks & Opportunities**, then open **02 Heatmap**."
@@ -3705,9 +4194,17 @@ elif page == "01 Risks & Opportunities" or str(page).startswith("02 Risks"):
     data["risks"] = risks_work
     t_lib, t_reg, t_assess, t_opp = st.tabs(["Risk library", "Risk register", "Assess & decide", "Opportunities"])
     with t_lib:
-        render_risk_library(risks_work, data.get("processes"))
+        render_risk_library(risks_work, data.get("processes"), function_name=selected_function)
     with t_reg:
         st.write("Shared Strategy & BD risk inventory. Use **Assess & decide** for mitigation, residual score, and appetite.")
+        outside = out_of_scope_tags(risks_work, selected_function)
+        if outside:
+            st.warning(
+                f"{len(outside)} risk(s) are tagged to Level 3 drivers outside {selected_function}'s scope: "
+                + "; ".join(f"{rid} → {', '.join(refs)}" for rid, refs in outside.items())
+                + ". Retag them to an in-scope driver, record the other driver under **Handed-over drivers**, "
+                "or move the risk to the accountable function's register."
+            )
         input_zone_banner("Risk register — editable fields")
         risk_config = {
             "Category": st.column_config.SelectboxColumn(options=RISK_CATEGORIES),
@@ -3728,9 +4225,14 @@ elif page in ("04 Actions", "05 Actions", "Actions & target risk") or str(page).
     st.subheader("Responses, actions and target risk")
     t1, t2 = st.tabs(["Treatment actions", "Target risk"])
     with t1:
+        actions_edit = data["actions"].copy()
+        if "Due date" in actions_edit.columns:
+            actions_edit["Due date"] = pd.to_datetime(actions_edit["Due date"], errors="coerce", dayfirst=False).dt.date
+        if "Progress %" in actions_edit.columns:
+            actions_edit["Progress %"] = pd.to_numeric(actions_edit["Progress %"], errors="coerce")
         editor(
             "actions",
-            data["actions"],
+            actions_edit,
             {
                 "Risk ID": st.column_config.SelectboxColumn(options=data["risks"]["Risk ID"].tolist()),
                 "Status": st.column_config.SelectboxColumn(options=["Not started", "In progress", "Blocked", "Completed", "Cancelled"]),

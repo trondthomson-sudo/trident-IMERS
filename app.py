@@ -14,7 +14,7 @@ DATA_DIR.mkdir(exist_ok=True)
 
 DATASET_KEYS = ["objectives", "value_drivers", "processes", "risks", "controls", "actions", "opportunities"]
 UNITS = [
-    ("CEO Office", "CEO", "Chief Executive Officer"),
+    ("CEO Office", "Arild Aasmyr", "Chief Executive Officer"),
     ("Strategy & Business Development", "Trond V. Thomson", "Chief Strategy & Business Developer"),
     ("Finance", "Øyvind Folland", "CFO"),
     ("Commercial", "Joar Gjerde", "Chief Commercial Officer"),
@@ -48,7 +48,7 @@ UNIT_BY_NAME = {name: (owner, title) for name, owner, title in UNITS}
 
 # Executive functions (CEO + eight departments) used for Level 3 driver ownership.
 FUNCTIONS = [
-    ("CEO", "Chief Executive Officer"),
+    ("CEO", "Arild Aasmyr"),
     ("Strategy & Business Development", "Trond V. Thomson"),
     ("Finance", "Øyvind Folland"),
     ("Commercial", "Joar Gjerde"),
@@ -59,6 +59,7 @@ FUNCTIONS = [
     ("Legal & Compliance", "Ove Paulsen"),
 ]
 FUNCTION_NAMES = [name for name, _head in FUNCTIONS]
+FUNCTION_HEAD = dict(FUNCTIONS)
 # Unit registers -> executive function. Chile and Shetland are geographies that contribute to
 # the same drivers as the functions; they have no driver ownership of their own.
 REGISTER_FUNCTION = {
@@ -89,21 +90,71 @@ FOLDERS = [
     ("Admin & ICT", "Administration & ICT", ["Administration", "ICT"]),
     ("Legal & Compliance", "Legal & Compliance", ["Legal & Compliance"]),
     ("Enterprise", None, ["Enterprise Risk Register"]),
+    ("Operating Agenda", None, ["Operating Agenda"]),
+    ("About IMERS", None, ["About IMERS"]),
+]
+OPERATING_AGENDA = "Operating Agenda"
+ABOUT_IMERS = "About IMERS"
+EXPORTS_DIR_NAME = "exports"
+IMERS_DECK_NAME = "IMERS_concept_management_group"
+# Short C-level titles used on the Level 3 tags.
+CLEVEL_TITLE = {
+    "CEO": "CEO", "Strategy & Business Development": "CS&BDO", "Finance": "CFO", "Commercial": "CCO",
+    "Vessel Operations": "COO", "Technical & HSEQ": "CHSEQ", "HR": "CHR",
+    "Administration & ICT": "CAO", "Legal & Compliance": "CLO",
+}
+# Suggested main delivering process per accountable driver (to be confirmed by each executive).
+MAIN_PROCESS_SUGGESTION = {
+    "3.1.1": "SBD-P05 Long-term operating agenda and rate uplift",
+    "3.2.1": "SBD-P04 Business case development + SBD-P07 Capital project governance",
+    "3.2.3": "SBD-P08 M&A and strategic partnerships",
+    "3.3.6": "SBD-P06 Fleet portfolio optimization and divestment",
+    "3.5.4": "SBD-P06 Fleet portfolio optimization and divestment",
+}
+# Department codes for risk (R) and process (P) IDs. SBD is in use; the others are proposed.
+DEPARTMENT_CODES = [
+    ("CEO", "CEO Office"), ("SBD", "Strategy & Business Development"), ("FIN", "Finance"), ("COM", "Commercial"),
+    ("OPS", "Vessel Operations"), ("HSQ", "Technical & HSEQ"), ("HR", "HR"), ("ADM", "Administration & ICT"),
+    ("LEG", "Legal & Compliance"),
+]
+ABBREVIATIONS = [
+    ("AIP-01–03", "AIP's three value drivers – EBITDA, multiple and cash (Level 1 levers 1.1–1.3)"),
+    ("PIL-01–05", "PIL = pillar: the five Level 2 value pillars 2.1–2.5. A fixed ID, so risks and processes stay tagged even if a pillar is renamed"),
+    ("3.x.y", "A Level 3 value driver: Level 3 · pillar x · driver y (35 in total)"),
+    ("SBD-R001 · SBD-P04", "Department code + R (risk) or P (process) + number, e.g. Strategy & BD risk no. 001"),
+    ("EBITDA", "Earnings before interest, taxes, depreciation and amortisation"),
+    ("EV", "Enterprise value"), ("NIBD", "Net interest-bearing debt"),
+    ("Capex", "Capital expenditure"), ("FID", "Final investment decision"),
+    ("ROIC", "Return on invested capital"), ("DSO", "Days sales outstanding"),
+    ("M&A", "Mergers and acquisitions"), ("SLB", "Sale-leaseback"),
+    ("SFaaS", "Salmon Farming as a Service"),
+    ("ISO", "International Organization for Standardization"),
+    ("IMS", "Integrated Management System"), ("ERM", "Enterprise Risk Management"),
+    ("IMERS", "Integrated Management & Enterprise Risk System"),
+    ("KPI / KRI", "Key performance indicator / key risk indicator"),
+    ("HSEQ", "Health, safety, environment and quality"),
+    ("ICT", "Information and communication technology"),
+    ("HR", "Human resources"), ("S&BD / SBD / BD", "Strategy & Business Development"),
+    ("Ops", "Vessel Operations"),
+    ("CEO", "Chief executive officer"), ("CS&BDO", "Chief strategy & business development officer"),
+    ("CFO", "Chief financial officer"), ("CCO", "Chief commercial officer"), ("COO", "Chief operating officer"),
+    ("CHSEQ", "Chief HSEQ officer"), ("CHR", "Chief HR officer"), ("CAO", "Chief administrative officer"),
+    ("CLO", "Chief legal officer"),
 ]
 DEFAULT_FOLDER = "Strategy & BD"
 DRIVER_OWNERSHIP_COLUMNS = ["Level 3 ref", "Accountable function", "Contributing functions", "Notes"]
 _SBD, _FIN, _COM, _OPS, _TEC, _HR, _ADM, _LEG = FUNCTION_NAMES[1:]
 DRIVER_OWNERSHIP_SEED = [
-    ("3.1.1", _COM, [_SBD, _OPS]),
+    ("3.1.1", _SBD, [_COM, _FIN, _OPS]),
     ("3.1.2", _OPS, [_COM, _TEC, _HR]),
     ("3.1.3", _COM, [_LEG, _FIN]),
     ("3.1.4", _OPS, [_TEC, _HR]),
     ("3.1.5", _OPS, [_HR, _ADM, _TEC]),
+    ("3.1.6", _SBD, [_TEC, _OPS, _FIN, _COM]),
     ("3.2.1", _SBD, [_FIN, _TEC, _COM]),
-    ("3.2.2", _SBD, [_TEC, _FIN, _OPS]),
-    ("3.2.3", _SBD, [_FIN, _TEC, _LEG]),
-    ("3.2.4", _SBD, [_FIN, _LEG, _HR]),
-    ("3.2.5", _SBD, [_FIN, _COM, _TEC]),
+    ("3.2.2", _SBD, [_FIN, _TEC, _LEG]),
+    ("3.2.3", _SBD, [_FIN, _LEG, _HR]),
+    ("3.2.4", _SBD, [_FIN, _COM, _TEC]),
     ("3.3.1", _COM, [_SBD, _FIN]),
     ("3.3.2", _COM, [_LEG, _SBD]),
     ("3.3.3", _COM, [_FIN, _LEG]),
@@ -117,7 +168,7 @@ DRIVER_OWNERSHIP_SEED = [
     ("3.3.11", _LEG, [_TEC, _FIN]),
     ("3.3.12", _ADM, [_FIN, _OPS]),
     ("3.4.1", _FIN, [_COM, _OPS]),
-    ("3.4.2", _TEC, [_OPS, _FIN]),
+    ("3.4.2", _OPS, [_TEC, _FIN]),
     ("3.4.3", _FIN, [_COM, _ADM]),
     ("3.4.4", _FIN, [_COM]),
     ("3.4.5", _FIN, []),
@@ -178,11 +229,13 @@ VALUE_HIERARCHY_GROUPS = [
         ("3.1.1", "Rate uplift on existing vessels"), ("3.1.2", "Utilization and reduced off-hire"),
         ("3.1.3", "Improved commercial terms"), ("3.1.4", "Existing-fleet operating performance"),
         ("3.1.5", "Vessel and crewing cost efficiency"),
+        ("3.1.6", "Value-accretive reconstruction of owned vessels"),
     ]),
     ("2.2 · PIL-02<br>Investment EBITDA Growth", [
-        ("3.2.1", "Value-accretive newbuild EBITDA yield"), ("3.2.2", "Value-accretive reconstruction"),
-        ("3.2.3", "Attractive vessel acquisitions"), ("3.2.4", "M&A and identifiable synergies"),
-        ("3.2.5", "Profitable new platforms such as SFaaS"),
+        ("3.2.1", "Value-accretive newbuilds"),
+        ("3.2.2", "Second-hand vessel acquisitions and sale-leasebacks"),
+        ("3.2.3", "M&A and identifiable synergies"),
+        ("3.2.4", "Profitable new platforms such as SFaaS"),
     ]),
     ("2.3 · PIL-03<br>Multiple Expansion", [
         ("3.3.1", "Earnings visibility"), ("3.3.2", "Long-term contract coverage"),
@@ -195,7 +248,7 @@ VALUE_HIERARCHY_GROUPS = [
         ("3.3.9", "People, competence, leadership and succession"),
         ("3.3.10", "HSEQ performance: safety, environment, quality and ESG"),
         ("3.3.11", "Regulatory compliance and legal robustness"),
-        ("3.3.12", "Digital, data and cyber resilience"),
+        ("3.3.12", "Plug-and-play administrative platform and cyber resilience"),
     ]),
     ("2.4 · PIL-04<br>Cash Conversion", [
         ("3.4.1", "EBITDA-to-operating-cash conversion"), ("3.4.2", "Maintenance-capex discipline"),
@@ -350,11 +403,11 @@ def seed_data():
          ["Process ID", "Process", "Process owner", "Purpose", "Trigger / inputs", "Main activities", "Outputs", "Interfaces", "Review frequency", "S&BD Manual section"])
     risk_cols = COLUMNS["risks"]
     seed(FILES["risks"], [
-        ["SBD-R001", "Fleet & capacity", "Investment in fleet capacity that does not match future demand", "OBJ-02; OBJ-03", "PIL-01; PIL-02", "EBITDA; Multiple; Cash/NIBD", "3.1.2; 3.2.1; 3.2.2; 3.2.3", "SBD-P02; SBD-P04; SBD-P06; SBD-P07", "Uncertain forecasts of salmon production, customer demand and competitor capacity", "Trident commits capital to vessel segments or geographies with insufficient demand", "Low utilization, reduced returns and constrained financial flexibility", "Trond V. Thomson", "", "Finance; Commercial; Vessel Operations", "1–3 years", "Medium", 4, 5, 3, 4, 2, 3, "Outside appetite", "Increasing", "Treatment in progress", "Yes", "Illustrative – validate"],
+        ["SBD-R001", "Fleet & capacity", "Investment in fleet capacity that does not match future demand", "OBJ-02; OBJ-03", "PIL-01; PIL-02", "EBITDA; Multiple; Cash/NIBD", "3.1.2; 3.2.1; 3.1.6; 3.2.2", "SBD-P02; SBD-P04; SBD-P06; SBD-P07", "Uncertain forecasts of salmon production, customer demand and competitor capacity", "Trident commits capital to vessel segments or geographies with insufficient demand", "Low utilization, reduced returns and constrained financial flexibility", "Trond V. Thomson", "", "Finance; Commercial; Vessel Operations", "1–3 years", "Medium", 4, 5, 3, 4, 2, 3, "Outside appetite", "Increasing", "Treatment in progress", "Yes", "Illustrative – validate"],
         ["SBD-R002", "Strategy execution", "Strategic initiatives fail to translate into accountable execution", "OBJ-01; OBJ-04", "PIL-01; PIL-03", "EBITDA; Multiple", "3.3.7; 3.3.8; 3.1.1", "SBD-P01; SBD-P12", "Insufficient ownership, capacity, milestones or cross-functional alignment", "Material strategic initiatives are delayed or incompletely implemented", "Growth, integration and value-creation targets are not achieved", "Trond V. Thomson", "", "All units", "0–12 months", "Medium", 4, 4, 3, 3, 2, 2, "Approaching appetite", "Stable", "Treatment in progress", "Yes", "Illustrative – validate"],
-        ["SBD-R003", "New business models", "SFaaS expansion creates exposures outside established capabilities", "OBJ-03; OBJ-05", "PIL-02; PIL-03", "EBITDA; Multiple; Cash/NIBD", "3.2.5; 3.2.4; 3.3.8", "SBD-P03; SBD-P04; SBD-P07; SBD-P08", "Expansion from vessel services into aquaculture infrastructure", "The operating model, technology or commercial structure performs below plan", "Capital loss, operational liabilities and reputational harm", "Trond V. Thomson", "", "Finance; Commercial; Technical & HSEQ; Vessel Operations", ">3 years", "Slow", 3, 5, 3, 4, 2, 3, "Approaching appetite", "Stable", "Monitoring", "Yes", "Illustrative – validate"],
+        ["SBD-R003", "New business models", "SFaaS expansion creates exposures outside established capabilities", "OBJ-03; OBJ-05", "PIL-02; PIL-03", "EBITDA; Multiple; Cash/NIBD", "3.2.4; 3.2.3; 3.3.8", "SBD-P03; SBD-P04; SBD-P07; SBD-P08", "Expansion from vessel services into aquaculture infrastructure", "The operating model, technology or commercial structure performs below plan", "Capital loss, operational liabilities and reputational harm", "Trond V. Thomson", "", "Finance; Commercial; Technical & HSEQ; Vessel Operations", ">3 years", "Slow", 3, 5, 3, 4, 2, 3, "Approaching appetite", "Stable", "Monitoring", "Yes", "Illustrative – validate"],
         ["SBD-R004", "Data & assumptions", "Strategic decisions rely on incomplete or unreliable information", "OBJ-01; OBJ-02; OBJ-03", "PIL-01; PIL-02; PIL-03", "EBITDA; Multiple; Cash/NIBD", "3.1.1; 3.3.1; 3.3.7", "SBD-P01; SBD-P02; SBD-P04", "Group data and external intelligence are fragmented or inconsistent", "Management bases decisions on assumptions that are not sufficiently tested", "Misallocation of capital and delayed corrective decisions", "Trond V. Thomson", "", "Finance; Commercial; ICT; Vessel Operations", "0–12 months", "Fast", 4, 4, 3, 3, 2, 2, "Approaching appetite", "Stable", "Open", "No", "Illustrative – validate"],
-        ["SBD-R005", "M&A & integration", "Acquisitions fail to deliver expected synergies", "OBJ-01; OBJ-04", "PIL-01; PIL-02; PIL-03", "EBITDA; Multiple; Cash/NIBD", "3.2.4; 3.3.8; 3.5.1", "SBD-P08; SBD-P12", "Due diligence, integration planning or ownership of synergies is insufficient", "An acquired business is not integrated effectively", "Synergies are delayed, costs increase and group governance remains fragmented", "Trond V. Thomson", "", "All units", "1–3 years", "Medium", 4, 4, 3, 4, 2, 3, "Outside appetite", "Stable", "Treatment in progress", "Yes", "Illustrative – validate"],
+        ["SBD-R005", "M&A & integration", "Acquisitions fail to deliver expected synergies", "OBJ-01; OBJ-04", "PIL-01; PIL-02; PIL-03", "EBITDA; Multiple; Cash/NIBD", "3.2.3; 3.3.8; 3.5.1", "SBD-P08; SBD-P12", "Due diligence, integration planning or ownership of synergies is insufficient", "An acquired business is not integrated effectively", "Synergies are delayed, costs increase and group governance remains fragmented", "Trond V. Thomson", "", "All units", "1–3 years", "Medium", 4, 4, 3, 4, 2, 3, "Outside appetite", "Stable", "Treatment in progress", "Yes", "Illustrative – validate"],
     ], risk_cols)
     seed(FILES["controls"], [
         ["SBD-C001", "SBD-R001", "Board-approved investment process and business case", "Preventive", "Trond V. Thomson", "Per investment", "Partly effective", "Approved business case and minutes", "SBD-P04; SBD-P07"],
@@ -501,8 +554,8 @@ def migrate_existing_data():
         })
         processes = pd.concat([processes, pd.DataFrame([p13])], ignore_index=True)
     all_level_3 = "; ".join([
-        "3.1.1", "3.1.2", "3.1.3", "3.1.4", "3.1.5",
-        "3.2.1", "3.2.2", "3.2.3", "3.2.4", "3.2.5",
+        "3.1.1", "3.1.2", "3.1.3", "3.1.4", "3.1.5", "3.1.6",
+        "3.2.1", "3.2.2", "3.2.3", "3.2.4",
         "3.3.1", "3.3.2", "3.3.3", "3.3.4", "3.3.5", "3.3.6", "3.3.7", "3.3.8",
         "3.3.9", "3.3.10", "3.3.11", "3.3.12",
         "3.4.1", "3.4.2", "3.4.3", "3.4.4", "3.4.5", "3.4.6",
@@ -510,15 +563,15 @@ def migrate_existing_data():
     ])
     process_driver_links = {
         "SBD-P01": all_level_3,
-        "SBD-P02": "3.1.1; 3.1.2; 3.2.3; 3.2.5; 3.3.2; 3.3.3; 3.3.4",
-        "SBD-P03": "3.1.1; 3.2.1; 3.2.2; 3.2.3; 3.2.4; 3.2.5; 3.3.3; 3.5.1; 3.5.2; 3.5.3",
-        "SBD-P04": "3.2.1; 3.2.2; 3.2.3; 3.2.4; 3.2.5; 3.3.4; 3.3.5; 3.3.6; 3.4.1; 3.5.1; 3.5.2; 3.5.3",
+        "SBD-P02": "3.1.1; 3.1.2; 3.2.2; 3.2.4; 3.3.2; 3.3.3; 3.3.4",
+        "SBD-P03": "3.1.1; 3.2.1; 3.1.6; 3.2.2; 3.2.3; 3.2.4; 3.3.3; 3.5.1; 3.5.2; 3.5.3",
+        "SBD-P04": "3.2.1; 3.1.6; 3.2.2; 3.2.3; 3.2.4; 3.3.4; 3.3.5; 3.3.6; 3.4.1; 3.5.1; 3.5.2; 3.5.3",
         "SBD-P05": "3.1.1; 3.1.2; 3.1.3; 3.1.4; 3.1.5; 3.3.1; 3.3.2; 3.3.3; 3.3.4; 3.4.1; 3.4.2; 3.4.3; 3.4.4",
-        "SBD-P06": "3.1.2; 3.1.4; 3.2.2; 3.2.3; 3.3.5; 3.3.6; 3.4.2; 3.5.4",
-        "SBD-P07": "3.2.1; 3.2.2; 3.2.3; 3.4.1; 3.5.1; 3.5.2; 3.5.3; 3.5.5; 3.5.6; 3.5.7",
-        "SBD-P08": "3.2.3; 3.2.4; 3.2.5; 3.3.1; 3.3.3; 3.3.8; 3.5.1; 3.5.2; 3.5.3; 3.5.5",
+        "SBD-P06": "3.1.2; 3.1.4; 3.1.6; 3.2.2; 3.3.5; 3.3.6; 3.4.2; 3.5.4",
+        "SBD-P07": "3.2.1; 3.1.6; 3.2.2; 3.4.1; 3.5.1; 3.5.2; 3.5.3; 3.5.5; 3.5.6; 3.5.7",
+        "SBD-P08": "3.2.2; 3.2.3; 3.2.4; 3.3.1; 3.3.3; 3.3.8; 3.5.1; 3.5.2; 3.5.3; 3.5.5",
         "SBD-P09": all_level_3,
-        "SBD-P10": "3.1.4; 3.2.1; 3.2.2; 3.2.5; 3.3.3; 3.3.5; 3.3.7; 3.5.1; 3.5.2",
+        "SBD-P10": "3.1.4; 3.2.1; 3.1.6; 3.2.4; 3.3.3; 3.3.5; 3.3.7; 3.5.1; 3.5.2",
         "SBD-P11": "3.3.1; 3.3.3; 3.3.7; 3.5.6; 3.5.7",
         "SBD-P12": all_level_3,
         "SBD-P13": all_level_3,
@@ -551,11 +604,11 @@ def migrate_existing_data():
         insert_at = list(risks.columns).index("Value effects") + 1 if "Value effects" in risks.columns else len(risks.columns)
         risks.insert(insert_at, "Level 3 drivers", "")
     seed_level3 = {
-        "SBD-R001": "3.1.2; 3.2.1; 3.2.2; 3.2.3",
+        "SBD-R001": "3.1.2; 3.2.1; 3.1.6; 3.2.2",
         "SBD-R002": "3.3.7; 3.3.8; 3.1.1",
-        "SBD-R003": "3.2.5; 3.2.4; 3.3.8",
+        "SBD-R003": "3.2.4; 3.2.3; 3.3.8",
         "SBD-R004": "3.1.1; 3.3.1; 3.3.7",
-        "SBD-R005": "3.2.4; 3.3.8; 3.5.1",
+        "SBD-R005": "3.2.3; 3.3.8; 3.5.1",
     }
     for risk_id, refs in seed_level3.items():
         mask = (risks["Risk ID"] == risk_id) & (risks["Level 3 drivers"].astype(str).str.strip() == "")
@@ -659,6 +712,7 @@ def driver_ownership_with_names(df=None):
     out = df.copy()
     out.insert(1, "Pillar", out["Level 3 ref"].map(pillars).fillna("Not in hierarchy"))
     out.insert(2, "Value driver", out["Level 3 ref"].map(names).fillna("(not in current hierarchy)"))
+    out.insert(out.columns.get_loc("Accountable function") + 1, "Accountable executive", out["Accountable function"].map(FUNCTION_HEAD).fillna(""))
     out["_order"] = out["Level 3 ref"].map(order).fillna(999)
     return out.sort_values("_order").drop(columns="_order").reset_index(drop=True)
 
@@ -1179,14 +1233,922 @@ def workbook(data, *, enterprise_risks=None, enterprise_actions=None, source_lab
     return bio.getvalue()
 
 
+
+# ---------------------------------------------------------------------------
+# Operating Agenda folder: meeting running order, presenters and Level 3 topics
+# ---------------------------------------------------------------------------
+AGENDA_COLUMNS = ["Order", "Section", "Level 1 lever", "Level 2 pillar", "Item", "Level 3 refs", "Presenter function", "Co-presenter function", "Minutes", "Key exhibits", "Notes"]
+AGENDA_CHAPTERS = [
+    ('1 Welcome and introduction to Trident Aqua Services', '#00191d'),
+    ('2 IMERS: our purpose and how we put strategy into action through ISO and ERM', '#255a64'),
+    ('3 Life at sea', '#00839B'),
+    ('4 Customers and how we provide competitive service platforms', '#006677'),
+    ('5 The business plan for our existing fleet', '#397580'),
+    ('6 One Trident: a bolt-on platform built to more than double Trident in size', '#255a64'),
+    ('7 Growth and financing: building the future', '#00839B'),
+    ('8 Our north star', '#00191d'),
+]
+AGENDA_SECTIONS = [c for c, _ in AGENDA_CHAPTERS] + ["Break"]
+AGENDA_LEVERS = ["", "0 Shareholder value", "Context", "1.1 EBITDA", "1.2 Multiple", "1.3 Cash",
+                 "1.1 EBITDA · 1.3 Cash", "1.2 Multiple · 1.3 Cash", "1.1 EBITDA · 1.2 Multiple"]
+AGENDA_PILLARS = ["", "2.1 Organic EBITDA Growth", "2.2 Investment EBITDA Growth", "2.3 Multiple Expansion",
+                  "2.4 Cash Conversion", "2.5 Capital Allocation & Balance Sheet",
+                  "2.1 Organic EBITDA Growth · 2.3 Multiple Expansion", "2.3 Multiple Expansion · 2.4 Cash Conversion",
+                  "2.3 Multiple Expansion · 2.5 Capital Allocation & Balance Sheet"]
+_C = [c for c, _ in AGENDA_CHAPTERS]
+_AGENDA_SEED = [
+    # chapter, lever, pillar, item, refs, presenter, co-presenter, minutes, exhibits, notes
+    (_C[0], '0 Shareholder value', '', 'Welcome and purpose of the day', '', 'CEO', '', 5,
+     'Why we are here; how the day is built',
+     'Start easy – for people meeting Trident for the first time'),
+    (_C[0], 'Context', '', 'The big picture: food demand, a growing middle class, aquaculture vs wild catch – and Atlantic salmon production and demand worldwide', '', 'Strategy & Business Development', '', 15,
+     'Global protein demand and middle-class growth; wild catch plateau vs aquaculture growth; Atlantic salmon supply by region and outlook; salmon demand, consumption per capita and market penetration outlook by region',
+     'Funnel from the world to the salmon industry'),
+    (_C[0], '0 Shareholder value', '', "Trident today and tomorrow: our services, platform, geographies and customers – and our ambition to be the world's leading aquaculture service company", '', 'CEO', '', 15,
+     'High level only: what we do, where we operate, and where we want to be – the details follow in the sessions later in the day',
+     'A short trailer for the day'),
+    (_C[1], '0 Shareholder value', '', "IMERS: one strategy – how we all work towards maximizing shareholder value in full alignment with our stakeholders' interests", '', 'Strategy & Business Development', '', 20,
+     "one value tree from Level 0 (shareholder value) to every department, so all functions pull towards the same goal; each department's ISO processes (4.1) turn strategy into daily execution and its ERM register (4.2) protects the value it is responsible for; one accountable executive per Level 3 driver; material risks rolled up to the enterprise level; every driver linked to the stakeholders it serves (Sustainability Statement 2025)",
+     'The strategic frame for the day – every session that follows is one part of this value tree'),
+    (_C[2], '1.1 EBITDA', '2.1 Organic EBITDA Growth', 'Our value proposition: vessels as service platforms – what they deliver to farmers, and how we operate them', '3.1.2; 3.1.4; 3.1.5', 'Vessel Operations', '', 25,
+     'Vessel segments – wellboats, harvest and stun & bleed vessels, premium and standard service vessels, feed carriers; what each does for the farmer through the production cycle; the fleet by region; how Vessel Operations runs the fleet – organisation, crews, planning and day-to-day follow-up',
+     'No economics here – introduce the vessels and the services. Consider a short vessel film'),
+    (_C[2], '1.2 Multiple', '2.3 Multiple Expansion', 'Safety, fish welfare, environment and the technical standard of our fleet', '3.3.10; 3.3.5', 'Technical & HSEQ', '', 20,
+     'LTIF/TRIF/SIF; fish welfare; emissions; technical standard and condition of the fleet',
+     ''),
+    ('Break', '', '', 'Break', '', '', '', 15,
+     '',
+     ''),
+    (_C[3], '1.1 EBITDA · 1.2 Multiple', '2.1 Organic EBITDA Growth · 2.3 Multiple Expansion', 'Our customers: contracts, coverage, counterparties and commercial terms', '3.3.1; 3.3.2; 3.3.3; 3.1.3', 'Commercial', '', 30,
+     'Customer map; contracted EBITDA and duration; concentration; key terms and indexation',
+     ''),
+    (_C[3], '1.1 EBITDA', '2.2 Investment EBITDA Growth', "Trident's expansion yard strategy: a global yard footprint to deliver newbuilds on time, on budget and at the most competitive prices", '', 'Vessel Operations', '', 15,
+     'Why newbuilding uses a global yard footprint; how we select and work with newbuild yards; contract structure, supervision and follow-up to secure on-time, on-budget delivery; track record; how we secure competitive prices for the 19-vessel program',
+     'Expansion only – newbuild yards worldwide. Maintenance and local yards are covered separately later in this chapter'),
+    (_C[3], '1.1 EBITDA', '2.1 Organic EBITDA Growth', 'Global yard outlook: capacity, prices and the China option – the framework for newbuild prices and TC re-rating', '', 'Strategy & Business Development', '', 15,
+     'Answer to the yard-price challenge: global yard capacity and price benchmarks by region; the China construction plan and its effect on newbuild prices; yard comparison (e.g. China vs Zamakona NB809, incl. finance and guarantees); newbuild-parity TC under different yard prices and yard indexation',
+     'Sets the newbuild price used for TC re-rating in chapter 5 and the newbuild program in Growth'),
+    (_C[3], '1.3 Cash', '2.4 Cash Conversion', 'Maintenance capex and our local maintenance yard strategy: keeping the fleet available and cost-efficient', '3.4.2', 'Vessel Operations', '', 15,
+     'Maintenance capex by vessel and year; docking and survey plan; why maintenance uses local yards close to where the vessels operate; availability and off-hire around dockings',
+     'A different strategy from newbuilding: local yards for maintenance vs a global footprint for expansion. Same capex source as the long-term vessel plan'),
+    (_C[4], '1.2 Multiple · 1.3 Cash', '2.3 Multiple Expansion · 2.4 Cash Conversion', 'Setting the stage: earnings quality, reporting and how our EBITDA turns into cash', '3.3.4; 3.3.7; 3.4.1; 3.4.3; 3.4.4; 3.4.5; 3.4.6', 'Finance', '', 10,
+     'EBITDA quality and volatility; reporting; EBITDA to free cash flow bridge',
+     'Introduction before the 2027 budget'),
+    (_C[4], 'Context', '', 'The 2027 budget', '', 'Finance', '', 20,
+     'Budget 2027: revenue, EBITDA, capex and cash by region',
+     'Near-term starting point for the long-term plan'),
+    (_C[4], '1.1 EBITDA', '2.1 Organic EBITDA Growth', "TC fleet uplift: from today's rates to newbuild-parity pricing, vessel by vessel – benchmarked against comparable vessels by size and segment", '3.1.1', 'Strategy & Business Development', 'Commercial', 30,
+     'Segment yardsticks: each vessel compared with similar vessels by size and segment (own fleet and competitors) – why and at which level each vessel should trade; fleet waterfall of real uplift above CPI indexation; renewal calendar and uplift steps per vessel; gap to newbuild-parity TC (from the yard outlook); commercial path to get there – renewals, terms and customers',
+     'Co-hosted: Trond (model and pricing level) and Joar (commercial execution)'),
+    (_C[4], '1.1 EBITDA · 1.2 Multiple', '2.1 Organic EBITDA Growth · 2.3 Multiple Expansion', 'Long-term implications for organic EBITDA (vessels in place) – and the conclusion on fleet renewal, replacement and divestment', '3.1.6; 3.3.6; 3.5.4', 'Strategy & Business Development', '', 15,
+     '10-year EBITDA for the vessels in place, CPI-indexed vs with uplift; reconstructions with capex and yield; which vessels to keep, reconstruct, replace or divest – with timing and cash effect',
+     'The conclusion of the TC fleet uplift session with Joar: what the uplift means for long-term EBITDA and for the fleet'),
+    ('Break', '', '', 'Lunch', '', '', '', 45,
+     '',
+     ''),
+    (_C[5], '1.2 Multiple', '2.3 Multiple Expansion', 'One Trident: a bolt-on platform ready to integrate acquisitions – and more than double in vessels, people and value', '3.3.8', 'CEO', '', 10,
+     'How three companies became one; the integration playbook; what makes the platform scalable – common processes (ISO), one risk system (ERM), shared HSEQ platform; capacity to absorb companies of our own size',
+     'Introduces the chapter: why Trident can integrate acquisitions and grow beyond twice its size'),
+    (_C[5], '1.2 Multiple', '2.3 Multiple Expansion', 'Our people: competence, crew and leadership capacity to integrate and grow', '3.3.9', 'HR', '', 15,
+     '1,001 employees (897 at sea); crew pool and recruitment; competence and training; succession and key-person map; how we onboard acquired crews and teams',
+     ''),
+    (_C[5], '1.2 Multiple', '2.3 Multiple Expansion', 'Compliance and legal: one framework that acquired companies plug into', '3.3.11', 'Legal & Compliance', '', 15,
+     'Code of Conduct, anti-corruption, sanctions and due diligence; legal entity structure; how compliance is rolled out to acquired companies',
+     ''),
+    (_C[5], '1.2 Multiple', '2.3 Multiple Expansion', 'Our administrative platform: shared services, systems and data across Trident worldwide', '3.3.12', 'Administration & ICT', '', 15,
+     'How administration is organised across regions and companies – shared services, common routines and document control; one system landscape and data model, with cyber resilience as part of it; how acquired companies are onboarded onto our administration and systems',
+     'Focus on the administrative platform as part of the bolt-on system – ICT is one part of it'),
+    ('Break', '', '', 'Break', '', '', '', 15,
+     '',
+     ''),
+    (_C[6], 'Context', '', "The Norwegian Salmon Leap 2050: how Norway's salmon industry will develop – and what it means for the vessels, newbuilds and M&A ahead", '', 'Strategy & Business Development', '', 10,
+     "Not a forecast – today's government decisions and industry plans added up: Norway from 1.84 m t (2025) towards ≈5 m t, ≈3 m t more salmon (2 m t offshore in the three areas opened Feb 2026, 1 m t in closed containment); ≈USD 75 bn of infrastructure; sea-phase volume >2.5×; ≈600,000 m³ new wellboat capacity and ≈USD 13 bn of vessel investment (wellboats USD 10 bn; service, feed and harvest USD 3 bn)",
+     "Trond presents an analysis of Norway's plans, built on public information and government targets. Sets the stage for the newbuild program and the M&A plan. Source: 'The Salmon Leap 2050' (11 Nov 2026) with its source list"),
+    (_C[6], '1.1 EBITDA', '2.2 Investment EBITDA Growth', 'Organic newbuild growth: newbuild program, yards and EBITDA ramp', '3.2.1', 'CEO', '', 20,
+     'Newbuild pipeline by type and region; yard slots; EBITDA yield vs hurdle; capex and delivery timing',
+     'Arild presents; Trond moderates and leads the Q&A to help the audience follow. Builds on the yard analysis in chapter 4; assets Trident does not own today'),
+    (_C[6], '1.1 EBITDA', '2.2 Investment EBITDA Growth', 'The M&A plan: acquisitions, sale-leasebacks and new platforms', '3.2.2; 3.2.3; 3.2.4', 'Strategy & Business Development', '', 20,
+     'Target universe and priorities; SLB cases; synergies; new platforms (SFaaS)',
+     ''),
+    (_C[6], '1.3 Cash', '2.5 Capital Allocation & Balance Sheet', "Today's financing: capital structure, returns, leverage and headroom", '3.5.2; 3.5.3; 3.5.5; 3.5.6', 'Finance', '', 10,
+     'Current debt and capital structure; ROIC; NIBD/EBITDA; liquidity and covenant headroom',
+     'Øyvind sets the starting point for how we finance the future'),
+    (_C[6], '1.3 Cash', '2.5 Capital Allocation & Balance Sheet', 'Financing the future: paving the way for new capital to fund growth', '3.5.7', 'Strategy & Business Development', 'Finance', 10,
+     'Funding need from the newbuild and M&A plans; financing structures and sources (bank, bond, equity, sale-leaseback, green/sustainability-linked); sequencing with the balance sheet',
+     "Trond builds on Øyvind's starting point"),
+    (_C[7], '1.3 Cash', '2.5 Capital Allocation & Balance Sheet', 'Our north star: where Trident is going – maximizing shareholder value in full alignment with our stakeholders', '3.5.1', 'CEO', '', 15,
+     "The day in one picture – back to the ambition from the morning; the north star: the world's leading aquaculture service company, creating long-term shareholder value by creating value for customers, our people, communities, fish welfare and the ocean; how we allocate capital to get there; thank you and Q&A",
+     'Close the circle from the opening – leave the audience with one picture of where we are going, not a list of decisions'),
+]
+AGENDA_SECTION_STYLE = {c: (col, "#ffffff") for c, col in AGENDA_CHAPTERS}
+AGENDA_SECTION_STYLE["Break"] = ("#eef2f3", "#4a5a5e")
+
+
+def agenda_path():
+    return DATA_DIR / "operating_agenda.csv"
+
+
+def agenda_meta_path():
+    return DATA_DIR / "operating_agenda_meta.json"
+
+
+def load_agenda():
+    seed(agenda_path(), [[i + 1, *row] for i, row in enumerate(_AGENDA_SEED)], AGENDA_COLUMNS)
+    df = safe_read_csv(agenda_path(), columns=AGENDA_COLUMNS)
+    for col in AGENDA_COLUMNS:
+        if col not in df.columns:
+            df[col] = ""
+    df["Order"] = pd.to_numeric(df["Order"], errors="coerce")
+    df["Minutes"] = pd.to_numeric(df["Minutes"], errors="coerce").fillna(0).astype(int)
+    return df[AGENDA_COLUMNS].sort_values("Order", na_position="last").reset_index(drop=True)
+
+
+def load_agenda_meta():
+    import json
+    default = {"title": "Trident Operating Agenda 2026 - management review", "date": "", "start": "08:30"}
+    try:
+        if agenda_meta_path().exists():
+            default.update(json.loads(agenda_meta_path().read_text(encoding="utf-8")))
+    except (OSError, ValueError):
+        pass
+    return default
+
+
+def save_agenda_meta(meta):
+    import json
+    agenda_meta_path().write_text(json.dumps(meta, indent=2, ensure_ascii=False), encoding="utf-8")
+
+
+def agenda_with_times(df, start="08:30"):
+    out = df.copy()
+    try:
+        h, m = [int(x) for x in str(start).split(":")[:2]]
+    except ValueError:
+        h, m = 8, 30
+    t = h * 60 + m
+    starts, ends = [], []
+    for minutes in out["Minutes"]:
+        starts.append(f"{t // 60:02d}:{t % 60:02d}")
+        t += int(minutes)
+        ends.append(f"{t // 60:02d}:{t % 60:02d}")
+    out.insert(1, "Start", starts)
+    out.insert(2, "End", ends)
+    def _who(f):
+        f = str(f or "").strip()
+        return f"{FUNCTION_HEAD.get(f, '')} ({f})" if f and FUNCTION_HEAD.get(f, f) != f else f
+    co = out["Co-presenter function"] if "Co-presenter function" in out.columns else pd.Series([""] * len(out), index=out.index)
+    out["Presenter"] = [(_who(f) + (" & " + _who(c) if str(c).strip() else "")) for f, c in zip(out["Presenter function"], co)]
+    return out
+
+
+def agenda_checks(df):
+    """Every Level 3 driver on the agenda exactly once, presented by its accountable function."""
+    ownership = driver_ownership_with_names()
+    accountable = dict(zip(ownership["Level 3 ref"], ownership["Accountable function"]))
+    names = dict(zip(ownership["Level 3 ref"], ownership["Value driver"]))
+    seen = {}
+    for _, row in df.iterrows():
+        for ref in split_refs(row["Level 3 refs"]):
+            seen.setdefault(ref, []).append((row["Item"], str(row["Presenter function"]).strip(),
+                                             str(row.get("Co-presenter function", "")).strip()))
+    rows = []
+    for item in level3_driver_catalog():
+        ref = item["reference"]
+        hits = seen.get(ref, [])
+        presenters = sorted({p for _, p, _c in hits})
+        hosts = {p for _, p, _c in hits} | {c for _, _p, c in hits if c}
+        acc = str(accountable.get(ref, "")).strip()
+        if not hits:
+            status = "Not on the agenda"
+        elif len(hits) > 1:
+            status = "On the agenda more than once"
+        elif acc not in hosts and "CEO" in hosts:
+            status = "OK"  # the CEO may present any driver on behalf of the accountable executive
+        elif acc not in hosts:
+            status = "Accountable executive is neither presenter nor co-presenter"
+        else:
+            status = "OK"
+        rows.append({"Level 3 ref": ref, "Value driver": names.get(ref, item["driver"]), "Accountable function": acc,
+                     "Presented by": "; ".join(presenters), "Agenda item": "; ".join(i for i, _p, _c in hits), "Check": status})
+    unknown = sorted(set(seen) - {i["reference"] for i in level3_driver_catalog()})
+    return pd.DataFrame(rows), unknown
+
+
+def risks_for_refs(refs, limit=5):
+    risks = collect_all_register_rows("risks")
+    if risks.empty or "Level 3 drivers" not in risks.columns or not refs:
+        return pd.DataFrame()
+    risks = scored(risks)
+    mask = risks["Level 3 drivers"].map(lambda v: bool(set(split_refs(v)) & set(refs)))
+    cols = [c for c in ["Source unit", "Risk ID", "Risk title", "Level 3 drivers", "Residual score", "Appetite status"] if c in risks.columns]
+    return risks.loc[mask, cols].sort_values("Residual score", ascending=False).head(limit)
+
+
+
+# ---------------------------------------------------------------------------
+# Stakeholder alignment: Level 3 drivers -> stakeholders in society (ESRS / SDG)
+# ---------------------------------------------------------------------------
+STAKEHOLDERS = [
+    # name, short, VSME/DMA topics (Sustainability Statement 2025), SDGs, what they expect, colour, 2025 statement data
+    ("Owners & investors", "Owners", "G1 Business conduct (double material)", "SDG 8",
+     "Long-term value creation, transparency and sound governance", "#00191d",
+     "Shareholder dialogue (statement 5.4)"),
+    ("Banks & financial stakeholders", "Banks", "G1 Business conduct (double material)", "SDG 8",
+     "Resilience, risk management and sustainability information; increasingly linked to financing conditions", "#343d40",
+     "Banks, lenders and insurers request ESG and risk information (statement 5.4.2)"),
+    ("Customers & industry partners", "Customers", "Fish welfare (cross-cutting) · E3 · E4", "SDG 12, 14",
+     "Operational quality, fish welfare, transparency and environmental performance", "#00839B",
+     "Customer dialogue on performance, HSEQ and sustainability (statement 5.4.1)"),
+    ("Employees & management", "Employees", "S1 Own workforce (double material)", "SDG 8",
+     "Safe workplaces, competence, fair conditions and a respectful culture", "#d08a2e",
+     "1,001 employees (897 at sea); turnover 16.7%; LTIF/TRIF/SIF and sick leave tracked"),
+    ("Vessel yards & suppliers", "Suppliers", "G1 supplier due diligence · S2 (lower materiality)", "SDG 8",
+     "Predictable orders, fair terms and responsible supply-chain standards", "#7a5c99",
+     "Integrity due diligence and supplier expectations (statement 4.2, 6.3)"),
+    ("Authorities & local communities", "Society", "G1 Business conduct · S3 (lower materiality)", "SDG 8",
+     "Compliance, transparency, licence to operate and a responsible local presence", "#5a6570",
+     "Code of Conduct, ABC, sanctions, whistleblowing policies (statement 5, 6.3)"),
+    ("Fish welfare", "Fish welfare", "Cross-cutting: E3 · E4 · S1 · G1", "SDG 14",
+     "Gentle handling, oxygen and water-quality control, biosecurity, fewer welfare incidents", "#2f8f5b",
+     "Group fish-health role established 2025; welfare incident follow-up (statement 3.5)"),
+    ("Marine environment & biodiversity", "Marine", "E3 · E4 (double material) · E2 Pollution (impact material)", "SDG 14",
+     "Protect water, marine ecosystems and biodiversity; prevent spills, discharges and pollution", "#1f6f9f",
+     "NOx 2,341 t and SOx 72.36 t in 2025; ballast-water and discharge controls"),
+    ("Climate", "Climate", "E1 Climate change (double material)", "SDG 13",
+     "Lower fuel use and emissions; hybrid and lower-emission vessel technology", "#90c44f",
+     "144,072 tCO₂e in 2025, 83% Scope 1 from vessel fuel"),
+]
+STAKEHOLDER_NAMES = [s[0] for s in STAKEHOLDERS]
+STAKEHOLDER_INFO = {s[0]: s for s in STAKEHOLDERS}
+CAPITAL_STAKEHOLDERS = {"Owners & investors", "Banks & financial stakeholders"}
+NATURE_STAKEHOLDERS = {"Fish welfare", "Marine environment & biodiversity", "Climate"}
+STAKEHOLDER_GROUPS = [("People", "#d08a2e"), ("Nature", "#2f8f5b"), ("Capital", "#00191d")]
+
+
+def stakeholder_group(name):
+    return "Capital" if name in CAPITAL_STAKEHOLDERS else ("Nature" if name in NATURE_STAKEHOLDERS else "People")
+
+
+def stakeholder_stats(table):
+    """Link counts behind the headline: driver-stakeholder links by group, by lever and by stakeholder."""
+    lever_of = {"PIL-01": "1.1 EBITDA", "PIL-02": "1.1 EBITDA", "PIL-03": "1.2 Multiple", "PIL-04": "1.3 Cash", "PIL-05": "1.3 Cash"}
+    links = []
+    for _, row in table.iterrows():
+        for sh in split_refs(row["Stakeholders"]):
+            if sh in STAKEHOLDER_INFO:
+                links.append({"ref": row["Level 3 ref"], "lever": lever_of.get(row["Pillar"], ""), "stakeholder": sh, "group": stakeholder_group(sh)})
+    df = pd.DataFrame(links, columns=["ref", "lever", "stakeholder", "group"])
+    total = len(df)
+    by_group = df["group"].value_counts().to_dict()
+    societal = by_group.get("People", 0) + by_group.get("Nature", 0)
+    lever_share = {}
+    for lever in ["1.1 EBITDA", "1.2 Multiple", "1.3 Cash"]:
+        sub = df[df["lever"] == lever]
+        lever_share[lever] = round(100 * (sub["group"] != "Capital").mean()) if len(sub) else 0
+    by_stake = df["stakeholder"].value_counts().reindex(STAKEHOLDER_NAMES, fill_value=0).to_dict()
+    return {"total": total, "by_group": by_group, "societal": societal,
+            "societal_pct": round(100 * societal / total) if total else 0, "lever_share": lever_share, "by_stake": by_stake}
+STAKEHOLDER_COLUMNS = ["Level 3 ref", "Stakeholders", "Shared value"]
+_OW, _BK, _CU, _EM, _YS, _AC, _FW, _MA, _CL = STAKEHOLDER_NAMES
+STAKEHOLDER_SEED = [
+    ("3.1.1", [_OW, _CU], "Prices at newbuild parity fund reinvestment in the modern, reliable capacity customers depend on."),
+    ("3.1.2", [_CU, _FW, _OW], "Vessels available when treatments and harvests are due, so fish are handled on time."),
+    ("3.1.3", [_CU, _OW], "Clear, balanced terms and indexation that make long partnerships work for both sides."),
+    ("3.1.4", [_CU, _FW, _CL, _EM], "Well-run vessels: fewer incidents, lower fuel use and better fish handling."),
+    ("3.1.5", [_OW, _EM, _CL, _YS], "Efficiency through planning, procurement, fuel management and lower sick leave, never by cutting safe manning."),
+    ("3.1.6", [_CL, _FW, _CU, _YS, _EM], "Reconstruction extends vessel life and adds modern fish-handling, safety and energy-saving technology."),
+    ("3.2.1", [_CL, _FW, _CU, _EM, _YS], "Newbuilds bring hybrid and lower-emission vessels, gentler fish handling and work for yards."),
+    ("3.2.2", [_CU, _OW, _BK], "Sale-leasebacks free customers' capital for their core business; acquired vessels are brought up to Trident standards."),
+    ("3.2.3", [_OW, _CU, _EM], "Consolidation gives customers one accountable operator and employees wider career paths."),
+    ("3.2.4", [_CU, _FW, _MA], "New platforms (SFaaS) help farmers grow with lower biological risk."),
+    ("3.3.1", [_OW, _BK, _EM, _CU], "Predictable earnings secure jobs and long-term customer partnerships."),
+    ("3.3.2", [_OW, _BK, _CU, _EM, _YS], "Long contracts give customers secured capacity, employees stable work and yards predictable orders."),
+    ("3.3.3", [_OW, _BK, _CU, _AC], "We work with financially sound, responsible producers."),
+    ("3.3.4", [_OW, _BK, _EM], "Stable earnings protect employment through the cycle."),
+    ("3.3.5", [_EM, _FW, _CL, _OW, _BK], "A modern fleet is safer, cleaner and better for fish, and holds its value."),
+    ("3.3.6", [_CL, _FW, _MA, _EM, _AC], "Retiring old tonnage cuts emissions and risk; divested vessels go to responsible owners or certified recycling."),
+    ("3.3.7", [_OW, _BK, _AC], "Transparent, reliable reporting, including the VSME sustainability statement and its KPIs."),
+    ("3.3.8", [_EM, _CU, _AC], "One Trident Aqua Services: shared ISO 9001/14001 management system and common processes, with local presence."),
+    ("3.3.9", [_EM, _AC], "Competence, leadership and succession; a stable workforce and local recruitment."),
+    ("3.3.10", [_EM, _FW, _MA, _CL, _AC, _CU], "Safety, fish welfare, biosecurity and environmental care: the core of the licence to operate."),
+    ("3.3.11", [_AC, _OW, _BK, _YS], "Code of Conduct, anti-corruption, sanctions compliance and supplier due diligence in every country."),
+    ("3.3.12", [_CU, _AC, _EM], "A plug-and-play platform – shared services, common systems and data – lets acquired companies join fast and safely; secure systems protect customers, employees and operations."),
+    ("3.4.1", [_OW, _BK, _YS], "Cash discipline without pushing the burden onto suppliers."),
+    ("3.4.2", [_EM, _FW, _MA, _CL, _YS], "Planned maintenance keeps vessels safe, efficient and free of spills, and gives yards steady work."),
+    ("3.4.3", [_OW, _YS], "Efficient working capital with suppliers paid on agreed terms."),
+    ("3.4.4", [_OW, _CU], "Clear invoicing and collection agreed with customers."),
+    ("3.4.5", [_OW, _BK], "Lower financing cost leaves more cash for fleet renewal."),
+    ("3.4.6", [_AC, _OW], "Taxes paid where value is created, within the law in each country."),
+    ("3.5.1", [_OW, _CU, _CL, _EM], "Cash goes where it creates the most value, including fleet renewal and safer, cleaner vessels."),
+    ("3.5.2", [_OW, _BK], "Returns above the cost of capital keep the company able to invest."),
+    ("3.5.3", [_OW, _BK], "Balanced choice between paying down debt and investing."),
+    ("3.5.4", [_CL, _MA, _OW, _AC], "Disposals done responsibly, including certified ship recycling where relevant."),
+    ("3.5.5", [_BK, _OW], "Leverage within limits that protect all stakeholders through a downturn."),
+    ("3.5.6", [_BK, _YS, _EM], "Liquidity to pay employees and suppliers through any cycle."),
+    ("3.5.7", [_BK, _OW, _CL], "Access to financing, including green or sustainability-linked loans that reward ESG performance."),
+]
+
+
+def stakeholder_path():
+    return DATA_DIR / "stakeholder_alignment.csv"
+
+
+def load_stakeholder_alignment():
+    path = stakeholder_path()
+    seed(path, [[ref, "; ".join(st_), txt] for ref, st_, txt in STAKEHOLDER_SEED], STAKEHOLDER_COLUMNS)
+    df = safe_read_csv(path, columns=STAKEHOLDER_COLUMNS)
+    for col in STAKEHOLDER_COLUMNS:
+        if col not in df.columns:
+            df[col] = ""
+    known = set(df["Level 3 ref"].astype(str))
+    lookup = {ref: (st_, txt) for ref, st_, txt in STAKEHOLDER_SEED}
+    missing = [{"Level 3 ref": i["reference"], "Stakeholders": "; ".join(lookup.get(i["reference"], ([], ""))[0]),
+                "Shared value": lookup.get(i["reference"], ([], ""))[1]}
+               for i in level3_driver_catalog() if i["reference"] not in known]
+    if missing:
+        df = pd.concat([df, pd.DataFrame(missing)], ignore_index=True)
+        df[STAKEHOLDER_COLUMNS].to_csv(path, index=False)
+    return df[STAKEHOLDER_COLUMNS]
+
+
+def stakeholder_table():
+    df = load_stakeholder_alignment()
+    catalog = level3_driver_catalog()
+    order = {i["reference"]: n for n, i in enumerate(catalog)}
+    names = {i["reference"]: i["driver"] for i in catalog}
+    pillars = {i["reference"]: i["pillar_id"] for i in catalog}
+    ownership = driver_ownership_with_names()
+    acc = dict(zip(ownership["Level 3 ref"], ownership["Accountable executive"]))
+    out = df.copy()
+    out.insert(1, "Pillar", out["Level 3 ref"].map(pillars).fillna(""))
+    out.insert(2, "Value driver", out["Level 3 ref"].map(names).fillna("(not in hierarchy)"))
+    out["Accountable executive"] = out["Level 3 ref"].map(acc).fillna("")
+    out["_o"] = out["Level 3 ref"].map(order).fillna(999)
+    return out.sort_values("_o").drop(columns="_o").reset_index(drop=True)
+
+
+def stakeholder_sankey(table, reverse=False):
+    import plotly.graph_objects as go
+    levers = [("1.1 EBITDA", ["PIL-01", "PIL-02"]), ("1.2 Multiple", ["PIL-03"]), ("1.3 Cash", ["PIL-04", "PIL-05"])]
+    pillar_labels = {"PIL-01": "2.1 Organic EBITDA growth", "PIL-02": "2.2 Investment EBITDA growth", "PIL-03": "2.3 Multiple expansion",
+                     "PIL-04": "2.4 Cash conversion", "PIL-05": "2.5 Capital allocation & balance sheet"}
+    stake_order = [n for n in STAKEHOLDER_NAMES if n not in CAPITAL_STAKEHOLDERS] + [n for n in STAKEHOLDER_NAMES if n in CAPITAL_STAKEHOLDERS]
+    group_names = [g for g, _ in STAKEHOLDER_GROUPS]
+    nodes = ["0 · Maximize<br>shareholder value"] + [l for l, _ in levers] + list(pillar_labels.values()) + stake_order + group_names
+    idx = {n: i for i, n in enumerate(nodes)}
+    colors = ["#00191d"] + ["#00839B"] * 3 + ["#343d40"] * 5 + [STAKEHOLDER_INFO[n][5] for n in stake_order] + [c for _, c in STAKEHOLDER_GROUPS]
+
+    def spread(n, lo=0.04, hi=0.96):
+        return [lo + (hi - lo) * i / max(n - 1, 1) for i in range(n)]
+    node_x = [0.001] + [0.19] * 3 + [0.40] * 5 + [0.72] * len(stake_order) + [0.999] * 3
+    node_y = [0.5] + spread(3, 0.15, 0.85) + spread(5, 0.08, 0.92) + spread(len(stake_order), 0.03, 0.97) + [0.22, 0.55, 0.86]
+    src, tgt, val, lcol, hover = [], [], [], [], []
+    pil_stake = {}
+    for _, row in table.iterrows():
+        for sh in split_refs(row["Stakeholders"]):
+            if sh in idx and row["Pillar"] in pillar_labels:
+                pil_stake.setdefault((row["Pillar"], sh), []).append(row["Level 3 ref"])
+    pil_total = {p: sum(len(v) for (pp, _), v in pil_stake.items() if pp == p) for p in pillar_labels}
+    for lever, pils in levers:
+        tot = sum(pil_total[p] for p in pils)
+        src.append(idx[nodes[0]]); tgt.append(idx[lever]); val.append(tot); lcol.append("rgba(0,131,155,.25)"); hover.append(lever)
+        for p in pils:
+            src.append(idx[lever]); tgt.append(idx[pillar_labels[p]]); val.append(pil_total[p]); lcol.append("rgba(52,61,64,.22)"); hover.append(pillar_labels[p])
+    for (p, sh), refs in pil_stake.items():
+        c = STAKEHOLDER_INFO[sh][5].lstrip("#")
+        rgba = f"rgba({int(c[0:2],16)},{int(c[2:4],16)},{int(c[4:6],16)},.45)"
+        src.append(idx[pillar_labels[p]]); tgt.append(idx[sh]); val.append(len(refs)); lcol.append(rgba)
+        hover.append(f"{len(refs)} driver(s): {', '.join(refs)}")
+    for sh in stake_order:
+        n = sum(len(v) for (p, s_), v in pil_stake.items() if s_ == sh)
+        if not n:
+            continue
+        g = stakeholder_group(sh)
+        c = dict(STAKEHOLDER_GROUPS)[g].lstrip("#")
+        src.append(idx[sh]); tgt.append(idx[g]); val.append(n)
+        lcol.append(f"rgba({int(c[0:2],16)},{int(c[2:4],16)},{int(c[4:6],16)},.30)")
+        hover.append(f"{sh} → {g}: {n} link(s)")
+    title_text = ("Level 0  →  1 Levers  →  2 Pillars  →  Stakeholders  →  People · Nature · Capital"
+                  "<br><sup>Flow width = number of Level 3 driver links</sup>")
+    if reverse:
+        src, tgt = tgt, src
+        node_x = [min(max(1 - x, 0.001), 0.999) for x in node_x]
+        title_text = ("People · Nature · Capital  →  Stakeholders  →  2 Pillars  →  1 Levers  →  Level 0"
+                      "<br><sup>What each stakeholder group needs, and where it builds shareholder value · flow width = number of Level 3 driver links</sup>")
+    fig = go.Figure(go.Sankey(
+        arrangement="fixed",
+        node=dict(label=nodes, color=colors, x=node_x, y=node_y, pad=18, thickness=26, line=dict(color="#ffffff", width=0.5),
+                  hovertemplate="%{label}<extra></extra>"),
+        link=dict(source=src, target=tgt, value=val, color=lcol, customdata=hover, hovertemplate="%{customdata}<extra></extra>"),
+    ))
+    fig.update_layout(height=900, margin=dict(l=10, r=10, t=56, b=10),
+                      font=dict(size=20, color="#00191d", family="Source Sans Pro, Arial, sans-serif"),
+                      title=dict(text=title_text, font=dict(size=20, color="#255a64"), x=0.0, xanchor="left"))
+    return fig
+
+
+def stakeholder_lever_grid(table):
+    import plotly.graph_objects as go
+    lever_of = {"PIL-01": "1.1 EBITDA", "PIL-02": "1.1 EBITDA", "PIL-03": "1.2 Multiple", "PIL-04": "1.3 Cash", "PIL-05": "1.3 Cash"}
+    levers = ["1.1 EBITDA", "1.2 Multiple", "1.3 Cash"]
+    order = [n for n in STAKEHOLDER_NAMES if n not in CAPITAL_STAKEHOLDERS] + [n for n in STAKEHOLDER_NAMES if n in CAPITAL_STAKEHOLDERS]
+    z, text = [], []
+    for sh in order:
+        row, trow = [], []
+        for lv in levers:
+            refs = [r["Level 3 ref"] for _, r in table.iterrows() if lever_of.get(r["Pillar"]) == lv and sh in split_refs(r["Stakeholders"])]
+            row.append(len(refs)); trow.append(", ".join(refs))
+        z.append(row); text.append(trow)
+    fig = go.Figure(go.Heatmap(
+        z=z, x=levers, y=[f"{sh}  ({stakeholder_group(sh)})" for sh in order], customdata=text,
+        colorscale=[[0, "#f3f7f8"], [0.35, "#90c4ce"], [1, "#00839B"]], showscale=False, xgap=4, ygap=4,
+        texttemplate="%{z}", textfont=dict(size=22, color="#00191d"),
+        hovertemplate="%{y} · %{x}<br>Drivers: %{customdata}<extra></extra>",
+    ))
+    fig.update_layout(height=640, margin=dict(l=10, r=10, t=10, b=10), font=dict(size=18, color="#00191d"),
+                      yaxis=dict(autorange="reversed", tickfont=dict(size=18)), xaxis=dict(side="top", tickfont=dict(size=20)))
+    return fig
+
+
+def stakeholder_drilldown(table, stakeholder):
+    import plotly.graph_objects as go
+    pillar_labels = {"PIL-01": "2.1 Organic EBITDA growth", "PIL-02": "2.2 Investment EBITDA growth", "PIL-03": "2.3 Multiple expansion",
+                     "PIL-04": "2.4 Cash conversion", "PIL-05": "2.5 Capital allocation & balance sheet"}
+    lever_of = {"PIL-01": "1.1 EBITDA", "PIL-02": "1.1 EBITDA", "PIL-03": "1.2 Multiple", "PIL-04": "1.3 Cash", "PIL-05": "1.3 Cash"}
+    rows = table[table["Stakeholders"].map(lambda v: stakeholder in split_refs(v))]
+    if rows.empty:
+        return None
+    drivers = [f'{r["Level 3 ref"]} · {r["Value driver"]}' for _, r in rows.iterrows()]
+    pils = [p for p in pillar_labels if p in set(rows["Pillar"])]
+    levs = [l for l in ["1.1 EBITDA", "1.2 Multiple", "1.3 Cash"] if l in {lever_of[p] for p in pils}]
+    nodes = [STAKEHOLDER_INFO[stakeholder][1]] + drivers + [pillar_labels[p] for p in pils] + levs + ["0 · Maximize<br>shareholder value"]
+    idx = {n: i for i, n in enumerate(nodes)}
+    color = STAKEHOLDER_INFO[stakeholder][5]
+    c = color.lstrip("#"); rgba = f"rgba({int(c[0:2],16)},{int(c[2:4],16)},{int(c[4:6],16)},.35)"
+    src, tgt, val, lc, hov = [], [], [], [], []
+    for (_, r), d in zip(rows.iterrows(), drivers):
+        src.append(0); tgt.append(idx[d]); val.append(1); lc.append(rgba); hov.append(str(r["Shared value"]))
+        src.append(idx[d]); tgt.append(idx[pillar_labels[r["Pillar"]]]); val.append(1); lc.append("rgba(52,61,64,.22)"); hov.append(d)
+    for p in pils:
+        n = int((rows["Pillar"] == p).sum())
+        src.append(idx[pillar_labels[p]]); tgt.append(idx[lever_of[p]]); val.append(n); lc.append("rgba(52,61,64,.22)"); hov.append(f"{n} driver(s)")
+    for l in levs:
+        n = int(rows["Pillar"].map(lever_of).eq(l).sum())
+        src.append(idx[l]); tgt.append(idx[nodes[-1]]); val.append(n); lc.append("rgba(0,131,155,.25)"); hov.append(f"{n} driver(s)")
+
+    def spread(n, lo=0.04, hi=0.96):
+        return [lo + (hi - lo) * i / max(n - 1, 1) for i in range(n)] if n > 1 else [0.5]
+    node_x = [0.001] + [0.17] * len(drivers) + [0.56] * len(pils) + [0.76] * len(levs) + [0.999]
+    node_y = [0.5] + spread(len(drivers), 0.02, 0.98) + spread(len(pils), 0.1, 0.9) + spread(len(levs), 0.2, 0.8) + [0.5]
+    colors = [color] + ["#90c4ce"] * len(drivers) + ["#343d40"] * len(pils) + ["#00839B"] * len(levs) + ["#00191d"]
+    fig = go.Figure(go.Sankey(
+        arrangement="fixed",
+        node=dict(label=nodes, color=colors, x=node_x, y=node_y, pad=12, thickness=24, line=dict(color="#fff", width=0.5),
+                  hovertemplate="%{label}<extra></extra>"),
+        link=dict(source=src, target=tgt, value=val, color=lc, customdata=hov, hovertemplate="%{customdata}<extra></extra>"),
+    ))
+    fig.update_layout(height=max(520, 46 * len(drivers) + 120), margin=dict(l=10, r=10, t=10, b=10),
+                      font=dict(size=16, color="#00191d", family="Source Sans Pro, Arial, sans-serif"))
+    return fig
+
+
+def render_stakeholder_alignment():
+    from html import escape as _esc
+    table = stakeholder_table()
+    st.subheader("Stakeholder alignment – shareholder value in context")
+    st.write(
+        "Trident's value hierarchy maximizes long-term shareholder value **by** creating value for the people and the environment "
+        "the business depends on. Each Level 3 driver is linked to the stakeholder groups and material topics in Trident's "
+        "Sustainability Statement 2025 (VSME, double materiality assessment) and the SDGs Trident has committed to (8, 12, 13, 14)."
+    )
+    beyond = table["Stakeholders"].map(lambda v: any(s not in CAPITAL_STAKEHOLDERS for s in split_refs(v)))
+    fin_only = table.loc[~beyond, "Level 3 ref"].tolist()
+    cols = st.columns(3)
+    cols[0].metric("Level 3 drivers serving stakeholders beyond owners and banks", f"{int(beyond.sum())} / {len(table)}")
+    cols[1].metric("Stakeholder groups", len(STAKEHOLDERS))
+    cols[2].metric("Purely financial drivers", len(fin_only))
+    if fin_only:
+        _names = dict(zip(driver_ownership_with_names()["Level 3 ref"], driver_ownership_with_names()["Value driver"]))
+        st.info(f"Only **{len(fin_only)} of {len(table)}** value-tree drivers serve owners and banks alone – and all are financing: "
+                + " · ".join(f"{r} {_names.get(r, '')}" for r in fin_only)
+                + ". Even these keep the balance sheet strong enough to fund fleet renewal, safety and environmental investment.")
+
+    t_flow, t_st, t_matrix, t_edit = st.tabs(["Illustration", "By stakeholder", "Driver × stakeholder matrix", "Edit mapping"])
+    with t_flow:
+        stats = stakeholder_stats(table)
+        bg = stats["by_group"]
+        ls = stats["lever_share"]
+        bs = stats["by_stake"]
+        cust, emp, own = bs.get("Customers & industry partners", 0), bs.get("Employees & management", 0), bs.get("Owners & investors", 0)
+        marine = bs.get("Marine environment & biodiversity", 0)
+        top_lever = max(ls, key=ls.get)
+        st.markdown(
+            f'''
+            <div style="background:#00191d;color:#fff;border-radius:10px;padding:26px 30px 22px;margin:6px 0 16px">
+              <div style="font-size:2.5rem;font-weight:800;line-height:1.15">Creating shareholder value at Trident means creating value for people and nature</div>
+              <div style="font-size:1.35rem;margin-top:12px;color:#caff74;font-weight:600">
+                {stats["societal_pct"]}% of the links in our value model ({stats["societal"]} of {stats["total"]}) go to customers, employees, suppliers,
+                communities, fish welfare, the ocean and climate – {100 - stats["societal_pct"]}% to owners and banks.</div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:12px">
+              <div style="border-top:5px solid #00839B;background:#f5f9fa;padding:14px 16px;border-radius:6px">
+                <div style="font-size:2.2rem;font-weight:800;color:#00839B">{ls[top_lever]}%</div>
+                <div style="font-size:1.08rem;color:#00191d">of <b>{top_lever}</b> links reach people and nature – growth means newer, cleaner vessels, reliable capacity and better fish handling.
+                (Multiple {ls["1.2 Multiple"]}% · Cash {ls["1.3 Cash"]}%)</div></div>
+              <div style="border-top:5px solid #d08a2e;background:#f5f9fa;padding:14px 16px;border-radius:6px">
+                <div style="font-size:2.2rem;font-weight:800;color:#d08a2e">{cust} &amp; {emp}</div>
+                <div style="font-size:1.08rem;color:#00191d">Level 3 drivers serve <b>customers</b> and <b>employees</b> – close to owners ({own}).
+                What is good for value is good for the people who deliver it.</div></div>
+              <div style="border-top:5px solid #1f6f9f;background:#f5f9fa;padding:14px 16px;border-radius:6px">
+                <div style="font-size:2.2rem;font-weight:800;color:#1f6f9f">{marine}</div>
+                <div style="font-size:1.08rem;color:#00191d">drivers link to the <b>marine environment &amp; biodiversity</b> – although E3/E4 are double material.
+                Our clearest area to strengthen.</div></div>
+            </div>''',
+            unsafe_allow_html=True,
+        )
+        st.plotly_chart(stakeholder_sankey(table), use_container_width=True, key="sankey_forward")
+        st.caption("Hover a flow to see which Level 3 drivers create the link.")
+        st.markdown(
+            '''<div style="border-left:8px solid #00839B;padding:10px 18px;margin:30px 0 8px;background:#f5f9fa">
+            <div style="font-size:2rem;font-weight:800;color:#00191d;line-height:1.2">Seen from the stakeholders' side: where each group fits in shareholder value</div>
+            <div style="font-size:1.2rem;color:#255a64;margin-top:6px">Number of Level 3 drivers linking each stakeholder group to each value lever.
+            Hover a cell to see the drivers.</div></div>''',
+            unsafe_allow_html=True,
+        )
+        st.plotly_chart(stakeholder_lever_grid(table), use_container_width=True, key="stakeholder_grid")
+        lever_of = {"PIL-01": "1.1 EBITDA", "PIL-02": "1.1 EBITDA", "PIL-03": "1.2 Multiple", "PIL-04": "1.3 Cash", "PIL-05": "1.3 Cash"}
+        strongest = []
+        for sh in STAKEHOLDER_NAMES:
+            counts = {}
+            for _, r in table.iterrows():
+                if sh in split_refs(r["Stakeholders"]):
+                    lv = lever_of.get(r["Pillar"], "")
+                    counts[lv] = counts.get(lv, 0) + 1
+            if counts:
+                top = max(counts.values())
+                strongest.append(f"**{STAKEHOLDER_INFO[sh][1]}** → " + " / ".join(k for k in ["1.1 EBITDA", "1.2 Multiple", "1.3 Cash"] if counts.get(k) == top))
+        st.markdown("Where each group connects most strongly: " + " · ".join(strongest))
+        st.markdown(
+            '''<div style="font-size:1.6rem;font-weight:800;color:#00191d;margin:26px 0 4px">Follow one stakeholder group to shareholder value</div>
+            <div style="font-size:1.1rem;color:#255a64;margin-bottom:6px">Stakeholder → the Level 3 drivers that serve them → pillar → lever → Level 0.
+            Hover a flow to read the shared-value statement.</div>''',
+            unsafe_allow_html=True,
+        )
+        pick = st.selectbox("Stakeholder group", [n for n in STAKEHOLDER_NAMES if n not in CAPITAL_STAKEHOLDERS] + sorted(CAPITAL_STAKEHOLDERS),
+                            key="stakeholder_drill_pick")
+        info = STAKEHOLDER_INFO[pick]
+        st.markdown(f"**What they expect:** {info[4]}  \n**Sustainability Statement 2025:** {info[2]} · {info[3]} · {info[6]}")
+        fig = stakeholder_drilldown(table, pick)
+        if fig is None:
+            st.caption("No Level 3 drivers linked to this group yet.")
+        else:
+            st.plotly_chart(fig, use_container_width=True, key="stakeholder_drill")
+    with t_st:
+        for name, short, esrs, sdg, need, color, fact in STAKEHOLDERS:
+            rows = table[table["Stakeholders"].map(lambda v, n=name: n in split_refs(v))]
+            st.markdown(
+                f'<div style="border-left:6px solid {color};padding:6px 12px;margin:14px 0 4px;background:#f7fafb">'
+                f'<div style="font-weight:700;font-size:1.05rem;color:#00191d">{_esc(name)} '
+                f'<span style="font-weight:400;color:#4a5a5e">· {len(rows)} Level 3 drivers</span></div>'
+                f'<div style="font-size:.86rem;color:#255a64">{_esc(esrs)} · {_esc(sdg)}</div>'
+                f'<div style="font-size:.9rem;color:#00191d;margin-top:2px">What they expect: {_esc(need)}</div>'
+                f'<div style="font-size:.82rem;color:#4a5a5e;margin-top:2px">Sustainability Statement 2025: {_esc(fact)}</div></div>',
+                unsafe_allow_html=True,
+            )
+            if not rows.empty:
+                st.dataframe(rows[["Level 3 ref", "Value driver", "Shared value", "Accountable executive"]], hide_index=True, use_container_width=True)
+    with t_matrix:
+        grid = table[["Level 3 ref", "Value driver"]].copy()
+        for name, short, *_ in STAKEHOLDERS:
+            grid[short] = table["Stakeholders"].map(lambda v, n=name: "●" if n in split_refs(v) else "")
+        st.dataframe(grid, hide_index=True, use_container_width=True, height=760)
+        st.caption("Columns: " + " · ".join(f"{s[1]} = {s[0]}" for s in STAKEHOLDERS))
+    with t_edit:
+        st.caption("Stakeholders: separate with semicolons, using these names exactly: " + "; ".join(STAKEHOLDER_NAMES))
+        input_zone_banner("Stakeholder mapping — editable fields")
+        edited = st.data_editor(table, hide_index=True, use_container_width=True, height=760,
+                                disabled=["Level 3 ref", "Pillar", "Value driver", "Accountable executive"],
+                                column_config={"Stakeholders": st.column_config.TextColumn(width="large"),
+                                               "Shared value": st.column_config.TextColumn(width="large")},
+                                key="stakeholder_editor")
+        if st.button("Save stakeholder mapping", type="primary", key="save_stakeholders"):
+            unknown = sorted({x for v in edited["Stakeholders"] for x in split_refs(v) if x not in STAKEHOLDER_NAMES})
+            if unknown:
+                st.error("Unknown stakeholder name(s): " + ", ".join(unknown))
+            else:
+                edited[STAKEHOLDER_COLUMNS].to_csv(stakeholder_path(), index=False)
+                st.success("Saved.")
+                st.rerun()
+
+
+def render_operating_agenda():
+    from html import escape as _esc
+    meta = load_agenda_meta()
+    agenda = load_agenda()
+    timed = agenda_with_times(agenda, meta.get("start", "08:30"))
+    driver_names = {i["reference"]: i["driver"] for i in level3_driver_catalog()}
+
+    st.subheader(meta.get("title") or "Operating Agenda")
+    total = int(agenda["Minutes"].sum())
+    talk = int(agenda.loc[agenda["Section"] != "Break", "Minutes"].sum())
+    cols = st.columns(4)
+    cols[0].metric("Date", meta.get("date") or "Not set")
+    cols[1].metric("Time", f"{timed['Start'].iloc[0]}–{timed['End'].iloc[-1]}" if len(timed) else "-")
+    cols[2].metric("Presentation time", f"{talk // 60} h {talk % 60:02d} min")
+    _pp = set(agenda["Presenter function"].astype(str).str.strip()) | set(agenda["Co-presenter function"].astype(str).str.strip())
+    cols[3].metric("Presenters", len(_pp - {""}))
+    st.caption("The day runs from the big picture to the details, so participants who are new to Trident can follow. "
+               "Switch on IMERS references in the running order to see how each item maps to the value tree; the Checks tab tests coverage.")
+
+    t_run, t_stake, t_pres, t_check, t_edit = st.tabs(["Running order", "Stakeholder alignment", "By presenter", "Checks", "Edit agenda"])
+    show_refs = False
+    with t_stake:
+        render_stakeholder_alignment()
+
+    with t_run:
+        show_refs = st.toggle("Show IMERS references (levers, pillars, Level 3 drivers and risks)", value=False, key="agenda_show_refs",
+                              help="Off: the audience view. On: shows how each item maps to the IMERS value tree.")
+        st.markdown("""
+        <style>
+        .oa-sec{padding:8px 12px;border-radius:6px 6px 0 0;font-weight:700;margin-top:14px;font-size:1rem}
+        .oa-row{display:grid;grid-template-columns:105px 1fr 260px;gap:14px;padding:9px 12px;border:1px solid #d5e3e6;border-top:none;background:#fff}
+        .oa-row.break{background:#f5f8f9;color:#6b7c80;font-style:italic}
+        .oa-time{font-weight:700;color:#00191d;font-variant-numeric:tabular-nums}
+        .oa-item{font-weight:700;color:#00191d}
+        .oa-sub{font-size:.84rem;color:#4a5a5e;margin-top:3px;line-height:1.45}
+        .oa-ref{display:inline-block;background:#caff74;border:1px solid #90c44f;border-radius:4px;padding:1px 6px;margin:3px 4px 0 0;font-size:.8rem;font-weight:700;color:#00191d}
+        .oa-pil{display:inline-block;background:#e5f1ff;border:1px solid #a4c4e9;border-radius:4px;padding:1px 6px;margin-right:6px;font-size:.78rem;color:#255a64}
+        .oa-who{font-weight:600;color:#00839B}
+        .oa-lbl{font-weight:700;color:#255a64}
+        .oa-lev{display:inline-block;background:#00839B;color:#fff;border-radius:4px;padding:1px 7px;margin-right:6px;font-size:.78rem;font-weight:700}
+        </style>""", unsafe_allow_html=True)
+        current = None
+        html = []
+        for _, row in timed.iterrows():
+            sec = row["Section"] or ""
+            if sec != "Break" and sec != current:
+                bg, fg = AGENDA_SECTION_STYLE.get(sec, ("#00191d", "#fff"))
+                sec_mins = int(timed.loc[timed["Section"] == sec, "Minutes"].sum())
+                html.append(f'<div class="oa-sec" style="background:{bg};color:{fg}">{_esc(sec)} <span style="font-weight:400;opacity:.85">· {sec_mins} min</span></div>')
+                current = sec
+            if sec == "Break":
+                html.append(f'<div class="oa-row break"><div class="oa-time">{row["Start"]}–{row["End"]}</div><div>{_esc(str(row["Item"]))}</div><div></div></div>')
+                continue
+            refs = split_refs(row["Level 3 refs"])
+            ref_html = "" if not show_refs else "".join(f'<span class="oa-ref" title="{_esc(driver_names.get(r, ""))}">{_esc(r)} · {_esc(driver_names.get(r, "?"))}</span>' for r in refs)
+            lev = str(row.get("Level 1 lever", "")).strip()
+            pil = "" if not show_refs else (f'<span class="oa-lev">{_esc(lev)}</span>' if lev else "") + (
+                f'<span class="oa-pil">{_esc(str(row["Level 2 pillar"]))}</span>' if str(row["Level 2 pillar"]).strip() else "")
+            exhibits = f'<div class="oa-sub"><span class="oa-lbl">Suggested content:</span> {_esc(str(row["Key exhibits"]))}</div>' if str(row["Key exhibits"]).strip() else ""
+            notes = f'<div class="oa-sub"><span class="oa-lbl">Note to presenter:</span> <em>{_esc(str(row["Notes"]))}</em></div>' if str(row["Notes"]).strip() else ""
+            html.append(
+                f'<div class="oa-row"><div class="oa-time">{row["Start"]}–{row["End"]}<div class="oa-sub">{int(row["Minutes"])} min</div></div>'
+                f'<div><div class="oa-item">{pil}{_esc(str(row["Item"]))}</div><div>{ref_html}</div>{exhibits}{notes}</div>'
+                f'<div class="oa-who">{_esc(str(row["Presenter"]))}</div></div>'
+            )
+        st.markdown("".join(html), unsafe_allow_html=True)
+
+        if show_refs:
+            st.markdown("**Top risks per agenda item** (across all registers, highest residual first)")
+        for _, row in (timed.iterrows() if show_refs else iter(())):
+            refs = split_refs(row["Level 3 refs"])
+            if not refs:
+                continue
+            top = risks_for_refs(refs)
+            with st.expander(f"{row['Start']} · {row['Item']} — {len(top)} risk(s)"):
+                if top.empty:
+                    st.caption("No risks tagged to these drivers yet. The presenter's register should add them.")
+                else:
+                    st.dataframe(top, hide_index=True, use_container_width=True)
+
+    with t_pres:
+        talk_rows = timed[timed["Section"] != "Break"]
+        for fn, head in FUNCTIONS:
+            mine = talk_rows[(talk_rows["Presenter function"].astype(str).str.strip() == fn)
+                             | (talk_rows["Co-presenter function"].astype(str).str.strip() == fn)].copy()
+            mine["Role"] = mine["Presenter function"].astype(str).str.strip().map(lambda f: "Lead" if f == fn else "Co-host")
+            acc, _contrib = drivers_for_function(fn)
+            st.markdown(f"#### {head} — {fn}" if head != fn else f"#### {fn}")
+            if mine.empty:
+                st.caption("No agenda items.")
+            else:
+                st.dataframe(mine[["Start", "End", "Section", "Item", "Role", "Minutes"]], hide_index=True, use_container_width=True)
+            presented = {r for v in mine["Level 3 refs"] for r in split_refs(v)}
+            missing = [r for r in acc["Level 3 ref"] if r not in presented]
+            st.caption(f"{int(mine['Minutes'].sum())} min · accountable for {len(acc)} driver(s)"
+                       + (f" · not presented: {', '.join(missing)}" if missing else " · all accountable drivers presented"))
+
+    with t_check:
+        checks, unknown = agenda_checks(agenda)
+        ok = int((checks["Check"] == "OK").sum())
+        st.metric("Level 3 drivers correctly on the agenda", f"{ok} / {len(checks)}")
+        if unknown:
+            st.error("Unknown Level 3 refs on the agenda: " + ", ".join(unknown))
+        issues = checks[checks["Check"] != "OK"]
+        if issues.empty:
+            st.success("Every Level 3 driver is on the agenda exactly once, presented by its accountable executive.")
+        else:
+            st.warning(f"{len(issues)} driver(s) need attention.")
+            st.dataframe(issues, hide_index=True, use_container_width=True)
+        with st.expander("All drivers"):
+            st.dataframe(checks, hide_index=True, use_container_width=True, height=700)
+
+    with t_edit:
+        with st.form("agenda_meta_form"):
+            c1, c2, c3 = st.columns([3, 1, 1])
+            title = c1.text_input("Meeting title", meta.get("title", ""))
+            mdate = c2.text_input("Date", meta.get("date", ""), placeholder="e.g. 2026-12-03")
+            start = c3.text_input("Start time", meta.get("start", "08:30"))
+            if st.form_submit_button("Save meeting details"):
+                save_agenda_meta({"title": title, "date": mdate, "start": start})
+                st.success("Saved.")
+                st.rerun()
+        st.caption("Order sets the running order. Level 3 refs: separate with semicolons. Presenter should be the accountable function (see Checks).")
+        input_zone_banner("Agenda — editable fields")
+        edited = st.data_editor(
+            agenda,
+            num_rows="dynamic",
+            hide_index=True,
+            use_container_width=True,
+            height=760,
+            column_config={
+                "Order": st.column_config.NumberColumn(step=1, width="small"),
+                "Section": st.column_config.SelectboxColumn(options=AGENDA_SECTIONS),
+                "Level 1 lever": st.column_config.SelectboxColumn(options=AGENDA_LEVERS),
+                "Level 2 pillar": st.column_config.SelectboxColumn(options=AGENDA_PILLARS),
+                "Presenter function": st.column_config.SelectboxColumn(options=[""] + FUNCTION_NAMES),
+                "Co-presenter function": st.column_config.SelectboxColumn(options=[""] + FUNCTION_NAMES),
+                "Minutes": st.column_config.NumberColumn(min_value=0, max_value=240, step=5),
+                "Item": st.column_config.TextColumn(width="large"),
+                "Key exhibits": st.column_config.TextColumn("Suggested content", width="large"),
+                "Notes": st.column_config.TextColumn("Note to presenter", width="large"),
+            },
+            key="agenda_editor",
+        )
+        if st.button("Save agenda", type="primary", key="save_agenda"):
+            edited.to_csv(agenda_path(), index=False)
+            st.success("Agenda saved.")
+            st.rerun()
+
+    bio = BytesIO()
+    with pd.ExcelWriter(bio, engine="openpyxl") as writer:
+        timed.drop(columns=["Presenter function", "Co-presenter function"], errors="ignore").rename(
+            columns={"Key exhibits": "Suggested content", "Notes": "Note to presenter"}).to_excel(writer, sheet_name="Agenda", index=False)
+        agenda_checks(agenda)[0].to_excel(writer, sheet_name="Driver checks", index=False)
+    dl1, dl2 = st.columns([1, 1.4])
+    with dl1:
+        st.download_button("Download agenda (Excel)", bio.getvalue(),
+                           file_name=f"Trident_Operating_Agenda_{date.today().isoformat()}.xlsx",
+                           mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", type="primary")
+    pdf_path = DATA_DIR / "exports" / "Trident_Operating_Agenda_2027_Presenter_edition.pdf"
+    with dl2:
+        if pdf_path.exists():
+            st.download_button("Download presenter edition (PDF)", pdf_path.read_bytes(),
+                               file_name=pdf_path.name, mime="application/pdf", type="primary", key="dl_agenda_pdf")
+            if agenda_path().exists() and agenda_path().stat().st_mtime > pdf_path.stat().st_mtime + 60:
+                st.caption("The agenda has been edited since this PDF was made – ask Claude to regenerate it.")
+        else:
+            st.caption("No PDF yet – ask Claude to generate the presenter edition.")
+
+
+def drivers_in_manuals():
+    """Per Level 3 driver: accountable C-level and where it appears in the ISO manuals (process register)."""
+    table = driver_ownership_with_names()
+    processes = collect_all_register_rows("processes")
+    own, other = {}, {}
+    if not processes.empty and "Linked Level 3 drivers" in processes.columns:
+        sec_col = next((c for c in processes.columns if "Manual section" in c), None)
+        for _, row in processes.iterrows():
+            fn = REGISTER_FUNCTION.get(row["Source unit"], "")
+            label = f'{row.get("Process ID", "")} {row.get("Process", "")}'.strip()
+            if sec_col and str(row.get(sec_col, "")).strip():
+                label += f" (§{row[sec_col]})"
+            for ref in split_refs(row.get("Linked Level 3 drivers", "")):
+                own.setdefault((ref, fn), []).append(label)
+    rows = []
+    for _, r in table.iterrows():
+        ref, acc = r["Level 3 ref"], str(r["Accountable function"]).strip()
+        in_own = own.get((ref, acc), [])
+        in_other = [p for (rf, fn), ps in own.items() if rf == ref and fn != acc for p in ps]
+        rows.append({
+            "Level 3 ref": ref, "Value driver": r["Value driver"],
+            "Accountable": CLEVEL_TITLE.get(acc, acc), "Accountable executive": r.get("Accountable executive", ""),
+            "Processes in accountable manual": len(in_own),
+            "Suggested main process": MAIN_PROCESS_SUGGESTION.get(ref, "To be named" if in_own else "Manual not yet built"),
+            "Linked processes (own manual)": "; ".join(in_own),
+            "Linked processes (other manuals)": "; ".join(in_other),
+        })
+    return pd.DataFrame(rows)
+
+
+def render_drivers_in_manuals():
+    st.subheader("How the value drivers appear in the ISO manuals")
+    st.write(
+        "Every process in an executive's ISO manual lists the Level 3 drivers it serves – that is the link. "
+        "**Accountable:** the executive's own manual holds the *main process* that delivers the driver end-to-end, "
+        "with its KPI, controls and linked risks. **Contributing:** the executive's process delivers an input to that "
+        "main process (an interface), but does not own the outcome."
+    )
+    df = drivers_in_manuals()
+    c = st.columns(3)
+    c[0].metric("Drivers with a process in the accountable manual", str(int((df["Processes in accountable manual"] > 0).sum())) + f" / {len(df)}")
+    c[1].metric("Main process suggested", int(df["Suggested main process"].map(lambda v: v not in ("To be named", "Manual not yet built")).sum()))
+    c[2].metric("Accountable manual not yet built", int((df["Suggested main process"] == "Manual not yet built").sum()))
+    fn_filter = st.selectbox("Show drivers for", ["All"] + sorted(df["Accountable"].unique().tolist()), key="manual_fn_filter")
+    view = df if fn_filter == "All" else df[df["Accountable"] == fn_filter]
+    st.dataframe(view, hide_index=True, use_container_width=True, height=760)
+    st.caption("Next step: each executive names one main process per driver they are accountable for and writes it into their ISO manual. "
+               "General processes that link to almost every driver (planning, risk integration, execution, value realisation) "
+               "support all drivers but should not be the main process for any of them.")
+
+
+def render_imers_equation():
+    cols = [
+        ("IMS", "HOW WE WORK", "Integrated Management System: our ISO manuals – processes, roles and controls in every department.", [
+            ("ISO 9001 · 14001", "International standards for quality (9001) and environmental (14001) management."),
+            ("Process · Level 4.1", "A repeatable way of working with an owner, steps, controls and KPIs."),
+            ("Control = mitigation", "A step in an ISO process that also reduces a risk – done once."),
+            ("KPI", "Key performance indicator: are we delivering what we promised?")]),
+        ("ERM", "WHAT COULD STOP US", "Enterprise Risk Management: one company-wide way to find, assess, treat and follow up risks.", [
+            ("Risk register · Level 4.2", "Each department's risks, tagged to the value driver they threaten."),
+            ("Enterprise Risk Register", "The material risks from all registers, in one view for the CEO and board."),
+            ("Appetite · residual risk", "Risk we accept · risk left after controls (likelihood × impact, 1–25)."),
+            ("KRI", "Key risk indicator: an early warning that a risk is growing.")]),
+        ("Value tree", "WHY WE DO IT", "A map of how Trident creates value: our goal broken down step by step to each department's work.", [
+            ("Shareholder value · Level 0", "Our overall goal: equity value ≈ EBITDA × multiple − net debt."),
+            ("Levers · pillars · Levels 1–2", "3 levers (EBITDA, multiple, cash) and 5 pillars where value is made."),
+            ("Value driver · Level 3", "35 concrete ways we create value, e.g. 3.1.1 Rate uplift on existing vessels."),
+            ("Accountable executive", "The one executive who owns a value driver; others may contribute.")]),
+    ]
+    from html import escape as _e
+    def col(name, eb, d, terms):
+        t = "".join(f'<div style="background:#fff;border-radius:8px;padding:10px 12px;margin-top:8px">'
+                    f'<div style="font-weight:700;color:#00222a">{_e(a)}</div>'
+                    f'<div style="font-size:.85rem;color:#00222a;line-height:1.35">{_e(b)}</div></div>' for a, b in terms)
+        return (f'<div style="background:#bcd9ff;border-radius:12px;padding:10px">'
+                f'<div style="background:#00222a;border-radius:8px;padding:14px">'
+                f'<div style="color:#caff74;font-size:.72rem;letter-spacing:.14em;font-weight:700">{eb}</div>'
+                f'<div style="color:#fff;font-size:1.7rem;font-weight:700">{_e(name)}</div>'
+                f'<div style="color:#f2ede6;font-size:.86rem;line-height:1.35">{_e(d)}</div></div>{t}</div>')
+    op = lambda o: f'<div style="display:flex;align-items:flex-start;justify-content:center;padding-top:60px;font-size:2.6rem;font-weight:700;color:#00222a">{o}</div>'
+    result = ('<div style="background:#caff74;border-radius:12px;padding:20px;color:#00222a">'
+              '<div style="font-size:.72rem;letter-spacing:.14em;font-weight:700">THE RESULT</div>'
+              '<div style="font-size:2.4rem;font-weight:800">IMERS</div>'
+              '<div style="font-size:1.15rem;font-weight:600;margin-bottom:18px">Integrated Management &amp; Enterprise Risk System</div>'
+              '<p>IMS, ERM and our value tree in one model.</p>'
+              '<p>Every process and every risk traces to a value driver – and every driver to shareholder value.</p>'
+              '<p><b>One owner. One process. One risk view.</b></p></div>')
+    html = ('<div style="display:grid;grid-template-columns:1fr 40px 1fr 40px 1fr 40px 1fr;gap:0;align-items:stretch">'
+            + col(*cols[0]) + op("+") + col(*cols[1]) + op("+") + col(*cols[2]) + op("=") + result + "</div>")
+    st.markdown(html, unsafe_allow_html=True)
+
+
+def render_about_imers():
+    st.subheader("IMS + ERM + our value tree = IMERS")
+    t_eq, t_abbr, t_deck = st.tabs(["What IMERS is", "Abbreviations", "Presentation"])
+    with t_eq:
+        render_imers_equation()
+        st.caption("All abbreviations are listed under the Abbreviations tab.")
+    with t_abbr:
+        c_codes, c_abbr = st.columns([1, 2])
+        with c_codes:
+            st.markdown("**Department codes**")
+            st.dataframe(pd.DataFrame(DEPARTMENT_CODES, columns=["Code", "Department"]), hide_index=True,
+                         use_container_width=True, height=36 * (len(DEPARTMENT_CODES) + 1))
+            st.caption("Used in risk and process IDs, e.g. SBD-R001. SBD is in use today; the other codes are proposed.")
+        with c_abbr:
+            st.markdown("**Codes and abbreviations**")
+            st.dataframe(pd.DataFrame(ABBREVIATIONS, columns=["Abbreviation", "Meaning"]), hide_index=True,
+                         use_container_width=True, height=36 * (len(ABBREVIATIONS) + 1))
+    with t_deck:
+        exp = DATA_DIR / EXPORTS_DIR_NAME
+        pptx_path, pdf_path = exp / f"{IMERS_DECK_NAME}.pptx", exp / f"{IMERS_DECK_NAME}.pdf"
+        st.write("The IMERS concept presentation for the management group – the same graphics as in this model.")
+        c1, c2, _ = st.columns([1, 1, 2])
+        if pptx_path.exists():
+            c1.download_button("Download presentation (PowerPoint)", pptx_path.read_bytes(), file_name=pptx_path.name,
+                               mime="application/vnd.openxmlformats-officedocument.presentationml.presentation", key="dl_imers_pptx")
+        if pdf_path.exists():
+            c2.download_button("Download presentation (PDF)", pdf_path.read_bytes(), file_name=pdf_path.name,
+                               mime="application/pdf", key="dl_imers_pdf")
+        slides = sorted((exp / "imers_slides").glob("slide-*.jpg"))
+        if slides:
+            n = st.slider("Slide", 1, len(slides), 1, key="imers_slide_no")
+            st.image(str(slides[n - 1]), use_container_width=True)
+        elif not pptx_path.exists():
+            st.info(f"Place {IMERS_DECK_NAME}.pptx and .pdf in data/exports to show them here.")
+
+
 def render_enterprise_view():
-    t_mat, t_own, t_cov = st.tabs(["Material risks", "Value driver ownership", "Value coverage"])
+    t_mat, t_own, t_cov, t_iso = st.tabs(["Material risks", "Value driver ownership", "Value coverage", "Drivers in ISO manuals"])
     with t_mat:
         render_material_risks()
     with t_own:
         render_driver_ownership_editor()
     with t_cov:
         render_value_coverage()
+    with t_iso:
+        render_drivers_in_manuals()
 
 
 def render_driver_ownership_editor():
@@ -1212,7 +2174,7 @@ def render_driver_ownership_editor():
         hide_index=True,
         use_container_width=True,
         height=760,
-        disabled=["Level 3 ref", "Pillar", "Value driver"],
+        disabled=["Level 3 ref", "Pillar", "Value driver", "Accountable executive"],
         column_config={
             "Accountable function": st.column_config.SelectboxColumn(options=FUNCTION_NAMES, required=False),
             "Contributing functions": st.column_config.TextColumn(width="large"),
@@ -1260,6 +2222,24 @@ def render_value_coverage():
         .reset_index()
     )
     st.dataframe(by_pillar, hide_index=True, use_container_width=True)
+    explain = [
+        ("Pillar", "The five value pillars, PIL-01 to PIL-05 (Level 2)."),
+        ("Drivers", "How many Level 3 value drivers sit under the pillar – 35 in total."),
+        ("Covered", "Drivers with all three in place: an owner, a process and a risk."),
+        ("Risks", "Risk links: a risk tagged to two drivers counts twice. What protects the value."),
+        ("Processes", "ISO process links: one process can serve many drivers. What delivers the value."),
+    ]
+    st.markdown(
+        '<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:4px 0 18px">'
+        + "".join(
+            f'<div style="background:#00222a;color:#f2ede6;border-radius:8px;padding:10px 12px">'
+            f'<div style="color:#caff74;font-weight:700;margin-bottom:4px">↑ {t}</div>'
+            f'<div style="font-size:.85rem;line-height:1.35">{d}</div></div>'
+            for t, d in explain
+        )
+        + "</div>",
+        unsafe_allow_html=True,
+    )
 
     only_gaps = st.toggle("Show only drivers with gaps", value=False, key="coverage_only_gaps")
     view = coverage[coverage["Gaps"] != "Covered"] if only_gaps else coverage
@@ -1541,6 +2521,8 @@ def render_value_hierarchy(processes=None, risks=None, controls=None, actions=No
     div[class*="st-key-l3con_"] button[data-testid="stPopoverButton"]{background:#d6f0f4 !important;border:2px solid #00839B !important}
     div[class*="st-key-l3tag_"] button[data-testid="stPopoverButton"]{background:#fff !important;border:2px dashed #d94b18 !important}
     div[class*="st-key-l3non_"] button[data-testid="stPopoverButton"]{opacity:.38}
+    div[class*="st-key-l3"] .stMarkdownBadge{background:#00222a !important;color:#ffffff !important;font-weight:700 !important;letter-spacing:.04em}
+    div[class*="st-key-l3acc_"] .stMarkdownBadge{background:#caff74 !important;color:#00222a !important}
     .vh-mark-count{display:block;font-size:.8rem;font-weight:600;margin-top:4px;opacity:.95}
     .vh-legend{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;font-size:.84rem;color:#255a64;margin:2px 0 10px}
     .vh-legend span{display:inline-flex;align-items:center;gap:6px}
@@ -1551,8 +2533,11 @@ def render_value_hierarchy(processes=None, risks=None, controls=None, actions=No
     <div class="vh-level">Level 1 · AIP value levers</div>
     """, unsafe_allow_html=True)
     driver_roles = {}
+    own = load_driver_ownership()
+    accountable_by_ref = {
+        str(orow["Level 3 ref"]).strip(): str(orow["Accountable function"]).strip() for _, orow in own.iterrows()
+    }
     if function_name:
-        own = load_driver_ownership()
         for _, orow in own.iterrows():
             ref = str(orow["Level 3 ref"]).strip()
             if str(orow["Accountable function"]).strip() == function_name:
@@ -1644,8 +2629,11 @@ def render_value_hierarchy(processes=None, risks=None, controls=None, actions=No
                         state = driver_roles.get(reference) or ("tag" if linked_risks else "non")
                     else:
                         state = "all"
+                    _acc = accountable_by_ref.get(reference, "")
+                    _tag = CLEVEL_TITLE.get(_acc, "")
+                    _badge = f" :{'orange' if function_name and _acc == function_name else 'gray'}-badge[{_tag}]" if _tag else ""
                     with st.container(key=f"l3{state}_{reference.replace('.', '_')}_{ACTIVE_REGISTER_KEY}"), \
-                            st.popover(f"{reference} · {driver}", use_container_width=True):
+                            st.popover(f"{reference} · {driver}{_badge}", use_container_width=True):
                         if function_name:
                             role_text = {
                                 "acc": f"**{function_name} is accountable** for this driver.",
@@ -1654,6 +2642,12 @@ def render_value_hierarchy(processes=None, risks=None, controls=None, actions=No
                                 "non": f"Not in {function_name}'s scope.",
                             }[state]
                             st.markdown(role_text)
+                        acc_fn = accountable_by_ref.get(reference, "")
+                        if acc_fn:
+                            head = FUNCTION_HEAD.get(acc_fn, "")
+                            st.caption(f"Accountable executive: {head} ({acc_fn})" if head and head != acc_fn else f"Accountable: {acc_fn}")
+                        else:
+                            st.caption("No accountable executive assigned yet.")
                         st.markdown("**Linked ISO-aligned S&BD processes**")
                         if linked_processes:
                             for process_link in linked_processes:
@@ -4078,6 +5072,16 @@ if len(folder_registers) > 1:
     )
 else:
     selected_register = folder_registers[0]
+
+if selected_register == ABOUT_IMERS:
+    st.caption("About IMERS | The concept, the words we use and the management-group presentation")
+    render_about_imers()
+    st.stop()
+
+if selected_register == OPERATING_AGENDA:
+    st.caption("Operating Agenda | Meeting running order, presenters and Level 1-3 topics")
+    render_operating_agenda()
+    st.stop()
 
 if selected_register == ENTERPRISE_REGISTER:
     st.caption("Enterprise roll-up | Material risks across all unit registers")

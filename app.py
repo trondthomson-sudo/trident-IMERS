@@ -2998,8 +2998,18 @@ def render_value_hierarchy(processes=None, risks=None, controls=None, actions=No
                                  or pillar_code in str(r.get("Value pillars", "")), axis=1)
             sub = _all_risks.loc[m]
             return sub.drop_duplicates(subset=["Risk ID"]) if "Risk ID" in sub.columns else sub
+        if not _all_risks.empty and "Risk ID" in _all_risks.columns:
+            _uniq = _all_risks.drop_duplicates(subset=["Risk ID"])
+        else:
+            _uniq = _all_risks
+        n_ent = len(_uniq)
+        n_ent_cov = int(_uniq.apply(lambda r: any(pid in own_pids for pid in split_refs(r.get("Processes", ""))), axis=1).sum()) if n_ent else 0
+        pct_ent = round(100 * n_ent_cov / n_ent) if n_ent else 0
         parts = ['<div class="vh-l5-erm-pane"><div class="vh-l5-pane-title">'
-                 f'Risks by pillar and Level III driver · {total_risks} risks</div>', '<div class="vh-erm5-grid">']
+                 f'Risks by pillar and Level III driver · {n_ent} risks in all registers · '
+                 f'{n_ent_cov} covered by our processes ({pct_ent} %)</div>',
+                 f'<div class="vh-erm-legend" style="margin:0 0 6px 0">Cards below show the {total_risks} risks in this register.</div>',
+                 '<div class="vh-erm5-grid">']
         for pillar_number, pillar_name in pillar_lookup.items():
             pillar_code, pillar_description = pillar_name.split(" · ", 1)
             pillar_risks = risks_for_pillar(pillar_number, pillar_code)

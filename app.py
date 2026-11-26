@@ -46,7 +46,7 @@ REGISTER_KEYS = {
 ENTERPRISE_REGISTER = "Enterprise Risk Register"
 UNIT_BY_NAME = {name: (owner, title) for name, owner, title in UNITS}
 
-# Executive functions (CEO + eight departments) used for Level 3 driver ownership.
+# Executive functions (CEO + eight departments) used for Level III driver ownership.
 FUNCTIONS = [
     ("CEO", "Arild Aasmyr"),
     ("Strategy & Business Development", "Trond V. Thomson"),
@@ -97,7 +97,7 @@ OPERATING_AGENDA = "Operating Agenda"
 ABOUT_IMERS = "About IMERS"
 EXPORTS_DIR_NAME = "exports"
 IMERS_DECK_NAME = "IMERS_concept_management_group"
-# Short C-level titles used on the Level 3 tags.
+# Short C-level titles used on the Level III tags.
 CLEVEL_TITLE = {
     "CEO": "CEO", "Strategy & Business Development": "CS&BDO", "Finance": "CFO", "Commercial": "CCO",
     "Vessel Operations": "COO", "Technical & HSEQ": "CHSEQ", "HR": "CHR",
@@ -118,9 +118,9 @@ DEPARTMENT_CODES = [
     ("LEG", "Legal & Compliance"),
 ]
 ABBREVIATIONS = [
-    ("AIP-01–03", "AIP's three value drivers – EBITDA, multiple and cash (Level 1 levers 1.1–1.3)"),
-    ("PIL-01–05", "PIL = pillar: the five Level 2 value pillars 2.1–2.5. A fixed ID, so risks and processes stay tagged even if a pillar is renamed"),
-    ("3.x.y", "A Level 3 value driver: Level 3 · pillar x · driver y (35 in total)"),
+    ("AIP-01–03", "AIP's three value drivers – EBITDA, multiple and cash (Level I levers 1.1–1.3)"),
+    ("PIL-01–05", "PIL = pillar: the five Level II value pillars 2.1–2.5. A fixed ID, so risks and processes stay tagged even if a pillar is renamed"),
+    ("3.x.y", "A Level III value driver: Level III · pillar x · driver y (35 in total)"),
     ("SBD-R001 · SBD-P04", "Department code + R (risk) or P (process) + number, e.g. Strategy & BD risk no. 001"),
     ("EBITDA", "Earnings before interest, taxes, depreciation and amortisation"),
     ("EV", "Enterprise value"), ("NIBD", "Net interest-bearing debt"),
@@ -278,7 +278,7 @@ ISO_MATRIX_ROWS = [
 
 
 def level3_driver_catalog():
-    """Full Level 3 tree (3.1.1–3.5.7), excluding divider rows."""
+    """Full Level III tree (3.1.1–3.5.7), excluding divider rows."""
     catalog = []
     for pillar_label, drivers in VALUE_HIERARCHY_GROUPS:
         pillar_id = "PIL-0" + pillar_label.split("PIL-0")[1][0] if "PIL-0" in pillar_label else ""
@@ -391,13 +391,13 @@ def seed_data():
         ["VD-12", "PIL-03", "Strengthen governance and scalability", "Reduce key-person risk and improve process control, auditability and integration", "Multiple", "Executive Management"],
     ], ["Driver ID", "Value pillar", "Value driver", "Management intent", "Value effect", "Executive sponsor"])
     process_names = [
-        ("SBD-P01", "Long-term strategic planning", "4.2"), ("SBD-P02", "Market intelligence interpretation", "4.3"),
-        ("SBD-P03", "Opportunity identification and evaluation", "4.4"), ("SBD-P04", "Business case development", "4.5"),
-        ("SBD-P05", "Long-term operating agenda and rate uplift", "4.6"), ("SBD-P06", "Fleet portfolio optimization and divestment", "4.7"),
-        ("SBD-P07", "Capital project governance", "4.8"), ("SBD-P08", "M&A and strategic partnerships", "4.9"),
-        ("SBD-P09", "Strategic risk integration", "4.10"), ("SBD-P10", "Sustainability strategy integration", "4.11"),
-        ("SBD-P11", "Sustainability Statement and CSRD", "4.12"), ("SBD-P12", "Strategy execution and monitoring", "4.13"),
-        ("SBD-P13", "Value realization and strategic portfolio review", "4.14"),
+        ("SBD-P01", "Long-term strategic planning", "4.1"), ("SBD-P02", "Market intelligence interpretation", "4.2"),
+        ("SBD-P03", "Opportunity identification and evaluation", "4.3"), ("SBD-P04", "Business case development", "4.4"),
+        ("SBD-P05", "Long-term operating agenda and rate uplift", "4.5"), ("SBD-P06", "Fleet portfolio optimization and divestment", "4.6"),
+        ("SBD-P07", "Capital project governance", "4.7"), ("SBD-P08", "M&A and strategic partnerships", "4.8"),
+        ("SBD-P09", "Strategic risk integration", "4.9"), ("SBD-P10", "Sustainability strategy integration", "4.10"),
+        ("SBD-P11", "Sustainability Statement and CSRD", "4.11"), ("SBD-P12", "Strategy execution and monitoring", "4.12"),
+        ("SBD-P13", "Value realization and strategic portfolio review", "4.13"),
     ]
     seed(FILES["processes"], [[pid, name, "Trond V. Thomson", "To be defined", "To be defined", "To be defined", "To be defined", "To be defined", "Quarterly", section] for pid, name, section in process_names],
          ["Process ID", "Process", "Process owner", "Purpose", "Trigger / inputs", "Main activities", "Outputs", "Interfaces", "Review frequency", "S&BD Manual section"])
@@ -533,7 +533,7 @@ def migrate_existing_data():
     custom_drivers = drivers[~drivers["Driver ID"].isin(canonical_drivers["Driver ID"])]
     pd.concat([canonical_drivers, custom_drivers], ignore_index=True).to_csv(driver_path, index=False)
 
-    # Link each ISO-aligned S&BD process to the Level 3 value drivers it supports.
+    # Link each ISO-aligned S&BD process to the Level III value drivers it supports.
     process_path = FILES["processes"]
     processes = safe_read_csv(process_path, columns=schema_columns_for("processes"))
     if "Linked Level 3 drivers" not in processes.columns:
@@ -550,7 +550,7 @@ def migrate_existing_data():
             "Outputs": "Value-realization review; strategic portfolio recommendations; CEO, board and owner reporting",
             "Interfaces": "CEO; Finance; Commercial; Vessel Operations; Technical & HSEQ; Legal & Compliance; operating companies",
             "Review frequency": "Quarterly",
-            "S&BD Manual section": "4.14",
+            "S&BD Manual section": "4.13",
         })
         processes = pd.concat([processes, pd.DataFrame([p13])], ignore_index=True)
     all_level_3 = "; ".join([
@@ -672,12 +672,12 @@ def save(key, df):
 
 
 def driver_ownership_path():
-    """Group-level Level 3 driver ownership (shared across all registers)."""
+    """Group-level Level III driver ownership (shared across all registers)."""
     return DATA_DIR / "driver_ownership.csv"
 
 
 def load_driver_ownership():
-    """Load driver ownership; seed it and add any Level 3 drivers missing from the file."""
+    """Load driver ownership; seed it and add any Level III drivers missing from the file."""
     path = driver_ownership_path()
     seed(
         path,
@@ -726,7 +726,7 @@ def drivers_for_function(function_name, ownership=None):
 
 
 def function_scope(function_name, ownership=None):
-    """Level 3 refs a function is accountable for or contributes to."""
+    """Level III refs a function is accountable for or contributes to."""
     if not function_name:
         return set()
     acc, contrib = drivers_for_function(function_name, ownership)
@@ -734,7 +734,7 @@ def function_scope(function_name, ownership=None):
 
 
 def out_of_scope_tags(risks_df, function_name):
-    """Risk ID -> Level 3 refs tagged outside the function's scope."""
+    """Risk ID -> Level III refs tagged outside the function's scope."""
     scope = function_scope(function_name)
     result = {}
     if not scope or risks_df is None or risks_df.empty or "Level 3 drivers" not in risks_df.columns:
@@ -762,7 +762,7 @@ def collect_all_register_rows(dataset):
 
 
 def value_coverage(ownership=None):
-    """Per Level 3 driver: ownership, linked processes and risks across all registers, and gaps."""
+    """Per Level III driver: ownership, linked processes and risks across all registers, and gaps."""
     table = driver_ownership_with_names(ownership)
     risks = collect_all_register_rows("risks")
     processes = collect_all_register_rows("processes")
@@ -1235,7 +1235,7 @@ def workbook(data, *, enterprise_risks=None, enterprise_actions=None, source_lab
 
 
 # ---------------------------------------------------------------------------
-# Operating Agenda folder: meeting running order, presenters and Level 3 topics
+# Operating Agenda folder: meeting running order, presenters and Level III topics
 # ---------------------------------------------------------------------------
 AGENDA_COLUMNS = ["Order", "Section", "Level 1 lever", "Level 2 pillar", "Item", "Level 3 refs", "Presenter function", "Co-presenter function", "Minutes", "Key exhibits", "Notes"]
 AGENDA_CHAPTERS = [
@@ -1268,7 +1268,7 @@ _AGENDA_SEED = [
      'High level only: what we do, where we operate, and where we want to be – the details follow in the sessions later in the day',
      'A short trailer for the day'),
     (_C[1], '0 Shareholder value', '', "IMERS: one strategy – how we all work towards maximizing shareholder value in full alignment with our stakeholders' interests", '', 'Strategy & Business Development', '', 20,
-     "one value tree from Level 0 (shareholder value) to every department, so all functions pull towards the same goal; each department's ISO processes (4.1) turn strategy into daily execution and its ERM register (4.2) protects the value it is responsible for; one accountable executive per Level 3 driver; material risks rolled up to the enterprise level; every driver linked to the stakeholders it serves (Sustainability Statement 2025)",
+     "one value tree from Level 0 (shareholder value) to every department, so all functions pull towards the same goal; each department's ISO processes (IV-A) turn strategy into daily execution and its ERM register (IV-B) protects the value it is responsible for; one accountable executive per Level III driver; material risks rolled up to the enterprise level; every driver linked to the stakeholders it serves (Sustainability Statement 2025)",
      'The strategic frame for the day – every session that follows is one part of this value tree'),
     (_C[2], '1.1 EBITDA', '2.1 Organic EBITDA Growth', 'Our value proposition: vessels as service platforms – what they deliver to farmers, and how we operate them', '3.1.2; 3.1.4; 3.1.5', 'Vessel Operations', '', 25,
      'Vessel segments – wellboats, harvest and stun & bleed vessels, premium and standard service vessels, feed carriers; what each does for the farmer through the production cycle; the fleet by region; how Vessel Operations runs the fleet – organisation, crews, planning and day-to-day follow-up',
@@ -1402,7 +1402,7 @@ def agenda_with_times(df, start="08:30"):
 
 
 def agenda_checks(df):
-    """Every Level 3 driver on the agenda exactly once, presented by its accountable function."""
+    """Every Level III driver on the agenda exactly once, presented by its accountable function."""
     ownership = driver_ownership_with_names()
     accountable = dict(zip(ownership["Level 3 ref"], ownership["Accountable function"]))
     names = dict(zip(ownership["Level 3 ref"], ownership["Value driver"]))
@@ -1446,7 +1446,7 @@ def risks_for_refs(refs, limit=5):
 
 
 # ---------------------------------------------------------------------------
-# Stakeholder alignment: Level 3 drivers -> stakeholders in society (ESRS / SDG)
+# Stakeholder alignment: Level III drivers -> stakeholders in society (ESRS / SDG)
 # ---------------------------------------------------------------------------
 STAKEHOLDERS = [
     # name, short, VSME/DMA topics (Sustainability Statement 2025), SDGs, what they expect, colour, 2025 statement data
@@ -1628,13 +1628,13 @@ def stakeholder_sankey(table, reverse=False):
         src.append(idx[sh]); tgt.append(idx[g]); val.append(n)
         lcol.append(f"rgba({int(c[0:2],16)},{int(c[2:4],16)},{int(c[4:6],16)},.30)")
         hover.append(f"{sh} → {g}: {n} link(s)")
-    title_text = ("Level 0  →  1 Levers  →  2 Pillars  →  Stakeholders  →  People · Nature · Capital"
-                  "<br><sup>Flow width = number of Level 3 driver links</sup>")
+    title_text = ("Level 0  →  I Levers  →  II Pillars  →  Stakeholders  →  People · Nature · Capital"
+                  "<br><sup>Flow width = number of Level III driver links</sup>")
     if reverse:
         src, tgt = tgt, src
         node_x = [min(max(1 - x, 0.001), 0.999) for x in node_x]
-        title_text = ("People · Nature · Capital  →  Stakeholders  →  2 Pillars  →  1 Levers  →  Level 0"
-                      "<br><sup>What each stakeholder group needs, and where it builds shareholder value · flow width = number of Level 3 driver links</sup>")
+        title_text = ("People · Nature · Capital  →  Stakeholders  →  II Pillars  →  I Levers  →  Level 0"
+                      "<br><sup>What each stakeholder group needs, and where it builds shareholder value · flow width = number of Level III driver links</sup>")
     fig = go.Figure(go.Sankey(
         arrangement="fixed",
         node=dict(label=nodes, color=colors, x=node_x, y=node_y, pad=18, thickness=26, line=dict(color="#ffffff", width=0.5),
@@ -1718,13 +1718,13 @@ def render_stakeholder_alignment():
     st.subheader("Stakeholder alignment – shareholder value in context")
     st.write(
         "Trident's value hierarchy maximizes long-term shareholder value **by** creating value for the people and the environment "
-        "the business depends on. Each Level 3 driver is linked to the stakeholder groups and material topics in Trident's "
+        "the business depends on. Each Level III driver is linked to the stakeholder groups and material topics in Trident's "
         "Sustainability Statement 2025 (VSME, double materiality assessment) and the SDGs Trident has committed to (8, 12, 13, 14)."
     )
     beyond = table["Stakeholders"].map(lambda v: any(s not in CAPITAL_STAKEHOLDERS for s in split_refs(v)))
     fin_only = table.loc[~beyond, "Level 3 ref"].tolist()
     cols = st.columns(3)
-    cols[0].metric("Level 3 drivers serving stakeholders beyond owners and banks", f"{int(beyond.sum())} / {len(table)}")
+    cols[0].metric("Level III drivers serving stakeholders beyond owners and banks", f"{int(beyond.sum())} / {len(table)}")
     cols[1].metric("Stakeholder groups", len(STAKEHOLDERS))
     cols[2].metric("Purely financial drivers", len(fin_only))
     if fin_only:
@@ -1757,7 +1757,7 @@ def render_stakeholder_alignment():
                 (Multiple {ls["1.2 Multiple"]}% · Cash {ls["1.3 Cash"]}%)</div></div>
               <div style="border-top:5px solid #d08a2e;background:#f5f9fa;padding:14px 16px;border-radius:6px">
                 <div style="font-size:2.2rem;font-weight:800;color:#d08a2e">{cust} &amp; {emp}</div>
-                <div style="font-size:1.08rem;color:#00191d">Level 3 drivers serve <b>customers</b> and <b>employees</b> – close to owners ({own}).
+                <div style="font-size:1.08rem;color:#00191d">Level III drivers serve <b>customers</b> and <b>employees</b> – close to owners ({own}).
                 What is good for value is good for the people who deliver it.</div></div>
               <div style="border-top:5px solid #1f6f9f;background:#f5f9fa;padding:14px 16px;border-radius:6px">
                 <div style="font-size:2.2rem;font-weight:800;color:#1f6f9f">{marine}</div>
@@ -1767,11 +1767,11 @@ def render_stakeholder_alignment():
             unsafe_allow_html=True,
         )
         st.plotly_chart(stakeholder_sankey(table), use_container_width=True, key="sankey_forward")
-        st.caption("Hover a flow to see which Level 3 drivers create the link.")
+        st.caption("Hover a flow to see which Level III drivers create the link.")
         st.markdown(
             '''<div style="border-left:8px solid #00839B;padding:10px 18px;margin:30px 0 8px;background:#f5f9fa">
             <div style="font-size:2rem;font-weight:800;color:#00191d;line-height:1.2">Seen from the stakeholders' side: where each group fits in shareholder value</div>
-            <div style="font-size:1.2rem;color:#255a64;margin-top:6px">Number of Level 3 drivers linking each stakeholder group to each value lever.
+            <div style="font-size:1.2rem;color:#255a64;margin-top:6px">Number of Level III drivers linking each stakeholder group to each value lever.
             Hover a cell to see the drivers.</div></div>''',
             unsafe_allow_html=True,
         )
@@ -1790,7 +1790,7 @@ def render_stakeholder_alignment():
         st.markdown("Where each group connects most strongly: " + " · ".join(strongest))
         st.markdown(
             '''<div style="font-size:1.6rem;font-weight:800;color:#00191d;margin:26px 0 4px">Follow one stakeholder group to shareholder value</div>
-            <div style="font-size:1.1rem;color:#255a64;margin-bottom:6px">Stakeholder → the Level 3 drivers that serve them → pillar → lever → Level 0.
+            <div style="font-size:1.1rem;color:#255a64;margin-bottom:6px">Stakeholder → the Level III drivers that serve them → pillar → lever → Level 0.
             Hover a flow to read the shared-value statement.</div>''',
             unsafe_allow_html=True,
         )
@@ -1800,7 +1800,7 @@ def render_stakeholder_alignment():
         st.markdown(f"**What they expect:** {info[4]}  \n**Sustainability Statement 2025:** {info[2]} · {info[3]} · {info[6]}")
         fig = stakeholder_drilldown(table, pick)
         if fig is None:
-            st.caption("No Level 3 drivers linked to this group yet.")
+            st.caption("No Level III drivers linked to this group yet.")
         else:
             st.plotly_chart(fig, use_container_width=True, key="stakeholder_drill")
     with t_st:
@@ -1809,7 +1809,7 @@ def render_stakeholder_alignment():
             st.markdown(
                 f'<div style="border-left:6px solid {color};padding:6px 12px;margin:14px 0 4px;background:#f7fafb">'
                 f'<div style="font-weight:700;font-size:1.05rem;color:#00191d">{_esc(name)} '
-                f'<span style="font-weight:400;color:#4a5a5e">· {len(rows)} Level 3 drivers</span></div>'
+                f'<span style="font-weight:400;color:#4a5a5e">· {len(rows)} Level III drivers</span></div>'
                 f'<div style="font-size:.86rem;color:#255a64">{_esc(esrs)} · {_esc(sdg)}</div>'
                 f'<div style="font-size:.9rem;color:#00191d;margin-top:2px">What they expect: {_esc(need)}</div>'
                 f'<div style="font-size:.82rem;color:#4a5a5e;margin-top:2px">Sustainability Statement 2025: {_esc(fact)}</div></div>',
@@ -1866,7 +1866,7 @@ def render_operating_agenda():
         render_stakeholder_alignment()
 
     with t_run:
-        show_refs = st.toggle("Show IMERS references (levers, pillars, Level 3 drivers and risks)", value=False, key="agenda_show_refs",
+        show_refs = st.toggle("Show IMERS references (levers, pillars, Level III drivers and risks)", value=False, key="agenda_show_refs",
                               help="Off: the audience view. On: shows how each item maps to the IMERS value tree.")
         st.markdown("""
         <style>
@@ -1941,12 +1941,12 @@ def render_operating_agenda():
     with t_check:
         checks, unknown = agenda_checks(agenda)
         ok = int((checks["Check"] == "OK").sum())
-        st.metric("Level 3 drivers correctly on the agenda", f"{ok} / {len(checks)}")
+        st.metric("Level III drivers correctly on the agenda", f"{ok} / {len(checks)}")
         if unknown:
-            st.error("Unknown Level 3 refs on the agenda: " + ", ".join(unknown))
+            st.error("Unknown Level III refs on the agenda: " + ", ".join(unknown))
         issues = checks[checks["Check"] != "OK"]
         if issues.empty:
-            st.success("Every Level 3 driver is on the agenda exactly once, presented by its accountable executive.")
+            st.success("Every Level III driver is on the agenda exactly once, presented by its accountable executive.")
         else:
             st.warning(f"{len(issues)} driver(s) need attention.")
             st.dataframe(issues, hide_index=True, use_container_width=True)
@@ -1963,7 +1963,7 @@ def render_operating_agenda():
                 save_agenda_meta({"title": title, "date": mdate, "start": start})
                 st.success("Saved.")
                 st.rerun()
-        st.caption("Order sets the running order. Level 3 refs: separate with semicolons. Presenter should be the accountable function (see Checks).")
+        st.caption("Order sets the running order. Level III refs: separate with semicolons. Presenter should be the accountable function (see Checks).")
         input_zone_banner("Agenda — editable fields")
         edited = st.data_editor(
             agenda,
@@ -2012,7 +2012,7 @@ def render_operating_agenda():
 
 
 def drivers_in_manuals():
-    """Per Level 3 driver: accountable C-level and where it appears in the ISO manuals (process register)."""
+    """Per Level III driver: accountable C-level and where it appears in the ISO manuals (process register)."""
     table = driver_ownership_with_names()
     processes = collect_all_register_rows("processes")
     own, other = {}, {}
@@ -2044,7 +2044,7 @@ def drivers_in_manuals():
 def render_drivers_in_manuals():
     st.subheader("How the value drivers appear in the ISO manuals")
     st.write(
-        "Every process in an executive's ISO manual lists the Level 3 drivers it serves – that is the link. "
+        "Every process in an executive's ISO manual lists the Level III drivers it serves – that is the link. "
         "**Accountable:** the executive's own manual holds the *main process* that delivers the driver end-to-end, "
         "with its KPI, controls and linked risks. **Contributing:** the executive's process delivers an input to that "
         "main process (an interface), but does not own the outcome."
@@ -2066,18 +2066,18 @@ def render_imers_equation():
     cols = [
         ("IMS", "HOW WE WORK", "Integrated Management System: our ISO manuals – processes, roles and controls in every department.", [
             ("ISO 9001 · 14001", "International standards for quality (9001) and environmental (14001) management."),
-            ("Process · Level 4.1", "A repeatable way of working with an owner, steps, controls and KPIs."),
+            ("Process · Level IV-A", "A repeatable way of working with an owner, steps, controls and KPIs."),
             ("Control = mitigation", "A step in an ISO process that also reduces a risk – done once."),
             ("KPI", "Key performance indicator: are we delivering what we promised?")]),
         ("ERM", "WHAT COULD STOP US", "Enterprise Risk Management: one company-wide way to find, assess, treat and follow up risks.", [
-            ("Risk register · Level 4.2", "Each department's risks, tagged to the value driver they threaten."),
+            ("Risk register · Level IV-B", "Each department's risks, tagged to the value driver they threaten."),
             ("Enterprise Risk Register", "The material risks from all registers, in one view for the CEO and board."),
             ("Appetite · residual risk", "Risk we accept · risk left after controls (likelihood × impact, 1–25)."),
             ("KRI", "Key risk indicator: an early warning that a risk is growing.")]),
         ("Value tree", "WHY WE DO IT", "A map of how Trident creates value: our goal broken down step by step to each department's work.", [
             ("Shareholder value · Level 0", "Our overall goal: equity value ≈ EBITDA × multiple − net debt."),
             ("Levers · pillars · Levels 1–2", "3 levers (EBITDA, multiple, cash) and 5 pillars where value is made."),
-            ("Value driver · Level 3", "35 concrete ways we create value, e.g. 3.1.1 Rate uplift on existing vessels."),
+            ("Value driver · Level III", "35 concrete ways we create value, e.g. 3.1.1 Rate uplift on existing vessels."),
             ("Accountable executive", "The one executive who owns a value driver; others may contribute.")]),
     ]
     from html import escape as _e
@@ -2103,9 +2103,42 @@ def render_imers_equation():
     st.markdown(html, unsafe_allow_html=True)
 
 
+ERM_STEPS = ["1 · Identify", "2 · Assess", "3 · Decide", "4 · Act", "5 · Monitor", "6 · Escalate", "7 · Close & embed"]
+ERM_LANES = [
+    ("Risk owner (in the department)", ["Identifies risks against the department's value drivers", "Scores inherent and residual risk – residual only counts controls that are IV-A process steps", "Proposes treatment and target score", "Carries out treatment actions", "Follows KRIs; updates score and actions", "", "Completed action becomes a step in an IV-A process; reassesses the score"]),
+    ("Executive (C-level, accountable for the driver)", ["Confirms the risks for own drivers", "", "Decides treatment, target and date – within appetite", "Provides resources", "Reviews the register quarterly in the department", "Raises risks that need CEO attention", "Approves the updated process"]),
+    ("CS&BDO (procedure owner, SBD-P09)", ["Provides templates and the common scale", "Quality-assures scores across departments", "", "", "Consolidates the Enterprise Risk Register quarterly", "Brings material risks (12+ or outside appetite) to the CEO", "Updates the Enterprise Risk Register"]),
+    ("CEO", ["", "", "Decides on material risks: treat, accept, transfer or avoid", "", "", "Prioritises across departments; reports to the board", ""]),
+    ("Board", ["", "", "Approves risk appetite", "", "", "Receives the Enterprise Risk Register", ""]),
+]
+
+
+def render_erm_process_map():
+    from html import escape as _e
+    st.subheader("IV-B · The risk process – who does what")
+    st.write("One common risk procedure for all of Trident (owned by CS&BDO, SBD-P09). Every department follows the same seven steps; "
+             "IV-A holds each department's processes, IV-B shows how their risks are run. The cycle repeats quarterly.")
+    head = "".join(f'<div style="background:#00222a;color:#caff74;font-weight:700;padding:8px;border-radius:6px;text-align:center;font-size:.85rem">{_e(x)}</div>' for x in ERM_STEPS)
+    rows = ""
+    for i, (lane, cells) in enumerate(ERM_LANES):
+        bg = ["#eef4f6", "#e3eefc", "#f2ede6", "#fff3e6", "#f7e8e8"][i]
+        rows += f'<div style="background:{bg};font-weight:700;padding:10px;border-radius:6px;font-size:.85rem;color:#00222a">{_e(lane)}</div>'
+        for c in cells:
+            if c:
+                hl = "border:2px solid #00839B;" if "IV-A" in c else "border:1px solid #c9d6da;"
+                rows += f'<div style="background:#fff;{hl}padding:8px;border-radius:6px;font-size:.8rem;line-height:1.3;color:#00222a">{_e(c)}</div>'
+            else:
+                rows += f'<div style="background:{bg};border-radius:6px;opacity:.55"></div>'
+    st.markdown(f'<div style="display:grid;grid-template-columns:200px repeat(7,1fr);gap:6px;margin-top:8px"><div></div>{head}{rows}</div>',
+                unsafe_allow_html=True)
+    st.caption("Highlighted cells are where IV-B meets IV-A: residual scores rest on process controls, and completed actions become process steps.")
+
+
 def render_about_imers():
     st.subheader("IMS + ERM + our value tree = IMERS")
-    t_eq, t_abbr, t_deck = st.tabs(["What IMERS is", "Abbreviations", "Presentation"])
+    t_eq, t_map, t_abbr, t_deck = st.tabs(["What IMERS is", "IV-B · Risk process map", "Abbreviations", "Presentation"])
+    with t_map:
+        render_erm_process_map()
     with t_eq:
         render_imers_equation()
         st.caption("All abbreviations are listed under the Abbreviations tab.")
@@ -2139,8 +2172,58 @@ def render_about_imers():
             st.info(f"Place {IMERS_DECK_NAME}.pptx and .pdf in data/exports to show them here.")
 
 
+CANDIDATE_COLUMNS = ["Candidate ID", "Proposed value driver", "Proposed pillar", "Proposed by", "Rationale",
+                     "Related existing drivers", "Status", "Decision / comment"]
+CANDIDATE_STATUS = ["Proposed", "Under review", "Accepted – add to Level III", "Merged into existing driver", "Rejected"]
+PILLAR_OPTIONS = ["PIL-01 Organic EBITDA Growth", "PIL-02 Investment EBITDA Growth", "PIL-03 Multiple Expansion",
+                  "PIL-04 Cash Conversion", "PIL-05 Capital Allocation & Balance-Sheet Optimization"]
+
+
+def render_candidate_drivers():
+    st.subheader("Candidate value drivers")
+    st.write(
+        "The 35 Level III drivers are our starting point, not the final list. While each department defines its processes, "
+        "proposals for new, split or merged drivers are collected here – and decided together in one round "
+        "(planned for the April calibration), so the value tree stays stable while the work is under way."
+    )
+    path = DATA_DIR / "candidate_drivers.csv"
+    df = safe_read_csv(path, CANDIDATE_COLUMNS)
+    for c in CANDIDATE_COLUMNS:
+        if c not in df.columns:
+            df[c] = ""
+    df = df[CANDIDATE_COLUMNS].fillna("")
+    cols = st.columns(3)
+    cols[0].metric("Candidates", len(df))
+    cols[1].metric("Open (proposed / under review)", int(df["Status"].isin(["Proposed", "Under review", ""]).sum()))
+    cols[2].metric("Accepted", int(df["Status"].str.startswith("Accepted").sum()))
+    input_zone_banner("Candidate drivers — editable fields")
+    edited = st.data_editor(
+        df, hide_index=True, use_container_width=True, num_rows="dynamic", height=420, key="candidate_editor",
+        column_config={
+            "Proposed pillar": st.column_config.SelectboxColumn(options=PILLAR_OPTIONS),
+            "Proposed by": st.column_config.SelectboxColumn(options=FUNCTION_NAMES),
+            "Status": st.column_config.SelectboxColumn(options=CANDIDATE_STATUS),
+            "Rationale": st.column_config.TextColumn(width="large"),
+            "Decision / comment": st.column_config.TextColumn(width="medium"),
+        },
+    )
+    if st.button("Save candidate drivers", type="primary", key="save_candidates"):
+        out = edited.fillna("")
+        missing = out["Candidate ID"].astype(str).str.strip() == ""
+        if missing.any():
+            used = [int(x.split("-")[1]) for x in out["Candidate ID"] if str(x).startswith("CAND-") and str(x).split("-")[1].isdigit()]
+            nxt = max(used, default=0)
+            for i in out.index[missing]:
+                nxt += 1
+                out.at[i, "Candidate ID"] = f"CAND-{nxt:02d}"
+        out[CANDIDATE_COLUMNS].to_csv(path, index=False)
+        st.success("Candidate drivers saved.")
+    st.caption("Accepted candidates are added to the Level III tree in one go after the April calibration, "
+               "with an accountable executive and links to processes and risks.")
+
+
 def render_enterprise_view():
-    t_mat, t_own, t_cov, t_iso = st.tabs(["Material risks", "Value driver ownership", "Value coverage", "Drivers in ISO manuals"])
+    t_mat, t_own, t_cov, t_iso, t_cand = st.tabs(["Material risks", "Value driver ownership", "Value coverage", "Drivers in ISO manuals", "Candidate drivers"])
     with t_mat:
         render_material_risks()
     with t_own:
@@ -2149,21 +2232,23 @@ def render_enterprise_view():
         render_value_coverage()
     with t_iso:
         render_drivers_in_manuals()
+    with t_cand:
+        render_candidate_drivers()
 
 
 def render_driver_ownership_editor():
     st.subheader("Value driver ownership")
     st.write(
-        "Every function traces to the value hierarchy through Level 3. Each driver has **one accountable function** "
+        "Every function traces to the value hierarchy through Level III. Each driver has **one accountable function** "
         "(owns delivery) and any number of **contributing functions** (their processes feed the driver). "
-        "Mapping at Level 3 automatically places the function under its pillar (Level 2) and value lever (Level 1)."
+        "Mapping at Level III automatically places the function under its pillar (Level II) and value lever (Level I)."
     )
     ownership = load_driver_ownership()
     summary = function_summary(ownership)
     st.markdown("**Functions at a glance**")
     st.dataframe(summary, hide_index=True, use_container_width=True)
     if (summary["Accountable drivers"] == 0).any():
-        st.warning("Some functions have no accountable driver. Either assign one, or the Level 3 tree is not refined enough for that function.")
+        st.warning("Some functions have no accountable driver. Either assign one, or the Level III tree is not refined enough for that function.")
 
     st.markdown("**Edit ownership**")
     st.caption("Contributing functions: separate with semicolons, using the function names above.")
@@ -2199,7 +2284,7 @@ def render_driver_ownership_editor():
 def render_value_coverage():
     st.subheader("Value coverage across all registers")
     st.write(
-        "For each Level 3 driver: who owns it, how many processes deliver it and how many risks protect it, "
+        "For each Level III driver: who owns it, how many processes deliver it and how many risks protect it, "
         "counted across all unit registers. A driver is fully covered when it has an accountable function, "
         "at least one process and at least one risk."
     )
@@ -2223,8 +2308,8 @@ def render_value_coverage():
     )
     st.dataframe(by_pillar, hide_index=True, use_container_width=True)
     explain = [
-        ("Pillar", "The five value pillars, PIL-01 to PIL-05 (Level 2)."),
-        ("Drivers", "How many Level 3 value drivers sit under the pillar – 35 in total."),
+        ("Pillar", "The five value pillars, PIL-01 to PIL-05 (Level II)."),
+        ("Drivers", "How many Level III value drivers sit under the pillar – 35 in total."),
         ("Covered", "Drivers with all three in place: an owner, a process and a risk."),
         ("Risks", "Risk links: a risk tagged to two drivers counts twice. What protects the value."),
         ("Processes", "ISO process links: one process can serve many drivers. What delivers the value."),
@@ -2259,7 +2344,7 @@ def render_function_value_map(selected_register):
     if not function_name:
         st.info(
             f"**{selected_register}** is a geography rather than an executive function. Its processes and risks "
-            "should link to the same Level 3 drivers as the functions it supports (see Enterprise Risk Register → Value driver ownership)."
+            "should link to the same Level III drivers as the functions it supports (see Enterprise Risk Register → Value driver ownership)."
         )
         return
     acc, contrib = drivers_for_function(function_name)
@@ -2399,6 +2484,35 @@ def apply_brand_theme():
     .vh-l5-erm-coverage strong{color:#00191d}
     .vh-l5-empty-slot{color:#6b7c80;font-size:.85rem;font-style:italic;margin:0 0 9px 0;padding:4px 0}
     .vh-l5-driver-slot{margin:0 0 9px 0;min-height:1.55em}
+    .vh-erm5-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;align-items:start;margin-top:6px}
+    .vh-erm5-col{border:1px solid #efd3c6;border-radius:8px;padding:5px;background:#fff;opacity:.7}
+    .vh-erm5-col-on{opacity:1;border-color:#d94b18}
+    .vh-erm5-head{background:#34464b;color:#fff;border-radius:6px;padding:5px 4px;text-align:center;font-size:.72rem;line-height:1.2;margin-bottom:5px}
+    .vh-erm5-driver{border:1px solid #e3e3e3;border-radius:6px;padding:4px 5px;margin:6px 0 3px 0;font-size:.68rem;line-height:1.2;color:#9aa6a9;background:#fafafa;text-align:center}
+    .vh-erm5-driver-on{background:#ffc9b0;border-color:#d94b18;color:#00191d}
+    .vh-erm5-orphan{border-style:dashed;border-color:#d94b18;color:#8a3a18;background:#fff}
+    .vh-erm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(135px,1fr));gap:6px;align-items:start;margin-top:6px}
+    .vh-erm-col{border:1px solid #efd3c6;border-radius:8px;padding:5px;background:#fff;opacity:.6}
+    .vh-erm-col-on{opacity:1;border-color:#d94b18}
+    .vh-erm-col-orphan{border-style:dashed}
+    .vh-erm-head{background:#34464b;color:#fff;border-radius:6px;padding:5px 4px;text-align:center;font-size:.72rem;line-height:1.2;margin-bottom:5px}
+    .vh-erm-count{color:#ffc9b0;font-size:.68rem;margin-top:2px}
+    .vh-erm-card{background:#fff6f1;border:1px solid #f1b89c;border-radius:6px;padding:4px 5px;margin-bottom:4px;font-size:.68rem;line-height:1.2;color:#00191d;cursor:help}
+    .vh-erm-card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:2px}
+    .vh-erm-id{font-weight:700}
+    .vh-erm-score{border-radius:4px;padding:0 5px;font-weight:700;font-size:.68rem}
+    .vh-erm-iso{color:#8a3a18;font-size:.62rem;margin-top:2px}
+    .vh-erm-legend{font-size:.72rem;color:#8a3a18;margin-top:6px}
+    .vh-proc-bar{height:8px;background:#e3ece0;border-radius:4px;overflow:hidden;margin:-4px 0 4px 0}
+    .vh-proc-bar div{height:100%;background:#00839B}
+    .vh-proc-breadth{font-size:.75rem;color:#4b6166;margin-bottom:8px}
+    .vh-proc-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;align-items:start}
+    .vh-proc-col{border:1px solid #d9e3e6;border-radius:8px;padding:5px;background:#fff;opacity:.65}
+    .vh-proc-col-on{opacity:1;border-color:#90c44f}
+    .vh-proc-head{background:#34464b;color:#fff;border-radius:6px;padding:5px 4px;text-align:center;font-size:.72rem;line-height:1.2;margin-bottom:5px}
+    .vh-proc-count{color:#caff74;font-size:.68rem;margin-top:2px}
+    .vh-proc-chip{border:1px solid #d9e3e6;border-radius:6px;padding:4px 5px;margin-bottom:4px;font-size:.68rem;line-height:1.2;color:#8a9a9e;background:#fff;text-align:center}
+    .vh-proc-chip-on{background:#caff74;border-color:#90c44f;color:#00191d}
     
         
         div[class*="st-key-vh_help"] div[data-testid="stHorizontalBlock"] {
@@ -2530,7 +2644,7 @@ def render_value_hierarchy(processes=None, risks=None, controls=None, actions=No
     </style>
     <div class="vh-level">Level 0 · Overall objective</div>
     <div class="vh-box vh-top">0 · Maximize shareholder value in Trident<br><span style="font-weight:400">Equity Value ≈ (EBITDA × EV/EBITDA multiple) − NIBD</span></div>
-    <div class="vh-level">Level 1 · AIP value levers</div>
+    <div class="vh-level">Level I · AIP value levers</div>
     """, unsafe_allow_html=True)
     driver_roles = {}
     own = load_driver_ownership()
@@ -2598,13 +2712,13 @@ def render_value_hierarchy(processes=None, risks=None, controls=None, actions=No
             for reference in split_refs(risk_row.get("Level 3 drivers", "")):
                 linked_risks_by_driver.setdefault(reference, []).append(risk_link)
 
-    st.markdown('<div class="vh-level">Level 2 · Trident value pillars — where Trident creates and protects value</div>', unsafe_allow_html=True)
+    st.markdown('<div class="vh-level">Level II · Trident value pillars — where Trident creates and protects value</div>', unsafe_allow_html=True)
     pillar_cols = st.columns(5)
     for idx, (column, (pillar, drivers)) in enumerate(zip(pillar_cols, groups), start=1):
         with column:
             st.markdown(f'<div class="vh-box vh-pil"><div>{pillar}{count_html(*role_counts([str(idx)]))}</div></div>', unsafe_allow_html=True)
 
-    st.markdown('<div class="vh-level">Level 3 · Value drivers — how each pillar is delivered</div>', unsafe_allow_html=True)
+    st.markdown('<div class="vh-level">Level III · Value drivers — how each pillar is delivered</div>', unsafe_allow_html=True)
     if function_name:
         st.markdown(
             '<div class="vh-legend">'
@@ -2618,7 +2732,7 @@ def render_value_hierarchy(processes=None, risks=None, controls=None, actions=No
     driver_cols = st.columns(5)
     for column, (pillar, drivers) in zip(driver_cols, groups):
         with column:
-            with st.container(border=True, height=640):
+            with st.container(border=True):
                 for reference, driver in drivers:
                     if reference == "divider":
                         st.markdown(f'<div class="vh-cfo-divider">{driver}</div>', unsafe_allow_html=True)
@@ -2686,16 +2800,16 @@ def render_value_hierarchy(processes=None, risks=None, controls=None, actions=No
                                     unsafe_allow_html=True,
                                 )
                         else:
-                            st.caption("No risks linked to this Level 3 driver yet.")
+                            st.caption("No risks linked to this Level III driver yet.")
 
-    st.markdown('<div class="vh-level">Level 4 · Applied across every pillar and value driver</div>', unsafe_allow_html=True)
+    st.markdown('<div class="vh-level">Level IV · Applied across every pillar and value driver</div>', unsafe_allow_html=True)
     iso_col, erm_col = st.columns(2)
     with iso_col:
-        st.markdown('<div class="vh-support vh-iso"><strong>4.1 · ISO-aligned delivery and follow-up</strong>Processes, owners, interfaces, procedures, controls, KPIs, documentation, evidence and continual improvement strengthen delivery of all five pillars.</div>', unsafe_allow_html=True)
+        st.markdown('<div class="vh-support vh-iso"><strong>IV-A · ISO-aligned delivery and follow-up</strong>Processes, owners, interfaces, procedures, controls, KPIs, documentation, evidence and continual improvement strengthen delivery of all five pillars.</div>', unsafe_allow_html=True)
     with erm_col:
-        st.markdown('<div class="vh-support vh-erm"><strong>4.2 · ERM monitoring and protection</strong>Threats, risk assessments, controls, KRIs, appetite, mitigation and escalation protect all five pillars from adverse movement.</div>', unsafe_allow_html=True)
+        st.markdown('<div class="vh-support vh-erm"><strong>IV-B · ERM monitoring and protection</strong>Threats, risk assessments, controls, KRIs, appetite, mitigation and escalation protect all five pillars from adverse movement.</div>', unsafe_allow_html=True)
 
-    st.markdown('<div class="vh-level">Level 5 · ISO-aligned Strategy &amp; Business Development process architecture</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="vh-level">Level IV in detail · ISO-aligned {escape(function_name or "Strategy & Business Development")} process architecture</div>', unsafe_allow_html=True)
     if processes is None or processes.empty:
         st.caption("No processes defined for this register yet.")
         return
@@ -2725,60 +2839,70 @@ def render_value_hierarchy(processes=None, risks=None, controls=None, actions=No
     else:
         scored_risks_df = scored(risks_df)
     st.caption(
-        "Left: open a process for its Level 3 drivers (ISO). "
-        "Right: open a pillar (e.g. PIL-01) to reveal its risks. "
+        "Left: open a process for its Level III drivers (ISO). "
+        "Right: all risks by pillar and Level III driver. "
         "Edit process links under More modules -> Processes & Process Owners."
     )
     iso_col, erm_col = st.columns(2, gap="medium")
 
     with iso_col:
         st.markdown(
-            '<div class="vh-l5-iso-pane"><div class="vh-l5-pane-title">4.1 · ISO processes</div></div>',
+            '<div class="vh-l5-iso-pane"><div class="vh-l5-pane-title">IV-A · ISO processes</div></div>',
             unsafe_allow_html=True,
         )
         for _, process in process_rows.iterrows():
             process_id = str(process.get("Process ID", ""))
             section = process.get("S&BD Manual section", "")
             process_name = process.get("Process", "")
-            process_label = f"{section} · {process_id} · {process_name}"
             linked_refs = split_refs(process.get("Linked Level 3 drivers", ""))
+            n_total = len(driver_lookup) or 35
+            n_link = len({r for r in linked_refs if r in driver_lookup})
+            pct = round(100 * n_link / n_total)
+            process_label = f"{section} · {process_id} · {process_name}  —  {n_link}/{n_total} drivers ({pct} %)"
             with st.expander(process_label, expanded=False):
+                breadth = ("Broad – supports most of the value tree; check whether it is a general management process or should be split"
+                           if pct >= 60 else "Focused – supports a defined part of the value tree" if pct >= 15
+                           else "Narrow – supports a few specific drivers")
                 left_parts = [
                     '<div class="vh-l5-iso-pane">',
-                    '<div class="vh-l5-pane-title">Level 3 value drivers supported by this process</div>',
+                    f'<div class="vh-l5-pane-title">Level III value drivers supported by this process · '
+                    f'{n_link} of {n_total} ({pct} %)</div>',
+                    f'<div class="vh-proc-bar"><div style="width:{pct}%"></div></div>'
+                    f'<div class="vh-proc-breadth">{escape(breadth)}</div>',
                 ]
                 if not linked_refs:
-                    left_parts.append('<div class="vh-l5-empty-slot">No Level 3 value drivers linked yet.</div>')
+                    left_parts.append('<div class="vh-l5-empty-slot">No Level III value drivers linked yet.</div>')
                 else:
+                    left_parts.append('<div class="vh-proc-grid">')
                     for pillar_number, pillar_name in pillar_lookup.items():
-                        pillar_refs = [
-                            reference
-                            for reference in linked_refs
-                            if reference.startswith(f"3.{pillar_number}.")
-                        ]
-                        if not pillar_refs:
-                            continue
                         pillar_code, pillar_description = pillar_name.split(" · ", 1)
+                        all_refs = sorted([r for r in driver_lookup if r.startswith(f"3.{pillar_number}.")],
+                                          key=lambda r: [int(x) for x in r.split(".")])
+                        n_linked = sum(1 for r in all_refs if r in linked_refs)
                         left_parts.append(
-                            f'<div class="vh-process-pillar"><span class="vh-pil-badge">{escape(pillar_code)}</span>'
-                            f'{escape(pillar_description)}</div>'
+                            f'<div class="vh-proc-col{" vh-proc-col-on" if n_linked else ""}">'
+                            f'<div class="vh-proc-head"><b>{escape(pillar_code)}</b><br>{escape(pillar_description)}'
+                            f'<div class="vh-proc-count">{n_linked} of {len(all_refs)}</div></div>'
                         )
-                        for reference in pillar_refs:
-                            driver_name = driver_lookup.get(reference, "Value driver to be defined")
+                        for reference in all_refs:
+                            on = reference in linked_refs
                             left_parts.append(
-                                f'<div class="vh-driver-link vh-l5-driver-slot">'
-                                f'<span class="vh-ref-badge">{escape(reference)}</span>{escape(driver_name)}</div>'
+                                f'<div class="vh-proc-chip{" vh-proc-chip-on" if on else ""}">'
+                                f'<b>{escape(reference)}</b> {escape(driver_lookup.get(reference, ""))}</div>'
                             )
+                        left_parts.append("</div>")
+                    left_parts.append("</div>")
                 left_parts.append("</div>")
                 st.markdown("".join(left_parts), unsafe_allow_html=True)
 
     with erm_col:
         st.markdown(
             '<div class="vh-l5-erm-pane"><div class="vh-l5-pane-title">'
-            "4.2 · ERM risk categories (five pillars)</div></div>",
+            "IV-B · ERM risk categories (five pillars)</div></div>",
             unsafe_allow_html=True,
         )
-        st.caption("Open a pillar (e.g. PIL-01) to see risks grouped by Level 3 driver, top to bottom matching the chips above.")
+        st.caption("All risks by pillar and Level III driver – the same layout as Level III above. "
+                   "How risks are run step by step: About IMERS → IV-B · Risk process map.")
 
         def risks_for_pillar(pillar_number, pillar_code):
             if scored_risks_df.empty:
@@ -2805,123 +2929,78 @@ def render_value_hierarchy(processes=None, risks=None, controls=None, actions=No
                 combined = combined.drop_duplicates(subset=["Risk ID"], keep="first")
             return combined
 
+        process_label_by_id = {}
+        if processes is not None and not processes.empty:
+            for _, prow in processes.iterrows():
+                pid = str(prow.get("Process ID", "")).strip()
+                if pid:
+                    sec = str(prow.get("S&BD Manual section", "")).strip()
+                    process_label_by_id[pid] = f"{sec} · {pid} · {str(prow.get('Process', '')).strip()}" if sec else pid
+
+        def heat(score):
+            try:
+                v = int(float(score))
+            except (TypeError, ValueError):
+                return "#e6ecee", "#00191d", ""
+            if v >= 20: return "#7A1F2B", "#fff", str(v)
+            if v >= 15: return "#C8433A", "#fff", str(v)
+            if v >= 10: return "#E8894A", "#00191d", str(v)
+            if v >= 5: return "#E9E58A", "#00191d", str(v)
+            return "#BFD8C8", "#00191d", str(v)
+
+        def risk_card(risk_row):
+            rid = str(risk_row.get("Risk ID", ""))
+            title = str(risk_row.get("Risk title", ""))
+            bg, ink, sc = heat(risk_row.get("Residual score", ""))
+            procs = split_refs(risk_row.get("Processes", ""))
+            tip = "; ".join(process_label_by_id.get(pid, pid) for pid in procs) if procs else "Not yet linked to an ISO process"
+            iso = ", ".join(procs) if procs else "no ISO process yet"
+            return (f'<div class="vh-erm-card" title="ISO process coverage: {escape(tip)}">'
+                    f'<div class="vh-erm-card-top"><span class="vh-erm-id">{escape(rid)}</span>'
+                    f'<span class="vh-erm-score" style="background:{bg};color:{ink}">{escape(sc)}</span></div>'
+                    f'<div class="vh-erm-title">{escape(title)}</div>'
+                    f'<div class="vh-erm-iso">ISO: {escape(iso)}</div></div>')
+
+        def sort_by_score(df):
+            if "Residual score" in df.columns and not df.empty:
+                return df.assign(_s=pd.to_numeric(df["Residual score"], errors="coerce")).sort_values("_s", ascending=False)
+            return df
+
+        total_risks = 0 if scored_risks_df.empty else len(scored_risks_df)
+        parts = ['<div class="vh-l5-erm-pane"><div class="vh-l5-pane-title">'
+                 f'Risks by pillar and Level III driver · {total_risks} risks</div>', '<div class="vh-erm5-grid">']
         for pillar_number, pillar_name in pillar_lookup.items():
             pillar_code, pillar_description = pillar_name.split(" · ", 1)
             pillar_risks = risks_for_pillar(pillar_number, pillar_code)
-            count = 0 if pillar_risks.empty else len(pillar_risks)
-            with st.expander(f"{pillar_code} · {pillar_description} ({count})", expanded=False):
-                if pillar_risks.empty:
-                    st.markdown(
-                        '<div class="vh-l5-erm-pane"><div class="vh-l5-empty-slot">'
-                        f'No risks linked to {escape(pillar_description)} yet.</div></div>',
-                        unsafe_allow_html=True,
-                    )
-                    continue
-
-                # ERM visual language: orange pane and risk chips (distinct from green ISO side)
-                # Group by Level 3 drivers in hierarchy order (top-left to bottom-right).
-                header_html = (
-                    '<div class="vh-l5-erm-pane">'
-                    '<div class="vh-l5-pane-title">Risks under this pillar - by Level 3 driver</div>'
-                    f'<div class="vh-process-pillar"><span class="vh-pil-badge">{escape(pillar_code)}</span>'
-                    f'{escape(pillar_description)}</div>'
-                )
-                # Map Process ID → "section · name" from ISO S&BD process definitions
-                process_label_by_id = {}
-                if processes is not None and not processes.empty:
-                    for _, prow in processes.iterrows():
-                        pid = str(prow.get("Process ID", "")).strip()
-                        if not pid:
-                            continue
-                        section = str(prow.get("S&BD Manual section", "")).strip()
-                        pname = str(prow.get("Process", "")).strip()
-                        process_label_by_id[pid] = (
-                            f"{section} · {pid} · {pname}" if section else f"{pid} · {pname}"
-                        )
-
-                pillar_driver_order = [
-                    (reference, driver_name)
-                    for reference, driver_name in groups[int(pillar_number) - 1][1]
-                    if reference != "divider"
-                ]
-
-                def risk_chip_html(risk_row):
-                    rid = str(risk_row.get("Risk ID", ""))
-                    title = str(risk_row.get("Risk title", ""))
-                    score_val = risk_row.get("Residual score", "")
-                    try:
-                        score_txt = (
-                            f" · residual {int(float(score_val))}"
-                            if pd.notna(score_val) and str(score_val).strip() != ""
-                            else ""
-                        )
-                    except (TypeError, ValueError):
-                        score_txt = ""
-                    parts = [
-                        f'<div class="vh-driver-link vh-l5-driver-slot">'
-                        f'<span class="vh-l5-risk-badge">{escape(rid)}</span>'
-                        f'{escape(title)}{escape(score_txt)}</div>'
-                    ]
-                    linked_procs = split_refs(risk_row.get("Processes", ""))
-                    if linked_procs:
-                        labels = [process_label_by_id.get(pid, pid) for pid in linked_procs]
-                        coverage = "; ".join(labels)
-                        parts.append(
-                            '<div class="vh-l5-erm-coverage"><strong>ISO process coverage:</strong> '
-                            f'{escape(coverage)}</div>'
-                        )
-                    else:
-                        parts.append(
-                            '<div class="vh-l5-erm-coverage"><strong>ISO process coverage:</strong> '
-                            'Not yet linked to an S&amp;BD ISO process definition.</div>'
-                        )
-                    return "".join(parts)
-
-                list_parts = [header_html]
-                shown_ids = set()
-                for reference, driver_name in pillar_driver_order:
-                    if "Level 3 drivers" in pillar_risks.columns:
-                        mask = pillar_risks["Level 3 drivers"].astype(str).apply(
-                            lambda value, r=reference: r in split_refs(value)
-                        )
-                        driver_risks = pillar_risks.loc[mask]
-                    else:
-                        driver_risks = pillar_risks.iloc[0:0]
-                    if "Risk ID" in driver_risks.columns and not driver_risks.empty:
-                        driver_risks = driver_risks.sort_values("Risk ID")
-                    list_parts.append(
-                        f'<div class="vh-process-pillar" style="margin-top:10px;">'
-                        f'<span class="vh-ref-badge">{escape(reference)}</span>'
-                        f'{escape(driver_name)}</div>'
-                    )
-                    if driver_risks.empty:
-                        list_parts.append(
-                            '<div class="vh-l5-empty-slot">No risks linked to this Level 3 driver yet.</div>'
-                        )
-                    else:
-                        for _, risk_row in driver_risks.iterrows():
-                            rid = str(risk_row.get("Risk ID", ""))
-                            shown_ids.add(rid)
-                            list_parts.append(risk_chip_html(risk_row))
-
-                # Risks tagged to the pillar but not yet to any Level 3 driver in this column
-                if "Risk ID" in pillar_risks.columns:
-                    orphan_mask = ~pillar_risks["Risk ID"].astype(str).isin(shown_ids)
-                    orphan_risks = pillar_risks.loc[orphan_mask]
+            n_p = 0 if pillar_risks.empty else len(pillar_risks)
+            parts.append(f'<div class="vh-erm5-col{" vh-erm5-col-on" if n_p else ""}">'
+                         f'<div class="vh-erm5-head"><b>{escape(pillar_code)}</b><br>{escape(pillar_description)}'
+                         f'<div class="vh-erm-count">{n_p} risk{"s" if n_p != 1 else ""}</div></div>')
+            shown = set()
+            for reference, driver_name in [(r, d) for r, d in groups[int(pillar_number) - 1][1] if r != "divider"]:
+                if not pillar_risks.empty and "Level 3 drivers" in pillar_risks.columns:
+                    dr = pillar_risks.loc[pillar_risks["Level 3 drivers"].astype(str).apply(lambda v, r=reference: r in split_refs(v))]
                 else:
-                    orphan_risks = pillar_risks.iloc[0:0]
-                if not orphan_risks.empty:
-                    list_parts.append(
-                        '<div class="vh-process-pillar" style="margin-top:10px;">'
-                        "Pillar-linked - Level 3 driver not set</div>"
-                    )
-                    if "Risk ID" in orphan_risks.columns:
-                        orphan_risks = orphan_risks.sort_values("Risk ID")
-                    for _, risk_row in orphan_risks.iterrows():
-                        list_parts.append(risk_chip_html(risk_row))
+                    dr = pd.DataFrame()
+                on = not dr.empty
+                parts.append(f'<div class="vh-erm5-driver{" vh-erm5-driver-on" if on else ""}">'
+                             f'<b>{escape(reference)}</b> {escape(driver_name)}'
+                             f'{f" · {len(dr)}" if on else ""}</div>')
+                for _, rr in sort_by_score(dr).iterrows():
+                    shown.add(str(rr.get("Risk ID", "")))
+                    parts.append(risk_card(rr))
+            if not pillar_risks.empty and "Risk ID" in pillar_risks.columns:
+                orphans = pillar_risks.loc[~pillar_risks["Risk ID"].astype(str).isin(shown)]
+                if not orphans.empty:
+                    parts.append(f'<div class="vh-erm5-driver vh-erm5-orphan"><b>Pillar only</b> · Level III driver not set · {len(orphans)}</div>')
+                    for _, rr in sort_by_score(orphans).iterrows():
+                        parts.append(risk_card(rr))
+            parts.append("</div>")
+        parts.append("</div>")
+        parts.append('<div class="vh-erm-legend">Number = residual score (likelihood × impact), coloured by heatmap zone. '
+                     'Hover a risk to see its ISO process coverage. Grey drivers have no risks yet.</div></div>')
+        st.markdown("".join(parts), unsafe_allow_html=True)
 
-                list_parts.append("</div>")
-                st.markdown("".join(list_parts), unsafe_allow_html=True)
 
 
 def extract_operational_questions(cause_text):
@@ -4236,7 +4315,7 @@ SBD_R121_EXPLAIN_MD = PIL01_RISK_EXPLAINS["SBD-R121"]
 def render_risk_explain_button(risk_id, driver_ref=""):
     """Explicit per-risk help buttons only — never auto-copied from keyword matching.
 
-    Keys always include driver_ref so a risk linked to several Level 3 drivers
+    Keys always include driver_ref so a risk linked to several Level III drivers
     does not hit StreamlitDuplicateElementKey (which previously hid PIL-02–05).
     Buttons sit in a keyed container so CSS can target .st-key-vh_help-* (Streamlit
     default white styles otherwise win).
@@ -4393,7 +4472,7 @@ def render_risk_library(risks_df, processes_df=None, function_name=None):
         unsafe_allow_html=True,
     )
     st.write(
-        "Same layout as **Context** Level 5 ERM: pillars → Level 3 drivers → risk chips. "
+        "Same layout as **Context** Level IV-B ERM: pillars → Level III drivers → risk chips. "
         "Under each risk: **what we can fail to do** and **what we can do** (ISO process links come later). "
         "Risk chips show failure modes and mitigations. Tailored **explain** buttons cover PIL-01–05 Strategy library risks linked here (PIL-01: R001, R102, R103, R105, R106, R111, R113, R120, R121, R135, R137; PIL-02 adds R003, R005, R107–R110, R112, R129 — plus shared R001/R105/R111/R113; PIL-03 adds R002, R004, R114–R119, R123, R132, R136 — plus shared R003/R005/R102/R103/R110/R120/R121/R137; PIL-04 adds R122, R124–R127, R138 — plus shared R123; PIL-05 adds R128, R130, R131, R133, R134 — plus shared R001/R005/R107/R109/R110/R116/R117/R124/R126/R129/R132); R101 also has playbook + P05, and R104 has the shared redeployment-case tag — not auto-copied outside this explicit list."
     )
@@ -4402,7 +4481,7 @@ def render_risk_library(risks_df, processes_df=None, function_name=None):
     only_scope = False
     if scope:
         only_scope = st.toggle(
-            f"Show only {function_name}'s Level 3 drivers ({len(scope)})",
+            f"Show only {function_name}'s Level III drivers ({len(scope)})",
             value=True,
             key=f"lib_scope_{ACTIVE_REGISTER_KEY}",
         )
@@ -4434,7 +4513,7 @@ def render_risk_library(risks_df, processes_df=None, function_name=None):
             st.markdown(
                 (
                     '<div class="vh-l5-erm-pane">'
-                    '<div class="vh-l5-pane-title">Risks under this pillar - by Level 3 driver</div>'
+                    '<div class="vh-l5-pane-title">Risks under this pillar - by Level III driver</div>'
                     f'<div class="vh-process-pillar"><span class="vh-pil-badge">{escape(pillar_code)}</span>'
                     f'{escape(pillar_description)}</div>'
                     "</div>"
@@ -4460,7 +4539,7 @@ def render_risk_library(risks_df, processes_df=None, function_name=None):
                             '<div class="vh-l5-erm-pane">'
                             f'<div class="vh-process-pillar"><span class="vh-ref-badge">{escape(ref)}</span>'
                             f'{escape(driver_name)}</div>'
-                            '<div class="vh-l5-empty-slot">No risks linked to this Level 3 driver yet.</div>'
+                            '<div class="vh-l5-empty-slot">No risks linked to this Level III driver yet.</div>'
                             "</div>"
                         ),
                         unsafe_allow_html=True,
@@ -5079,7 +5158,7 @@ if selected_register == ABOUT_IMERS:
     st.stop()
 
 if selected_register == OPERATING_AGENDA:
-    st.caption("Operating Agenda | Meeting running order, presenters and Level 1-3 topics")
+    st.caption("Operating Agenda | Meeting running order, presenters and Level I–III topics")
     render_operating_agenda()
     st.stop()
 
@@ -5190,7 +5269,7 @@ elif page == "00 Context" or str(page).startswith("00 Value"):
     render_function_value_map(selected_register)
     render_value_hierarchy(data["processes"], data["risks"], data["controls"], data["actions"], function_name=selected_function)
     st.caption(
-        "Context for Strategy & BD. Risks should link to Level 3 drivers and pillars. "
+        "Context for Strategy & BD. Risks should link to Level III drivers and pillars. "
         "Score risks in **01 Risks & Opportunities**, then open **02 Heatmap**."
     )
 elif page == "01 Risks & Opportunities" or str(page).startswith("02 Risks"):
@@ -5204,7 +5283,7 @@ elif page == "01 Risks & Opportunities" or str(page).startswith("02 Risks"):
         outside = out_of_scope_tags(risks_work, selected_function)
         if outside:
             st.warning(
-                f"{len(outside)} risk(s) are tagged to Level 3 drivers outside {selected_function}'s scope: "
+                f"{len(outside)} risk(s) are tagged to Level III drivers outside {selected_function}'s scope: "
                 + "; ".join(f"{rid} → {', '.join(refs)}" for rid, refs in outside.items())
                 + ". Retag them to an in-scope driver, record the other driver under **Handed-over drivers**, "
                 "or move the risk to the accountable function's register."

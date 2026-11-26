@@ -1,0 +1,3 @@
+Candidate ID,Proposed value driver,Proposed pillar,Proposed by,Rationale,Related existing drivers,Status,Decision / comment
+CAND-01,Contract and liability protection,PIL-03 Multiple Expansion,Legal & Compliance,Contract terms that limit liability and secure indexation protect earnings quality; today split between 3.1.3 and 3.3.2.,3.1.3; 3.3.2,Proposed,
+CAND-02,Claims handling and insurance recovery,PIL-04 Cash Conversion,Legal & Compliance,"Fast, complete recovery of insured losses and claims protects cash; today only partly covered by 3.3.4.",3.3.4; 3.1.2,Proposed,

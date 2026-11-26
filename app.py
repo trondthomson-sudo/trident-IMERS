@@ -2988,23 +2988,29 @@ def render_value_hierarchy(processes=None, risks=None, controls=None, actions=No
             return df
 
         total_risks = 0 if scored_risks_df.empty else len(scored_risks_df)
+        own_pids = set(processes["Process ID"].astype(str)) if processes is not None and not processes.empty else set()
+        _all_risks = collect_all_register_rows("risks")
+
+        def all_pillar_risks(pillar_number, pillar_code):
+            if _all_risks.empty:
+                return _all_risks
+            m = _all_risks.apply(lambda r: any(x.startswith(f"3.{pillar_number}.") for x in split_refs(r.get("Level 3 drivers", "")))
+                                 or pillar_code in str(r.get("Value pillars", "")), axis=1)
+            sub = _all_risks.loc[m]
+            return sub.drop_duplicates(subset=["Risk ID"]) if "Risk ID" in sub.columns else sub
         parts = ['<div class="vh-l5-erm-pane"><div class="vh-l5-pane-title">'
                  f'Risks by pillar and Level III driver · {total_risks} risks</div>', '<div class="vh-erm5-grid">']
         for pillar_number, pillar_name in pillar_lookup.items():
             pillar_code, pillar_description = pillar_name.split(" · ", 1)
             pillar_risks = risks_for_pillar(pillar_number, pillar_code)
             n_p = 0 if pillar_risks.empty else len(pillar_risks)
-            pdrivers = [r for r, d in groups[int(pillar_number) - 1][1] if r != "divider"]
-            if not pillar_risks.empty and "Level 3 drivers" in pillar_risks.columns:
-                used = {ref for v in pillar_risks["Level 3 drivers"].astype(str) for ref in split_refs(v)}
-            else:
-                used = set()
-            n_cov = sum(1 for r in pdrivers if r in used)
-            pct_r = round(100 * n_p / total_risks) if total_risks else 0
+            ent_p = all_pillar_risks(pillar_number, pillar_code)
+            n_all = len(ent_p)
+            n_cov = int(ent_p.apply(lambda r: any(pid in own_pids for pid in split_refs(r.get("Processes", ""))), axis=1).sum()) if n_all else 0
+            pct_c = round(100 * n_cov / n_all) if n_all else 0
             parts.append(f'<div class="vh-erm5-col{" vh-erm5-col-on" if n_p else ""}">'
                          f'<div class="vh-erm5-head"><b>{escape(pillar_code)}</b><br>{escape(pillar_description)}'
-                         f'<div class="vh-erm-count">{n_p} of {total_risks} risks ({pct_r} %)</div>'
-                         f'<div class="vh-erm-count">{n_cov} of {len(pdrivers)} drivers with risks</div></div>')
+                         f'<div class="vh-erm-count">{n_cov} of {n_all} risks covered by our processes ({pct_c} %)</div></div>')
             shown = set()
             for reference, driver_name in [(r, d) for r, d in groups[int(pillar_number) - 1][1] if r != "divider"]:
                 if not pillar_risks.empty and "Level 3 drivers" in pillar_risks.columns:
@@ -3027,7 +3033,7 @@ def render_value_hierarchy(processes=None, risks=None, controls=None, actions=No
             parts.append("</div>")
         parts.append("</div>")
         parts.append('<div class="vh-erm-legend">Number = residual score (likelihood × impact), coloured by heatmap zone. '
-                     'Hover a risk to see its ISO process coverage. Grey drivers have no risks yet. A risk can threaten several pillars, so the pillar counts add up to more than the total.</div></div>')
+                     'Hover a risk to see its ISO process coverage. Grey drivers have no risks yet. Header: risks in the pillar across all department registers that our processes cover.</div></div>')
         st.markdown("".join(parts), unsafe_allow_html=True)
 
 

@@ -538,6 +538,27 @@ def migrate_existing_data():
     processes = safe_read_csv(process_path, columns=schema_columns_for("processes"))
     if "Linked Level 3 drivers" not in processes.columns:
         processes["Linked Level 3 drivers"] = ""
+    # Recover S&BD processes missing from a blank or header-only file (e.g. on Streamlit Cloud).
+    sbd_seed = [
+        ("SBD-P01", "Long-term strategic planning", "4.1"), ("SBD-P02", "Market intelligence interpretation", "4.2"),
+        ("SBD-P03", "Opportunity identification and evaluation", "4.3"), ("SBD-P04", "Business case development", "4.4"),
+        ("SBD-P05", "Long-term operating agenda and rate uplift", "4.5"), ("SBD-P06", "Fleet portfolio optimization and divestment", "4.6"),
+        ("SBD-P07", "Capital project governance", "4.7"), ("SBD-P08", "M&A and strategic partnerships", "4.8"),
+        ("SBD-P09", "Strategic risk integration", "4.9"), ("SBD-P10", "Sustainability strategy integration", "4.10"),
+        ("SBD-P11", "Sustainability Statement and CSRD", "4.11"), ("SBD-P12", "Strategy execution and monitoring", "4.12"),
+    ]
+    existing_ids = set(processes["Process ID"].astype(str))
+    missing_rows = []
+    for pid, pname, sec in sbd_seed:
+        if pid not in existing_ids:
+            row = {column: "" for column in processes.columns}
+            row.update({"Process ID": pid, "Process": pname, "Process owner": "Trond V. Thomson",
+                        "Purpose": "To be defined", "Trigger / inputs": "To be defined", "Main activities": "To be defined",
+                        "Outputs": "To be defined", "Interfaces": "To be defined", "Review frequency": "Quarterly",
+                        "S&BD Manual section": sec})
+            missing_rows.append(row)
+    if missing_rows:
+        processes = pd.concat([pd.DataFrame(missing_rows), processes], ignore_index=True)
     if not (processes["Process ID"] == "SBD-P13").any():
         p13 = {column: "" for column in processes.columns}
         p13.update({
@@ -2973,9 +2994,17 @@ def render_value_hierarchy(processes=None, risks=None, controls=None, actions=No
             pillar_code, pillar_description = pillar_name.split(" · ", 1)
             pillar_risks = risks_for_pillar(pillar_number, pillar_code)
             n_p = 0 if pillar_risks.empty else len(pillar_risks)
+            pdrivers = [r for r, d in groups[int(pillar_number) - 1][1] if r != "divider"]
+            if not pillar_risks.empty and "Level 3 drivers" in pillar_risks.columns:
+                used = {ref for v in pillar_risks["Level 3 drivers"].astype(str) for ref in split_refs(v)}
+            else:
+                used = set()
+            n_cov = sum(1 for r in pdrivers if r in used)
+            pct_r = round(100 * n_p / total_risks) if total_risks else 0
             parts.append(f'<div class="vh-erm5-col{" vh-erm5-col-on" if n_p else ""}">'
                          f'<div class="vh-erm5-head"><b>{escape(pillar_code)}</b><br>{escape(pillar_description)}'
-                         f'<div class="vh-erm-count">{n_p} risk{"s" if n_p != 1 else ""}</div></div>')
+                         f'<div class="vh-erm-count">{n_p} of {total_risks} risks ({pct_r} %)</div>'
+                         f'<div class="vh-erm-count">{n_cov} of {len(pdrivers)} drivers with risks</div></div>')
             shown = set()
             for reference, driver_name in [(r, d) for r, d in groups[int(pillar_number) - 1][1] if r != "divider"]:
                 if not pillar_risks.empty and "Level 3 drivers" in pillar_risks.columns:
@@ -2998,7 +3027,7 @@ def render_value_hierarchy(processes=None, risks=None, controls=None, actions=No
             parts.append("</div>")
         parts.append("</div>")
         parts.append('<div class="vh-erm-legend">Number = residual score (likelihood × impact), coloured by heatmap zone. '
-                     'Hover a risk to see its ISO process coverage. Grey drivers have no risks yet.</div></div>')
+                     'Hover a risk to see its ISO process coverage. Grey drivers have no risks yet. A risk can threaten several pillars, so the pillar counts add up to more than the total.</div></div>')
         st.markdown("".join(parts), unsafe_allow_html=True)
 
 

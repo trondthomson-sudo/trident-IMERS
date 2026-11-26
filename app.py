@@ -2879,7 +2879,8 @@ def render_value_hierarchy(processes=None, risks=None, controls=None, actions=No
             n_total = len(driver_lookup) or 35
             n_link = len({r for r in linked_refs if r in driver_lookup})
             pct = round(100 * n_link / n_total)
-            process_label = f"{section} · {process_id} · {process_name}  —  {n_link}/{n_total} drivers ({pct} %)"
+            dept_code = process_id.split("-")[0] if "-" in process_id else ""
+            process_label = f"{dept_code} {section} · {process_name}  —  {n_link}/{n_total} drivers ({pct} %)"
             with st.expander(process_label, expanded=False):
                 breadth = ("Broad – supports most of the value tree; check whether it is a general management process or should be split"
                            if pct >= 60 else "Focused – supports a defined part of the value tree" if pct >= 15
@@ -2994,6 +2995,8 @@ def render_value_hierarchy(processes=None, risks=None, controls=None, actions=No
 
         total_risks = 0 if scored_risks_df.empty else len(scored_risks_df)
         own_pids = set(processes["Process ID"].astype(str)) if processes is not None and not processes.empty else set()
+        _pref = sorted({p.split("-")[0] for p in own_pids if "-" in p})
+        own_lbl = f"{_pref[0]}'s processes" if len(_pref) == 1 else "this department's processes"
         _all_risks = collect_all_register_rows("risks")
 
         def all_pillar_risks(pillar_number, pillar_code):
@@ -3012,7 +3015,7 @@ def render_value_hierarchy(processes=None, risks=None, controls=None, actions=No
         pct_ent = round(100 * n_ent_cov / n_ent) if n_ent else 0
         parts = ['<div class="vh-l5-erm-pane"><div class="vh-l5-pane-title">'
                  f'Risks by pillar and Level III driver · {n_ent} risks in all registers · '
-                 f'{n_ent_cov} covered by our processes ({pct_ent} %)</div>',
+                 f'{n_ent_cov} covered by {own_lbl} ({pct_ent} %)</div>',
                  f'<div class="vh-erm-legend" style="margin:0 0 6px 0">Cards below show the {total_risks} risks in this register.</div>',
                  '<div class="vh-erm5-grid">']
         for pillar_number, pillar_name in pillar_lookup.items():
@@ -3025,7 +3028,7 @@ def render_value_hierarchy(processes=None, risks=None, controls=None, actions=No
             pct_c = round(100 * n_cov / n_all) if n_all else 0
             parts.append(f'<div class="vh-erm5-col{" vh-erm5-col-on" if n_p else ""}">'
                          f'<div class="vh-erm5-head"><b>{escape(pillar_code)}</b><br>{escape(pillar_description)}'
-                         f'<div class="vh-erm-count">{n_cov} of {n_all} risks covered by our processes ({pct_c} %)</div></div>')
+                         f'<div class="vh-erm-count">{n_cov} of {n_all} risks covered by {own_lbl} ({pct_c} %)</div></div>')
             shown = set()
             for reference, driver_name in [(r, d) for r, d in groups[int(pillar_number) - 1][1] if r != "divider"]:
                 if not pillar_risks.empty and "Level 3 drivers" in pillar_risks.columns:
@@ -3048,7 +3051,7 @@ def render_value_hierarchy(processes=None, risks=None, controls=None, actions=No
             parts.append("</div>")
         parts.append("</div>")
         parts.append('<div class="vh-erm-legend">Number = residual score (likelihood × impact), coloured by heatmap zone. '
-                     'Hover a risk to see its ISO process coverage. Grey drivers have no risks yet. Header: risks in the pillar across all department registers that our processes cover.</div></div>')
+                     'Hover a risk to see its ISO process coverage. Grey drivers have no risks yet. Header: risks in the pillar across all department registers that this department’s processes cover.</div></div>')
         st.markdown("".join(parts), unsafe_allow_html=True)
 
 

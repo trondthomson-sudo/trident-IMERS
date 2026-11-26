@@ -2969,6 +2969,7 @@ def render_value_hierarchy(processes=None, risks=None, controls=None, actions=No
                 v = int(float(score))
             except (TypeError, ValueError):
                 return "#e6ecee", "#00191d", ""
+            if v <= 0: return "#e6ecee", "#00191d", ""
             if v >= 20: return "#7A1F2B", "#fff", str(v)
             if v >= 15: return "#C8433A", "#fff", str(v)
             if v >= 10: return "#E8894A", "#00191d", str(v)
@@ -2984,7 +2985,7 @@ def render_value_hierarchy(processes=None, risks=None, controls=None, actions=No
             iso = ", ".join(procs) if procs else "no ISO process yet"
             return (f'<div class="vh-erm-card" title="ISO process coverage: {escape(tip)}">'
                     f'<div class="vh-erm-card-top"><span class="vh-erm-id">{escape(rid)}</span>'
-                    f'<span class="vh-erm-score" style="background:{bg};color:{ink}">{escape(sc)}</span></div>'
+                    + (f'<span class="vh-erm-score" style="background:{bg};color:{ink}">{escape(sc)}</span>' if sc else '') + '</div>'
                     f'<div class="vh-erm-title">{escape(title)}</div>'
                     f'<div class="vh-erm-iso">ISO: {escape(iso)}</div></div>')
 

@@ -5325,22 +5325,22 @@ elif page == "00 Context" or str(page).startswith("00 Value"):
         "Context for Strategy & BD. Risks should link to Level III drivers and pillars. "
         "Score risks in **01 Risks & Opportunities**, then open **02 Heatmap**."
     )
-    lib_prefix = {"strategy": "SBD"}.get(ACTIVE_REGISTER_KEY)
+    lib_prefix = {"strategy": "SBD", "legal_compliance": "LEG"}.get(ACTIVE_REGISTER_KEY)
     if lib_prefix:
         exp_dir = DATA_DIR / "exports"
         pdf_lib = exp_dir / f"Trident_{lib_prefix}_ISO_Process_Maps.pdf"
         pptx_lib = exp_dir / f"Trident_{lib_prefix}_ISO_Process_Maps.pptx"
         if pdf_lib.exists() or pptx_lib.exists():
             st.markdown("---")
-            st.markdown("**ISO process maps – Strategy & Business Development (4.1–4.13)**")
+            st.markdown(f"**ISO process maps – {selected_register}**")
             st.caption("All process maps in one file. Open the PDF in full-screen or presentation mode to walk through them page by page.")
             c1, c2, _ = st.columns([1, 1, 2])
             if pdf_lib.exists():
                 c1.download_button("Download process maps (PDF)", pdf_lib.read_bytes(), file_name=pdf_lib.name,
-                                   mime="application/pdf", key="dl_sbd_maps_pdf")
+                                   mime="application/pdf", key=f"dl_{lib_prefix}_maps_pdf")
             if pptx_lib.exists():
                 c2.download_button("Download process maps (PowerPoint)", pptx_lib.read_bytes(), file_name=pptx_lib.name,
-                                   mime="application/vnd.openxmlformats-officedocument.presentationml.presentation", key="dl_sbd_maps_pptx")
+                                   mime="application/vnd.openxmlformats-officedocument.presentationml.presentation", key=f"dl_{lib_prefix}_maps_pptx")
 elif page == "01 Risks & Opportunities" or str(page).startswith("02 Risks"):
     risks_work = ensure_risk_treatment_columns(data["risks"])
     data["risks"] = risks_work

@@ -2915,6 +2915,11 @@ def render_value_hierarchy(processes=None, risks=None, controls=None, actions=No
                     left_parts.append("</div>")
                 left_parts.append("</div>")
                 st.markdown("".join(left_parts), unsafe_allow_html=True)
+                map_path = APP_DIR / "assets" / f"{process_id}_process_map.png"
+                if map_path.exists():
+                    st.markdown('<div class="vh-l5-pane-title" style="margin-top:14px">Process map – how the process runs</div>',
+                                unsafe_allow_html=True)
+                    st.image(str(map_path), use_container_width=True)
 
     with erm_col:
         st.markdown(

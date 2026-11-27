@@ -2990,8 +2990,9 @@ def render_value_hierarchy(processes=None, risks=None, controls=None, actions=No
                     f'<div class="vh-erm-iso">ISO: {escape(iso)}</div></div>')
 
         def sort_by_score(df):
-            if "Residual score" in df.columns and not df.empty:
-                return df.assign(_s=pd.to_numeric(df["Residual score"], errors="coerce")).sort_values("_s", ascending=False)
+            # Cards are listed in Risk ID order (TRI-R numbers follow the value tree).
+            if "Risk ID" in df.columns and not df.empty:
+                return df.sort_values("Risk ID", kind="stable")
             return df
 
         total_risks = 0 if scored_risks_df.empty else len(scored_risks_df)

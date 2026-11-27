@@ -5275,6 +5275,26 @@ def render_hub_risk_form(row):
             update_unified(pd.DataFrame([{"Risk ID": rid, **vals}]), list(vals.keys()))
 
 
+def _hub_legend_html():
+    zones = [("#BFD8C8", "#00191d", "Low", "1–4"), ("#E9E58A", "#00191d", "Moderate", "5–9"),
+             ("#E8894A", "#00191d", "High", "10–14"), ("#C8433A", "#fff", "Very high", "15–19"),
+             ("#7A1F2B", "#fff", "Extreme", "20–25"), ("#f3f6f7", "#4a5a5e", "No risks / not scored", "–")]
+    rows = "".join(
+        f'<div style="display:flex;align-items:center;gap:8px;margin:4px 0">'
+        f'<span style="display:inline-block;min-width:54px;text-align:center;background:{bg};color:{fg};border:1px solid #c9d6d9;'
+        f'border-radius:4px;padding:2px 6px;font-weight:700;font-size:.74rem">{rng}</span>'
+        f'<span style="font-size:.78rem;color:#00191d">{lab}</span></div>' for bg, fg, lab, rng in zones)
+    return ('<div style="border:1px solid #c9d6d9;border-radius:8px;padding:10px 12px;margin-top:14px;background:#fff">'
+            '<div style="font-weight:700;font-size:.85rem;color:#00191d;margin-bottom:4px">Colour key · residual risk score</div>'
+            '<div style="font-size:.74rem;color:#4a5a5e;margin-bottom:6px">Likelihood × impact (1–25), after current mitigation.</div>'
+            + rows +
+            '<div style="font-size:.74rem;color:#4a5a5e;margin-top:8px;line-height:1.4">'
+            '<b>Driver tile</b>: colour of the highest residual score among its risks.<br>'
+            '<b>Risk card</b>: the stripe on the left shows that risk\'s own residual score.<br>'
+            '<b>Black frame</b>: the driver you have opened.<br>'
+            f'<b>Material</b>: residual ≥ {MATERIAL_RESIDUAL_THRESHOLD} or outside appetite → escalated to Enterprise.</div></div>')
+
+
 def _risk_owner_text(r):
     ev_fn = effective_evaluator(r.get("Evaluator function"))
     owner = str(r.get("Risk owner", "") or "").strip() or f"{FUNCTION_HEAD.get(ev_fn, '')} ({CLEVEL_TITLE.get(ev_fn, ev_fn)})"
@@ -5415,7 +5435,8 @@ def render_risk_register_hub():
                             + (f' · {ev}/{n} evaluated' if n else '') + '</div>', unsafe_allow_html=True)
                 if sel == ref:
                     _render_inline_risks(ref, rows)
-    st.caption("Tile colour = highest residual score among the risks linked to the driver (grey = no risks / no score).")
+            if pillar_label == VALUE_HIERARCHY_GROUPS[0][0]:
+                st.markdown(_hub_legend_html(), unsafe_allow_html=True)
 
     with st.expander("Allocation of risk evaluation · master: CS&BDO", expanded=False):
         st.caption("Evaluator = owner of the risk's primary Level III driver (first driver in the list). "

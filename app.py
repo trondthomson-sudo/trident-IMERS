@@ -90,6 +90,7 @@ FOLDERS = [
     ("HR", "HR", ["Crewing", "Onshore Employees & Organization"]),
     ("Admin & ICT", "Administration & ICT", ["Administration", "ICT"]),
     ("Legal & Compliance", "Legal & Compliance", ["Legal & Compliance"]),
+    ("Risk Register", None, ["Risk Register"]),
     ("Enterprise", None, ["Enterprise Risk Register"]),
     ("Operating Agenda", None, ["Operating Agenda"]),
     ("About IMERS", None, ["About IMERS"]),
@@ -686,11 +687,153 @@ def ensure_register_files(register_key):
 
 
 def load(key):
+    if key == "risks":
+        return risks_slice_for_register(ACTIVE_REGISTER_KEY)
     return safe_read_csv(FILES[key], columns=schema_columns_for(key))
 
 
 def save(key, df):
+    if key == "risks":
+        save_risks_slice(ACTIVE_REGISTER_KEY, df)
+        return
     df.to_csv(FILES[key], index=False)
+
+
+# ---------------------------------------------------------------------------
+# One Trident risk register (risks belong to Trident; departments evaluate the
+# risks allocated to them by the owner of each risk's primary Level III driver)
+# ---------------------------------------------------------------------------
+RISK_REGISTER_HUB = "Risk Register"
+RISK_EXTRA_COLUMNS = ["Primary driver", "Evaluator function"]
+MASTER_FUNCTION = "Strategy & Business Development"
+
+
+def unified_risks_path():
+    return DATA_DIR / "trident_risks.csv"
+
+
+def _function_primary_register():
+    """Executive function -> its primary register key (first register in its folder)."""
+    out = {}
+    for _label, fn, regs in FOLDERS:
+        if fn and regs and regs[0] in REGISTER_KEYS:
+            out[fn] = REGISTER_KEYS[regs[0]]
+    return out
+
+
+def _register_function():
+    return {k: fn for fn, k in _function_primary_register().items()}
+
+
+def _function_unit_name():
+    out = {}
+    for _label, fn, regs in FOLDERS:
+        if fn and regs:
+            out[fn] = regs[0]
+    return out
+
+
+def primary_driver_of(drivers_value):
+    refs = [r for r in split_refs(drivers_value) if re.match(r"^3\.\d\.\d+$", r)]
+    return refs[0] if refs else ""
+
+
+def driver_owner_map():
+    try:
+        own = load_driver_ownership()
+        return dict(zip(own["Level 3 ref"].astype(str), own["Accountable function"].astype(str)))
+    except Exception:
+        return {}
+
+
+def effective_evaluator(value):
+    v = str(value or "").strip()
+    return v if v in FUNCTION_NAMES else MASTER_FUNCTION
+
+
+def build_unified_risks():
+    """One-time migration: merge the unit risk files into data/trident_risks.csv."""
+    frames = []
+    for unit_name, _o, _t in UNITS:
+        p = files_for(REGISTER_KEYS[unit_name])["risks"]
+        if p.exists() and p.stat().st_size > 0:
+            try:
+                df = pd.read_csv(p, dtype=str, keep_default_na=False)
+            except Exception:
+                continue
+            if not df.empty and "Risk ID" in df.columns:
+                frames.append(df)
+    cols = list(COLUMNS["risks"])
+    if frames:
+        allr = pd.concat(frames, ignore_index=True).fillna("")
+        allr = allr.drop_duplicates(subset=["Risk ID"], keep="first")
+    else:
+        allr = pd.DataFrame(columns=cols)
+    owners = driver_owner_map()
+    allr["Primary driver"] = allr["Level 3 drivers"].map(primary_driver_of) if "Level 3 drivers" in allr.columns else ""
+    allr["Evaluator function"] = allr["Primary driver"].map(lambda r: owners.get(r, MASTER_FUNCTION) or MASTER_FUNCTION)
+    extra = [c for c in allr.columns if c not in cols + RISK_EXTRA_COLUMNS]
+    allr = allr[[c for c in cols if c in allr.columns] + RISK_EXTRA_COLUMNS + extra]
+    allr.sort_values("Risk ID").to_csv(unified_risks_path(), index=False)
+    return allr
+
+
+def load_unified_risks():
+    p = unified_risks_path()
+    if (not p.exists()) or p.stat().st_size == 0:
+        build_unified_risks()
+    df = safe_read_csv(p, columns=list(COLUMNS["risks"]) + RISK_EXTRA_COLUMNS)
+    for c in list(COLUMNS["risks"]) + RISK_EXTRA_COLUMNS:
+        if c not in df.columns:
+            df[c] = ""
+    return df
+
+
+def save_unified_risks(df):
+    df = df.copy().fillna("")
+    if "Risk ID" in df.columns:
+        df = df[df["Risk ID"].astype(str).str.strip() != ""]
+        df = df.drop_duplicates(subset=["Risk ID"], keep="last").sort_values("Risk ID")
+    df.to_csv(unified_risks_path(), index=False)
+
+
+def risks_slice_for_register(register_key):
+    """The Trident risks a unit register evaluates (empty for secondary registers in a folder)."""
+    df = load_unified_risks()
+    fn = _register_function().get(register_key)
+    if not fn:
+        return df.iloc[0:0].copy()
+    mask = df["Evaluator function"].map(effective_evaluator) == fn
+    return df.loc[mask].reset_index(drop=True)
+
+
+def save_risks_slice(register_key, slice_df):
+    fn = _register_function().get(register_key)
+    allr = load_unified_risks()
+    if not fn:
+        return
+    keep = allr[allr["Evaluator function"].map(effective_evaluator) != fn]
+    new = slice_df.copy().fillna("")
+    for c in RISK_EXTRA_COLUMNS:
+        if c not in new.columns:
+            new[c] = ""
+    new.loc[new["Evaluator function"].astype(str).str.strip() == "", "Evaluator function"] = fn
+    new.loc[new["Primary driver"].astype(str).str.strip() == "", "Primary driver"] = new["Level 3 drivers"].map(primary_driver_of) if "Level 3 drivers" in new.columns else ""
+    save_unified_risks(pd.concat([keep, new], ignore_index=True))
+
+
+def update_unified(edited, columns):
+    """Update named columns for the given Risk IDs in the one Trident register, then rerun."""
+    master = load_unified_risks().set_index("Risk ID")
+    incoming = edited.set_index("Risk ID")
+    for c in columns:
+        if c not in master.columns:
+            master[c] = ""
+        master[c] = master[c].astype(object)
+    master.update(incoming[columns].astype(object))
+    save_unified_risks(master.reset_index())
+    st.success("Saved.")
+    st.rerun()
 
 
 def driver_ownership_path():
@@ -770,6 +913,13 @@ def out_of_scope_tags(risks_df, function_name):
 
 def collect_all_register_rows(dataset):
     """All rows of one dataset across unit registers, with source unit."""
+    if dataset == "risks":
+        allr = load_unified_risks().copy()
+        if allr.empty:
+            return pd.DataFrame()
+        units = _function_unit_name()
+        allr.insert(0, "Source unit", allr["Evaluator function"].map(effective_evaluator).map(units).fillna(""))
+        return allr
     frames = []
     for unit_name, _owner, _title in UNITS:
         register_key = REGISTER_KEYS[unit_name]
@@ -1111,8 +1261,7 @@ def collect_enterprise_risks():
     for unit_name, _owner, _title in UNITS:
         register_key = REGISTER_KEYS[unit_name]
         ensure_register_files(register_key)
-        risk_path = files_for(register_key)["risks"]
-        risks_df = safe_read_csv(risk_path, columns=schema_columns_for("risks", register_key))
+        risks_df = risks_slice_for_register(register_key)
         if risks_df.empty or "Risk ID" not in risks_df.columns:
             continue
         scored_df = scored(risks_df)
@@ -4952,9 +5101,11 @@ def render_risk_scale_settings():
     return cfg
 
 
-def render_outcome_ladder(risk_row, rid):
+def render_outcome_ladder(risk_row, rid, updater=None, key_prefix=None):
     """Scoring table: cumulative outcome ladder → likelihood × impact per step → highest step is the score."""
     cfg = load_risk_scale()
+    _kp = key_prefix or ACTIVE_REGISTER_KEY
+    updater = updater or update_risks
     _drv = split_refs(risk_row.get("Level 3 drivers", ""))
     _is_uplift = "3.1.1" in _drv or "uplift" in str(risk_row.get("Risk title", "")).lower()
     tgt = "targeted uplift" if _is_uplift else "targeted value"
@@ -4966,7 +5117,7 @@ def render_outcome_ladder(risk_row, rid):
     b1, b2 = st.columns([1, 1])
     with b1:
         basis = st.radio("Score basis", ["Residual", "Inherent", "Target"], horizontal=True,
-                         key=f"ladder_basis_{ACTIVE_REGISTER_KEY}_{rid}")
+                         key=f"ladder_basis_{_kp}_{rid}")
     ladders = load_risk_ladders()
     mine = ladders[(ladders["Risk ID"] == rid) & (ladders["Basis"] == basis)]
     saved_vas = None
@@ -4979,7 +5130,7 @@ def render_outcome_ladder(risk_row, rid):
         vas = st.number_input(
             f"Value at stake (mNOK, run-rate EBITDA {cfg['horizon_year']})", min_value=0.0, step=10.0,
             value=float(saved_vas if saved_vas is not None else cfg["uplift_base_mnok"]),
-            key=f"ladder_vas_{ACTIVE_REGISTER_KEY}_{rid}_{basis}",
+            key=f"ladder_vas_{_kp}_{rid}_{basis}",
             help=f"Default = TC uplift base ({cfg['uplift_base_mnok']}m) set by the scale master.",
         )
     _all = pd.DataFrame({
@@ -4993,20 +5144,20 @@ def render_outcome_ladder(risk_row, rid):
     up_df = _up if not _up.empty else pd.DataFrame(
         {"Realization %": DEFAULT_UPSIDE_REALIZATION, "Probability %": [None] * len(DEFAULT_UPSIDE_REALIZATION)})
     input_zone_banner(f"Outcome ladder — {basis.lower()} (probability of achieving only this share of the {tgt} – or less)")
-    with st.container(key=f"vh_input_ladder_{ACTIVE_REGISTER_KEY}_{rid}_{basis}"):
+    with st.container(key=f"vh_input_ladder_{_kp}_{rid}_{basis}"):
         edited = st.data_editor(
             base_df, hide_index=True, use_container_width=True, num_rows="dynamic",
-            key=f"ladder_editor_{ACTIVE_REGISTER_KEY}_{rid}_{basis}",
+            key=f"ladder_editor_{_kp}_{rid}_{basis}",
             column_config={
                 "Realization %": st.column_config.NumberColumn(f"Share of {tgt} achieved (%)", min_value=0, max_value=100, step=5),
                 "Probability %": st.column_config.NumberColumn("Probability of achieving only this share – or less (%)", min_value=0, max_value=100, step=1),
             },
         )
     input_zone_banner(f"Upside — probability of achieving this share of the {tgt} – or more (not scored; used for the net expectation)")
-    with st.container(key=f"vh_input_ladder_up_{ACTIVE_REGISTER_KEY}_{rid}_{basis}"):
+    with st.container(key=f"vh_input_ladder_up_{_kp}_{rid}_{basis}"):
         up_edited = st.data_editor(
             up_df, hide_index=True, use_container_width=True, num_rows="dynamic",
-            key=f"ladder_up_editor_{ACTIVE_REGISTER_KEY}_{rid}_{basis}",
+            key=f"ladder_up_editor_{_kp}_{rid}_{basis}",
             column_config={
                 "Realization %": st.column_config.NumberColumn(f"Share of {tgt} achieved (%)", min_value=100, max_value=300, step=5),
                 "Probability %": st.column_config.NumberColumn("Probability of achieving this share – or more (%)", min_value=0, max_value=100, step=1),
@@ -5044,17 +5195,214 @@ def render_outcome_ladder(risk_row, rid):
     st.caption("Net expected outcome = target − expected shortfall + expected upside. Each step is valued at its lower edge "
                "(conservative). Only the downside drives the risk score; the upside shows whether the target is a realistic expectation.")
     s1, s2 = st.columns(2)
-    if s1.button("Save scoring table", key=f"ladder_save_{ACTIVE_REGISTER_KEY}_{rid}_{basis}"):
+    if s1.button("Save scoring table", key=f"ladder_save_{_kp}_{rid}_{basis}"):
         save_risk_ladder(rid, basis, vas, combined)
         st.success("Scoring table saved.")
     if s2.button(f"Save table and use {lik} × {imp} as {basis.lower()} score", type="primary",
-                 key=f"ladder_apply_{ACTIVE_REGISTER_KEY}_{rid}_{basis}"):
+                 key=f"ladder_apply_{_kp}_{rid}_{basis}"):
         save_risk_ladder(rid, basis, vas, combined)
         if basis == "Residual":
             for k in (f"assess_rl_{ACTIVE_REGISTER_KEY}_{rid}", f"assess_ri_{ACTIVE_REGISTER_KEY}_{rid}"):
                 st.session_state.pop(k, None)
-        row = pd.DataFrame([{"Risk ID": rid, f"{basis} likelihood": lik, f"{basis} impact": imp}])
-        update_risks(row, [f"{basis} likelihood", f"{basis} impact"])
+        row = pd.DataFrame([{"Risk ID": rid, f"{basis} likelihood": str(lik), f"{basis} impact": str(imp)}])
+        updater(row, [f"{basis} likelihood", f"{basis} impact"])
+
+
+LEVER_OF_PILLAR = {"PIL-01": "1.1 EBITDA", "PIL-02": "1.1 EBITDA", "PIL-03": "1.2 Multiple", "PIL-04": "1.3 Cash", "PIL-05": "1.3 Cash"}
+HUB_HEAT = [(20, "#7A1F2B", "#fff"), (15, "#C8433A", "#fff"), (10, "#E8894A", "#00191d"), (5, "#E9E58A", "#00191d"), (1, "#BFD8C8", "#00191d")]
+
+
+def _hub_heat(score):
+    try:
+        v = int(float(score))
+    except (TypeError, ValueError):
+        return "#f3f6f7", "#4a5a5e"
+    for lim, bg, fg in HUB_HEAT:
+        if v >= lim:
+            return bg, fg
+    return "#f3f6f7", "#4a5a5e"
+
+
+def _is_evaluated(row):
+    try:
+        ok = int(float(row.get("Residual likelihood", 0) or 0)) > 0 and int(float(row.get("Residual impact", 0) or 0)) > 0
+    except (TypeError, ValueError):
+        ok = False
+    return ok and str(row.get("Status", "")).strip() not in ("", "Draft")
+
+
+def _hub_updater(rid):
+    def _upd(row, cols):
+        st.session_state[f"hub_ver_{rid}"] = st.session_state.get(f"hub_ver_{rid}", 0) + 1
+        update_unified(row, cols)
+    return _upd
+
+
+def render_hub_risk_form(row):
+    rid = str(row["Risk ID"])
+    ver = st.session_state.get(f"hub_ver_{rid}", 0)
+    k = lambda name: f"hub_{name}_{rid}_{ver}"
+    opts = ["", "1", "2", "3", "4", "5"]
+
+    def _ix(v):
+        v = str(v or "").strip()
+        try:
+            v = str(int(float(v)))
+        except ValueError:
+            v = ""
+        return opts.index(v) if v in opts else 0
+
+    render_outcome_ladder(row, rid, updater=_hub_updater(rid), key_prefix="hub")
+    input_zone_banner("Scores and decision — saved to the Trident risk register")
+    with st.container(key=f"vh_input_hub_{rid}"):
+        cols = st.columns(6)
+        vals = {}
+        for i, (basis, part) in enumerate([(b, p) for b in ("Inherent", "Residual", "Target") for p in ("likelihood", "impact")]):
+            vals[f"{basis} {part}"] = cols[i].selectbox(f"{basis} {part}", opts, index=_ix(row.get(f"{basis} {part}")), key=k(f"{basis}_{part}"))
+        d1, d2, d3, d4 = st.columns(4)
+        vals["Treatment decision"] = d1.selectbox("Treatment decision", TREATMENT_DECISIONS,
+                                                  index=TREATMENT_DECISIONS.index(row.get("Treatment decision")) if row.get("Treatment decision") in TREATMENT_DECISIONS else 0, key=k("treat"))
+        vals["Appetite status"] = d2.selectbox("Appetite status", APPETITE,
+                                               index=APPETITE.index(row.get("Appetite status")) if row.get("Appetite status") in APPETITE else 0, key=k("app"))
+        vals["Status"] = d3.selectbox("Status", STATUSES, index=STATUSES.index(row.get("Status")) if row.get("Status") in STATUSES else 0, key=k("status"))
+        esc = str(row.get("Enterprise escalation", "No") or "No")
+        vals["Enterprise escalation"] = d4.selectbox("Enterprise escalation", ["No", "Yes"], index=1 if esc == "Yes" else 0, key=k("esc"))
+        vals["Current mitigation"] = st.text_area("Current mitigation (which processes reduce the risk, and how)", value=str(row.get("Current mitigation", "") or ""), height=90, key=k("mit"))
+        vals["Evidence / rationale"] = st.text_area("Evidence / rationale for the scores", value=str(row.get("Evidence / rationale", "") or ""), height=70, key=k("ev"))
+        if st.button("Save evaluation", type="primary", key=k("save")):
+            st.session_state[f"hub_ver_{rid}"] = ver + 1
+            update_unified(pd.DataFrame([{"Risk ID": rid, **vals}]), list(vals.keys()))
+
+
+def render_risk_register_hub():
+    from html import escape as _esc
+    allr = load_unified_risks()
+    sc = scored(allr) if not allr.empty else allr
+    catalog = level3_driver_catalog()
+    owners = driver_owner_map()
+    names = {c["reference"]: c["driver"] for c in catalog}
+
+    st.subheader("Trident risk register")
+    st.caption("One register for all Trident risks. Each risk is evaluated by the executive who owns its primary Level III driver; "
+               "the departments' processes mitigate it. Click a value driver in the map to evaluate its risks.")
+    evaluated = int(sc.apply(_is_evaluated, axis=1).sum()) if not sc.empty else 0
+    res = pd.to_numeric(sc.get("Residual score", pd.Series(dtype=float)), errors="coerce").fillna(0)
+    material = int(((res >= MATERIAL_RESIDUAL_THRESHOLD) | (sc.get("Appetite status", pd.Series(dtype=str)) == "Outside appetite")).sum()) if not sc.empty else 0
+    m = st.columns(4)
+    m[0].metric("Risks in the register", len(sc))
+    m[1].metric("Evaluated", f"{evaluated} / {len(sc)}", help="Residual likelihood and impact set, and status no longer Draft")
+    m[2].metric(f"Material (residual ≥ {MATERIAL_RESIDUAL_THRESHOLD} or outside appetite)", material)
+    m[3].metric("Evaluators", sc["Evaluator function"].map(effective_evaluator).nunique() if not sc.empty else 0)
+
+    # per-driver stats (primary driver decides evaluator; all linked drivers listed)
+    by_driver = {}
+    for _, r in sc.iterrows():
+        for ref in split_refs(r.get("Level 3 drivers", "")):
+            by_driver.setdefault(ref, []).append(r)
+
+    css = ['<style>',
+           '.rr-l0{background:#00191d;color:#fff;border-radius:8px;padding:10px 14px;font-weight:700;text-align:center;margin-bottom:8px}',
+           '.rr-l1{background:#00839B;color:#fff;border-radius:6px;padding:6px 10px;font-weight:700;text-align:center;font-size:.9rem}',
+           '.rr-l2{background:#255a64;color:#fff;border-radius:6px;padding:8px 10px;font-weight:700;text-align:center;font-size:.88rem;margin:6px 0 4px 0;min-height:58px}',
+           '.rr-meta{font-size:.74rem;color:#4a5a5e;margin:-6px 0 8px 2px}',
+           '[class*="st-key-rr_drv_"] button{width:100%;justify-content:flex-start;text-align:left;border-radius:6px;min-height:44px}',
+           '[class*="st-key-rr_drv_"] button p{font-size:.8rem;line-height:1.25;text-align:left}',
+           '[class*="st-key-rr_drv_"] button *{white-space:normal !important;overflow:visible !important;text-overflow:clip !important}']
+    sel = st.session_state.get("rr_driver")
+    for c in catalog:
+        rows = by_driver.get(c["reference"], [])
+        mx = max([int(pd.to_numeric(r.get("Residual score", 0), errors="coerce") or 0) for r in rows], default=0)
+        bg, fg = _hub_heat(mx if rows else None)
+        kcls = "st-key-rr_drv_" + c["reference"].replace(".", "_")
+        border = "3px solid #00191d" if sel == c["reference"] else "1px solid #c9d6d9"
+        css.append(f'.{kcls} button{{background:{bg};border:{border}}} .{kcls} button p{{color:{fg}}}')
+    css.append('</style>')
+    st.markdown("".join(css), unsafe_allow_html=True)
+
+    st.markdown('<div class="rr-l0">Level 0 · Maximize shareholder value in Trident</div>', unsafe_allow_html=True)
+    l1 = st.columns([2, 1, 2])
+    for col, lab in zip(l1, ["Level I · 1.1 EBITDA", "Level I · 1.2 Multiple", "Level I · 1.3 Cash"]):
+        col.markdown(f'<div class="rr-l1">{lab}</div>', unsafe_allow_html=True)
+    pcols = st.columns(5)
+    for col, (pillar_label, drivers) in zip(pcols, VALUE_HIERARCHY_GROUPS):
+        with col:
+            st.markdown(f'<div class="rr-l2">Level II · {_esc(pillar_label.replace("<br>", " · "))}</div>', unsafe_allow_html=True)
+            for ref, dname in drivers:
+                if ref == "divider":
+                    continue
+                rows = by_driver.get(ref, [])
+                n = len(rows)
+                ev = sum(1 for r in rows if _is_evaluated(r))
+                own = CLEVEL_TITLE.get(owners.get(ref, ""), owners.get(ref, "") or "—")
+                if st.button(f"**{ref}** {dname}", key=f"rr_drv_{ref.replace('.', '_')}", use_container_width=True):
+                    st.session_state["rr_driver"] = ref
+                    st.rerun()
+                st.markdown(f'<div class="rr-meta">{_esc(own)} · {n} risk{"s" if n != 1 else ""}'
+                            + (f' · {ev}/{n} evaluated' if n else '') + '</div>', unsafe_allow_html=True)
+    st.caption("Tile colour = highest residual score among the risks linked to the driver (grey = no risks / no score).")
+
+    if sel:
+        st.markdown("---")
+        owner_fn = owners.get(sel, "")
+        own_row = load_driver_ownership()
+        contrib = own_row.loc[own_row["Level 3 ref"] == sel, "Contributing functions"]
+        contrib = contrib.iloc[0] if len(contrib) else ""
+        h1, h2 = st.columns([4, 1])
+        h1.markdown(f"### {sel} · {names.get(sel, '')}")
+        if h2.button("Close", key="rr_close"):
+            st.session_state.pop("rr_driver", None)
+            st.rerun()
+        st.caption(f"Driver owner and evaluator: {FUNCTION_HEAD.get(owner_fn, '')} ({CLEVEL_TITLE.get(owner_fn, owner_fn)})"
+                   + (f" · contributing: {contrib}" if contrib else ""))
+        rows = by_driver.get(sel, [])
+        if not rows:
+            st.info("No risks linked to this driver yet.")
+        rows = sorted(rows, key=lambda r: (str(r.get("Primary driver", "")) != sel, str(r["Risk ID"])))
+        for r in rows:
+            rid = str(r["Risk ID"])
+            ev_fn = effective_evaluator(r.get("Evaluator function"))
+            ev_who = f"{FUNCTION_HEAD.get(ev_fn, '')} ({CLEVEL_TITLE.get(ev_fn, ev_fn)})"
+            prim = str(r.get("Primary driver", "")) == sel
+            rs = r.get("Residual score", "")
+            try:
+                rs_txt = f"residual {int(float(r['Residual likelihood']))}×{int(float(r['Residual impact']))}={int(float(rs))}"
+            except (TypeError, ValueError, KeyError):
+                rs_txt = "residual not scored"
+            label = f"{rid} · {r.get('Risk title', '')} — {rs_txt} · evaluator {ev_who}" + ("" if prim else f" · primary driver {r.get('Primary driver', '')}")
+            with st.expander(label, expanded=False):
+                c1, c2 = st.columns(2)
+                c1.markdown(f"**Risk event:** {r.get('Risk event', '')}\n\n**Consequence:** {r.get('Consequences', '')}")
+                c2.markdown(f"**Mitigating processes:** {r.get('Processes', '') or '—'}\n\n**Level III drivers:** {r.get('Level 3 drivers', '')}"
+                            f"\n\n**Accountable executive:** {r.get('Accountable executive', '') or '—'}")
+                if not prim:
+                    st.info(f"This risk is evaluated under its primary driver {r.get('Primary driver', '')} by {ev_who}. "
+                            "It is listed here because it also affects this driver.")
+                render_hub_risk_form(r)
+
+    with st.expander("Allocation of risk evaluation · master: CS&BDO", expanded=False):
+        st.caption("Evaluator = owner of the risk's primary Level III driver (first driver in the list). "
+                   "The master can change the primary driver or the evaluator here.")
+        alloc = sc[["Risk ID", "Risk title", "Level 3 drivers", "Primary driver", "Evaluator function"]].copy() if not sc.empty else pd.DataFrame(
+            columns=["Risk ID", "Risk title", "Level 3 drivers", "Primary driver", "Evaluator function"])
+        alloc["Evaluator"] = alloc["Evaluator function"].map(lambda f: FUNCTION_HEAD.get(effective_evaluator(f), ""))
+        input_zone_banner("Allocation — editable: primary driver and evaluator function")
+        with st.container(key="vh_input_rr_alloc"):
+            ed = st.data_editor(alloc, hide_index=True, use_container_width=True, height=520, key="rr_alloc_editor",
+                                disabled=["Risk ID", "Risk title", "Level 3 drivers", "Evaluator"],
+                                column_config={
+                                    "Primary driver": st.column_config.SelectboxColumn(options=[c["reference"] for c in catalog]),
+                                    "Evaluator function": st.column_config.SelectboxColumn(options=FUNCTION_NAMES),
+                                })
+        b1, b2 = st.columns(2)
+        if b1.button("Save allocation", type="primary", key="rr_alloc_save"):
+            update_unified(ed[["Risk ID", "Primary driver", "Evaluator function"]], ["Primary driver", "Evaluator function"])
+        if b2.button("Reset evaluators to driver owners", key="rr_alloc_reset"):
+            ed2 = ed[["Risk ID", "Primary driver"]].copy()
+            ed2["Evaluator function"] = ed2["Primary driver"].map(lambda ref: owners.get(ref, MASTER_FUNCTION) or MASTER_FUNCTION)
+            update_unified(ed2, ["Evaluator function"])
+        by_fn = sc["Evaluator function"].map(effective_evaluator).value_counts() if not sc.empty else pd.Series(dtype=int)
+        st.dataframe(pd.DataFrame({"Evaluator": [f"{FUNCTION_HEAD.get(f, '')} ({CLEVEL_TITLE.get(f, f)})" for f in by_fn.index],
+                                   "Risks to evaluate": by_fn.values}), hide_index=True, use_container_width=True)
 
 
 def render_assess_and_decide(risks_df):
@@ -5540,6 +5888,11 @@ if selected_register == OPERATING_AGENDA:
     render_operating_agenda()
     st.stop()
 
+if selected_register == RISK_REGISTER_HUB:
+    st.caption("Risk Register | One Trident register, organised by the value tree · evaluation allocated to the driver owners")
+    render_risk_register_hub()
+    st.stop()
+
 if selected_register == ENTERPRISE_REGISTER:
     st.caption("Enterprise roll-up | Material risks across all unit registers")
     render_enterprise_view()
@@ -5667,6 +6020,8 @@ elif page == "00 Context" or str(page).startswith("00 Value"):
                 c2.download_button("Download process maps (PowerPoint)", pptx_lib.read_bytes(), file_name=pptx_lib.name,
                                    mime="application/vnd.openxmlformats-officedocument.presentationml.presentation", key=f"dl_{lib_prefix}_maps_pptx")
 elif page == "01 Risks & Opportunities" or str(page).startswith("02 Risks"):
+    st.info(f"These are the Trident risks allocated to {selected_folder} for evaluation ({len(data['risks'])}) – "
+            "the owner of each risk's primary Level III driver evaluates it. All risks, by value driver: the **Risk Register** tab.")
     risks_work = ensure_risk_treatment_columns(data["risks"])
     data["risks"] = risks_work
     t_lib, t_reg, t_assess, t_opp = st.tabs(["Risk library", "Risk register", "Assess & decide", "Opportunities"])

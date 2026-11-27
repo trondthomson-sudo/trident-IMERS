@@ -1,0 +1,18 @@
+{
+  "master": "Trond V. Thomson (CS&BDO) · TC uplift base with CCO",
+  "horizon_year": 2035,
+  "uplift_base_mnok": 800,
+  "uplift_note": "TC uplift (run-rate EBITDA) to 2035 — set by CS&BDO with CCO. Starting point; update after OA 2027.",
+  "likelihood_upper_pct": [
+    10,
+    30,
+    50,
+    80
+  ],
+  "impact_upper_mnok": [
+    10,
+    25,
+    50,
+    150
+  ]
+}

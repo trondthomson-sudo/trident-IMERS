@@ -1,0 +1,19 @@
+{
+  "title": "Operating Agenda 2027 – London",
+  "date": "Thursday [date] 2027",
+  "start": "08:30",
+  "venue": "To be confirmed",
+  "qa_minutes": 5,
+  "evening": [
+    {
+      "time": "19:00",
+      "item": "Aperitif",
+      "note": "TBD"
+    },
+    {
+      "time": "20:00",
+      "item": "Dinner",
+      "note": "TBD"
+    }
+  ]
+}

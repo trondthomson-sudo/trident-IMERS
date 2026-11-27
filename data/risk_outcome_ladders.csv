@@ -1,0 +1,11 @@
+Risk ID,Basis,Value at stake mNOK,Realization %,Probability %
+TRI-R001,Residual,800.0,90,20
+TRI-R001,Residual,800.0,80,18
+TRI-R001,Residual,800.0,70,16
+TRI-R001,Residual,800.0,60,14
+TRI-R001,Residual,800.0,50,12
+TRI-R001,Residual,800.0,40,10
+TRI-R001,Residual,800.0,30,8
+TRI-R001,Residual,800.0,20,6
+TRI-R001,Residual,800.0,10,4
+TRI-R001,Residual,800.0,0,2

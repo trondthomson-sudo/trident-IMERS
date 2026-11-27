@@ -3,6 +3,7 @@ from html import escape
 from io import BytesIO
 from pathlib import Path
 import re
+import json
 
 import pandas as pd
 import plotly.graph_objects as go
@@ -1206,7 +1207,10 @@ def editor(key, df, config=None, height=700):
 def update_risks(edited, columns):
     master = load("risks").set_index("Risk ID")
     incoming = edited.set_index("Risk ID")
-    master.update(incoming[columns])
+    for _c in columns:
+        if _c in master.columns:
+            master[_c] = master[_c].astype(object)
+    master.update(incoming[columns].astype(object))
     save("risks", master.reset_index())
     st.success("Saved.")
     st.rerun()
@@ -1306,7 +1310,7 @@ _AGENDA_SEED = [
     (_C[3], '1.1 EBITDA', '2.2 Investment EBITDA Growth', "Trident's expansion yard strategy: a global yard footprint to deliver newbuilds on time, on budget and at the most competitive prices", '', 'Vessel Operations', '', 15,
      'Why newbuilding uses a global yard footprint; how we select and work with newbuild yards; contract structure, supervision and follow-up to secure on-time, on-budget delivery; track record; how we secure competitive prices for the 19-vessel program',
      'Expansion only – newbuild yards worldwide. Maintenance and local yards are covered separately later in this chapter'),
-    (_C[3], '1.1 EBITDA', '2.1 Organic EBITDA Growth', 'Global yard outlook: capacity, prices and the China option – the framework for newbuild prices and TC re-rating', '', 'Strategy & Business Development', '', 15,
+    (_C[3], '1.1 EBITDA', '2.1 Organic EBITDA Growth', 'Global yard outlook: capacity, prices and the China option – the framework for newbuild prices and TC re-rating', '', '', '', 15,
      'Answer to the yard-price challenge: global yard capacity and price benchmarks by region; the China construction plan and its effect on newbuild prices; yard comparison (e.g. China vs Zamakona NB809, incl. finance and guarantees); newbuild-parity TC under different yard prices and yard indexation',
      'Sets the newbuild price used for TC re-rating in chapter 5 and the newbuild program in Growth'),
     (_C[3], '1.3 Cash', '2.4 Cash Conversion', 'Maintenance capex and our local maintenance yard strategy: keeping the fleet available and cost-efficient', '3.4.2', 'Vessel Operations', '', 15,
@@ -1318,12 +1322,12 @@ _AGENDA_SEED = [
     (_C[4], 'Context', '', 'The 2027 budget', '', 'Finance', '', 20,
      'Budget 2027: revenue, EBITDA, capex and cash by region',
      'Near-term starting point for the long-term plan'),
-    (_C[4], '1.1 EBITDA', '2.1 Organic EBITDA Growth', "TC fleet uplift: from today's rates to newbuild-parity pricing, vessel by vessel – benchmarked against comparable vessels by size and segment", '3.1.1', 'Strategy & Business Development', 'Commercial', 30,
+    (_C[4], '1.1 EBITDA', '2.1 Organic EBITDA Growth', "TC fleet uplift: from today's rates to newbuild-parity pricing, vessel by vessel – benchmarked against comparable vessels by size and segment", '3.1.1', '', '', 30,
      'Segment yardsticks: each vessel compared with similar vessels by size and segment (own fleet and competitors) – why and at which level each vessel should trade; fleet waterfall of real uplift above CPI indexation; renewal calendar and uplift steps per vessel; gap to newbuild-parity TC (from the yard outlook); commercial path to get there – renewals, terms and customers',
-     'Co-hosted: Trond (model and pricing level) and Joar (commercial execution)'),
-    (_C[4], '1.1 EBITDA · 1.2 Multiple', '2.1 Organic EBITDA Growth · 2.3 Multiple Expansion', 'Long-term implications for organic EBITDA (vessels in place) – and the conclusion on fleet renewal, replacement and divestment', '3.1.6; 3.3.6; 3.5.4', 'Strategy & Business Development', '', 15,
+     'Covers both the pricing level vessel by vessel and the commercial path with customers. Builds on the yard outlook in chapter 4'),
+    (_C[4], '1.1 EBITDA · 1.2 Multiple', '2.1 Organic EBITDA Growth · 2.3 Multiple Expansion', 'Long-term implications for organic EBITDA (vessels in place) – and the conclusion on fleet renewal, replacement and divestment', '3.1.6; 3.3.6; 3.5.4', '', '', 15,
      '10-year EBITDA for the vessels in place, CPI-indexed vs with uplift; reconstructions with capex and yield; which vessels to keep, reconstruct, replace or divest – with timing and cash effect',
-     'The conclusion of the TC fleet uplift session with Joar: what the uplift means for long-term EBITDA and for the fleet'),
+     'Draws the conclusion from the TC fleet uplift: what it means for long-term EBITDA and for the fleet'),
     ('Break', '', '', 'Lunch', '', '', '', 45,
      '',
      ''),
@@ -1337,7 +1341,7 @@ _AGENDA_SEED = [
      'Code of Conduct, anti-corruption, sanctions and due diligence; legal entity structure; how compliance is rolled out to acquired companies',
      ''),
     (_C[5], '1.2 Multiple', '2.3 Multiple Expansion', 'Our administrative platform: shared services, systems and data across Trident worldwide', '3.3.12', 'Administration & ICT', '', 15,
-     'How administration is organised across regions and companies – shared services, common routines and document control; one system landscape and data model, with cyber resilience as part of it; how acquired companies are onboarded onto our administration and systems',
+     'How administration is organized across regions and companies – shared services, common routines and document control; one system landscape and data model, with cyber resilience as part of it; how acquired companies are onboarded onto our administration and systems',
      'Focus on the administrative platform as part of the bolt-on system – ICT is one part of it'),
     ('Break', '', '', 'Break', '', '', '', 15,
      '',
@@ -1354,15 +1358,18 @@ _AGENDA_SEED = [
     (_C[6], '1.3 Cash', '2.5 Capital Allocation & Balance Sheet', "Today's financing: capital structure, returns, leverage and headroom", '3.5.2; 3.5.3; 3.5.5; 3.5.6', 'Finance', '', 10,
      'Current debt and capital structure; ROIC; NIBD/EBITDA; liquidity and covenant headroom',
      'Øyvind sets the starting point for how we finance the future'),
-    (_C[6], '1.3 Cash', '2.5 Capital Allocation & Balance Sheet', 'Financing the future: paving the way for new capital to fund growth', '3.5.7', 'Strategy & Business Development', 'Finance', 10,
+    (_C[6], '1.3 Cash', '2.5 Capital Allocation & Balance Sheet', 'Financing the future: paving the way for new capital to fund growth', '3.5.7', '', '', 10,
      'Funding need from the newbuild and M&A plans; financing structures and sources (bank, bond, equity, sale-leaseback, green/sustainability-linked); sequencing with the balance sheet',
-     "Trond builds on Øyvind's starting point"),
+     "Follows the session on today's financing and looks at how the newbuild and M&A plans can be funded"),
     (_C[7], '1.3 Cash', '2.5 Capital Allocation & Balance Sheet', 'Our north star: where Trident is going – maximizing shareholder value in full alignment with our stakeholders', '3.5.1', 'CEO', '', 15,
      "The day in one picture – back to the ambition from the morning; the north star: the world's leading aquaculture service company, creating long-term shareholder value by creating value for customers, our people, communities, fish welfare and the ocean; how we allocate capital to get there; thank you and Q&A",
      'Close the circle from the opening – leave the audience with one picture of where we are going, not a list of decisions'),
 ]
 AGENDA_SECTION_STYLE = {c: (col, "#ffffff") for c, col in AGENDA_CHAPTERS}
 AGENDA_SECTION_STYLE["Break"] = ("#eef2f3", "#4a5a5e")
+
+
+AGENDA_PRESENTER_TBD = "? – Let us discuss who should take this session"
 
 
 def agenda_path():
@@ -1386,7 +1393,10 @@ def load_agenda():
 
 def load_agenda_meta():
     import json
-    default = {"title": "Trident Operating Agenda 2026 - management review", "date": "", "start": "08:30"}
+    default = {"title": "Operating Agenda 2027 – London", "date": "Thursday [date] 2027", "start": "08:30",
+               "venue": "To be confirmed", "qa_minutes": 5,
+               "evening": [{"time": "19:00", "item": "Aperitif", "note": "TBD"},
+                           {"time": "20:00", "item": "Dinner", "note": "TBD"}]}
     try:
         if agenda_meta_path().exists():
             default.update(json.loads(agenda_meta_path().read_text(encoding="utf-8")))
@@ -1400,7 +1410,7 @@ def save_agenda_meta(meta):
     agenda_meta_path().write_text(json.dumps(meta, indent=2, ensure_ascii=False), encoding="utf-8")
 
 
-def agenda_with_times(df, start="08:30"):
+def agenda_with_times(df, start="08:30", qa_minutes=0):
     out = df.copy()
     try:
         h, m = [int(x) for x in str(start).split(":")[:2]]
@@ -1408,17 +1418,27 @@ def agenda_with_times(df, start="08:30"):
         h, m = 8, 30
     t = h * 60 + m
     starts, ends = [], []
-    for minutes in out["Minutes"]:
+    qa_list = []
+    for minutes, section in zip(out["Minutes"], out["Section"]):
+        qa = 0 if str(section) == "Break" else int(qa_minutes or 0)
         starts.append(f"{t // 60:02d}:{t % 60:02d}")
-        t += int(minutes)
+        t += int(minutes) + qa
         ends.append(f"{t // 60:02d}:{t % 60:02d}")
+        qa_list.append(qa)
     out.insert(1, "Start", starts)
     out.insert(2, "End", ends)
+    out["Q&A minutes"] = qa_list
+    out["Slot minutes"] = out["Minutes"].astype(int) + out["Q&A minutes"]
     def _who(f):
         f = str(f or "").strip()
         return f"{FUNCTION_HEAD.get(f, '')} ({f})" if f and FUNCTION_HEAD.get(f, f) != f else f
+    def _lead(f, sec):
+        if str(sec) == "Break":
+            return ""
+        return _who(f) if str(f or "").strip() else AGENDA_PRESENTER_TBD
     co = out["Co-presenter function"] if "Co-presenter function" in out.columns else pd.Series([""] * len(out), index=out.index)
-    out["Presenter"] = [(_who(f) + (" & " + _who(c) if str(c).strip() else "")) for f, c in zip(out["Presenter function"], co)]
+    out["Presenter"] = [(_lead(f, sec) + (" & " + _who(c) if str(c).strip() else ""))
+                        for f, c, sec in zip(out["Presenter function"], co, out["Section"])]
     return out
 
 
@@ -1866,18 +1886,22 @@ def render_operating_agenda():
     from html import escape as _esc
     meta = load_agenda_meta()
     agenda = load_agenda()
-    timed = agenda_with_times(agenda, meta.get("start", "08:30"))
+    qa_min = int(meta.get("qa_minutes", 5) or 0)
+    timed = agenda_with_times(agenda, meta.get("start", "08:30"), qa_min)
     driver_names = {i["reference"]: i["driver"] for i in level3_driver_catalog()}
 
     st.subheader(meta.get("title") or "Operating Agenda")
     total = int(agenda["Minutes"].sum())
     talk = int(agenda.loc[agenda["Section"] != "Break", "Minutes"].sum())
     cols = st.columns(4)
-    cols[0].metric("Date", meta.get("date") or "Not set")
+    cols[0].metric("Date", meta.get("date") or "Not set", help=f"Venue: {meta.get('venue') or 'not set'}")
     cols[1].metric("Time", f"{timed['Start'].iloc[0]}–{timed['End'].iloc[-1]}" if len(timed) else "-")
     cols[2].metric("Presentation time", f"{talk // 60} h {talk % 60:02d} min")
     _pp = set(agenda["Presenter function"].astype(str).str.strip()) | set(agenda["Co-presenter function"].astype(str).str.strip())
-    cols[3].metric("Presenters", len(_pp - {""}))
+    _tbd = int(((agenda["Section"] != "Break") & (agenda["Presenter function"].astype(str).str.strip() == "")).sum())
+    cols[3].metric("Presenters", len(_pp - {""}), help=f"{_tbd} session(s) with presenter still to be agreed")
+    st.caption(f"Venue: {meta.get('venue') or 'not set'} · every session includes {qa_min} min Q&A"
+               + (f" · {_tbd} session(s) with presenter still to be agreed" if _tbd else ""))
     st.caption("The day runs from the big picture to the details, so participants who are new to Trident can follow. "
                "Switch on IMERS references in the running order to see how each item maps to the value tree; the Checks tab tests coverage.")
 
@@ -1909,7 +1933,7 @@ def render_operating_agenda():
             sec = row["Section"] or ""
             if sec != "Break" and sec != current:
                 bg, fg = AGENDA_SECTION_STYLE.get(sec, ("#00191d", "#fff"))
-                sec_mins = int(timed.loc[timed["Section"] == sec, "Minutes"].sum())
+                sec_mins = int(timed.loc[timed["Section"] == sec, "Slot minutes"].sum())
                 html.append(f'<div class="oa-sec" style="background:{bg};color:{fg}">{_esc(sec)} <span style="font-weight:400;opacity:.85">· {sec_mins} min</span></div>')
                 current = sec
             if sec == "Break":
@@ -1923,10 +1947,14 @@ def render_operating_agenda():
             exhibits = f'<div class="oa-sub"><span class="oa-lbl">Suggested content:</span> {_esc(str(row["Key exhibits"]))}</div>' if str(row["Key exhibits"]).strip() else ""
             notes = f'<div class="oa-sub"><span class="oa-lbl">Note to presenter:</span> <em>{_esc(str(row["Notes"]))}</em></div>' if str(row["Notes"]).strip() else ""
             html.append(
-                f'<div class="oa-row"><div class="oa-time">{row["Start"]}–{row["End"]}<div class="oa-sub">{int(row["Minutes"])} min</div></div>'
+                f'<div class="oa-row"><div class="oa-time">{row["Start"]}–{row["End"]}<div class="oa-sub">{int(row["Minutes"])} min'
+                + (f' + {int(row["Q&A minutes"])} min Q&amp;A' if int(row["Q&A minutes"]) else '') + '</div></div>'
                 f'<div><div class="oa-item">{pil}{_esc(str(row["Item"]))}</div><div>{ref_html}</div>{exhibits}{notes}</div>'
                 f'<div class="oa-who">{_esc(str(row["Presenter"]))}</div></div>'
             )
+        for ev in meta.get("evening", []) or []:
+            html.append(f'<div class="oa-row break"><div class="oa-time">{_esc(str(ev.get("time", "")))}</div>'
+                        f'<div>{_esc(str(ev.get("item", "")))}</div><div>{_esc(str(ev.get("note", "")))}</div></div>')
         st.markdown("".join(html), unsafe_allow_html=True)
 
         if show_refs:
@@ -1978,10 +2006,13 @@ def render_operating_agenda():
         with st.form("agenda_meta_form"):
             c1, c2, c3 = st.columns([3, 1, 1])
             title = c1.text_input("Meeting title", meta.get("title", ""))
-            mdate = c2.text_input("Date", meta.get("date", ""), placeholder="e.g. 2026-12-03")
+            mdate = c2.text_input("Date", meta.get("date", ""), placeholder="e.g. 2027-03-04")
             start = c3.text_input("Start time", meta.get("start", "08:30"))
+            c4, c5 = st.columns([3, 1])
+            venue = c4.text_input("Venue", meta.get("venue", ""))
+            qa_in = c5.number_input("Q&A per session (min)", min_value=0, max_value=30, step=1, value=int(meta.get("qa_minutes", 5) or 0))
             if st.form_submit_button("Save meeting details"):
-                save_agenda_meta({"title": title, "date": mdate, "start": start})
+                save_agenda_meta({**meta, "title": title, "date": mdate, "start": start, "venue": venue, "qa_minutes": int(qa_in)})
                 st.success("Saved.")
                 st.rerun()
         st.caption("Order sets the running order. Level III refs: separate with semicolons. Presenter should be the accountable function (see Checks).")
@@ -2026,6 +2057,10 @@ def render_operating_agenda():
         if pdf_path.exists():
             st.download_button("Download presenter edition (PDF)", pdf_path.read_bytes(),
                                file_name=pdf_path.name, mime="application/pdf", type="primary", key="dl_agenda_pdf")
+            pptx_path = pdf_path.with_suffix(".pptx")
+            if pptx_path.exists():
+                st.download_button("Download presenter edition (PowerPoint)", pptx_path.read_bytes(), file_name=pptx_path.name,
+                                   mime="application/vnd.openxmlformats-officedocument.presentationml.presentation", key="dl_agenda_pptx")
             if agenda_path().exists() and agenda_path().stat().st_mtime > pdf_path.stat().st_mtime + 60:
                 st.caption("The agenda has been edited since this PDF was made – ask Claude to regenerate it.")
         else:
@@ -4738,6 +4773,242 @@ def render_risk_library(risks_df, processes_df=None, function_name=None):
 
 
 
+# ---------------------------------------------------------------------------
+# Scoring scale (owned by the scale master) and outcome-ladder scoring table
+# ---------------------------------------------------------------------------
+RISK_SCALE_PATH = DATA_DIR / "risk_scoring_settings.json"
+RISK_LADDER_PATH = DATA_DIR / "risk_outcome_ladders.csv"
+RISK_LADDER_COLUMNS = ["Risk ID", "Basis", "Value at stake mNOK", "Realization %", "Probability %"]
+RISK_SCALE_DEFAULTS = {
+    "master": "Trond V. Thomson (CS&BDO) · TC uplift base with CCO",
+    "horizon_year": 2035,
+    "uplift_base_mnok": 800,
+    "uplift_note": "TC uplift (run-rate EBITDA) to 2035 — starting point, to be updated after OA 2027.",
+    "likelihood_upper_pct": [10, 30, 50, 80],
+    "impact_upper_mnok": [10, 25, 50, 150],
+}
+DEFAULT_LADDER_REALIZATION = [90, 80, 70, 60, 50, 40, 30, 20, 10, 0]
+
+
+def load_risk_scale():
+    cfg = dict(RISK_SCALE_DEFAULTS)
+    try:
+        if RISK_SCALE_PATH.exists():
+            cfg.update(json.loads(RISK_SCALE_PATH.read_text(encoding="utf-8")))
+    except Exception:
+        pass
+    return cfg
+
+
+def save_risk_scale(cfg):
+    RISK_SCALE_PATH.write_text(json.dumps(cfg, indent=2, ensure_ascii=False), encoding="utf-8")
+
+
+def likelihood_from_pct(pct, cfg):
+    """Banded likelihood: 1 <10 %, 2 10–30 %, 3 30–50 %, 4 50–80 %, 5 >80 % (bands from the scale)."""
+    b = cfg["likelihood_upper_pct"]
+    for i, upper in enumerate(b):
+        if pct < upper:
+            return i + 1
+    return 5
+
+
+def impact_from_mnok(mnok, cfg):
+    """Impact from annual run-rate EBITDA effect in the horizon year (mNOK)."""
+    b = cfg["impact_upper_mnok"]
+    for i, upper in enumerate(b):
+        if mnok < upper:
+            return i + 1
+    return 5
+
+
+def likelihood_scale_rows(cfg):
+    b = cfg["likelihood_upper_pct"]
+    labels = [f"< {b[0]} %"] + [f"{b[i]}–{b[i+1]} %" for i in range(len(b) - 1)] + [f"> {b[-1]} %"]
+    return labels
+
+
+def impact_scale_rows(cfg):
+    b = cfg["impact_upper_mnok"]
+    labels = [f"< {b[0]}m"] + [f"{b[i]}–{b[i+1]}m" for i in range(len(b) - 1)] + [f"> {b[-1]}m"]
+    return labels
+
+
+def load_risk_ladders():
+    if RISK_LADDER_PATH.exists():
+        try:
+            df = pd.read_csv(RISK_LADDER_PATH, dtype=str, keep_default_na=False)
+            for c in RISK_LADDER_COLUMNS:
+                if c not in df.columns:
+                    df[c] = ""
+            return df[RISK_LADDER_COLUMNS]
+        except Exception:
+            pass
+    return pd.DataFrame(columns=RISK_LADDER_COLUMNS)
+
+
+def save_risk_ladder(rid, basis, value_at_stake, ladder_df):
+    allrows = load_risk_ladders()
+    allrows = allrows[~((allrows["Risk ID"] == rid) & (allrows["Basis"] == basis))]
+    new = ladder_df.copy()
+    new["Risk ID"] = rid
+    new["Basis"] = basis
+    new["Value at stake mNOK"] = value_at_stake
+    out = pd.concat([allrows, new[RISK_LADDER_COLUMNS].astype(str)], ignore_index=True)
+    out.to_csv(RISK_LADDER_PATH, index=False)
+
+
+def compute_ladder(ladder_df, value_at_stake, cfg):
+    rows = []
+    for _, r in ladder_df.iterrows():
+        try:
+            real = float(r["Realization %"])
+            prob = float(r["Probability %"])
+        except (TypeError, ValueError):
+            continue
+        shortfall = value_at_stake * (100 - real) / 100.0
+        lik = likelihood_from_pct(prob, cfg)
+        imp = impact_from_mnok(shortfall, cfg)
+        rows.append({
+            "Outcome (or worse)": f"{real:.0f} % realised",
+            "Probability %": prob,
+            "Shortfall mNOK": round(shortfall),
+            "Likelihood": lik,
+            "Impact": imp,
+            "Score": lik * imp,
+        })
+    out = pd.DataFrame(rows)
+    # Expected shortfall from the cumulative ladder (probability mass between steps).
+    exp_short = 0.0
+    if not out.empty:
+        probs = list(out["Probability %"]) + [0.0]
+        shorts = list(out["Shortfall mNOK"])
+        for i, s in enumerate(shorts):
+            mass = max(probs[i] - probs[i + 1], 0.0) / 100.0
+            exp_short += mass * s
+    return out, exp_short
+
+
+def render_risk_scale_settings():
+    cfg = load_risk_scale()
+    with st.expander(f"Scoring scale and value base · master: {cfg['master']}", expanded=False):
+        st.caption(
+            "One common scale for all risks and all leaders. Only the scale master changes these values; "
+            f"everyone else scores against them. Likelihood = probability within the horizon (to {cfg['horizon_year']}). "
+            f"Impact = annual run-rate EBITDA effect in {cfg['horizon_year']} (mNOK)."
+        )
+        sc = pd.DataFrame({
+            "Score": [1, 2, 3, 4, 5],
+            "Likelihood (probability)": likelihood_scale_rows(cfg),
+            "Impact (EBITDA effect)": impact_scale_rows(cfg),
+        })
+        st.dataframe(sc, hide_index=True, use_container_width=True)
+        input_zone_banner("Scale master inputs")
+        with st.container(key="vh_input_risk_scale_master"):
+            c1, c2 = st.columns(2)
+            with c1:
+                base = st.number_input("TC uplift base, run-rate EBITDA (mNOK)", min_value=0, step=10,
+                                       value=int(cfg["uplift_base_mnok"]), key="risk_scale_uplift_base")
+                year = st.number_input("Horizon year", min_value=2026, max_value=2040, step=1,
+                                       value=int(cfg["horizon_year"]), key="risk_scale_horizon")
+                note = st.text_input("Note on the base", value=cfg.get("uplift_note", ""), key="risk_scale_note")
+            with c2:
+                lik_txt = st.text_input("Likelihood band limits % (4 values)",
+                                        value=", ".join(str(x) for x in cfg["likelihood_upper_pct"]), key="risk_scale_lik")
+                imp_txt = st.text_input("Impact band limits mNOK (4 values)",
+                                        value=", ".join(str(x) for x in cfg["impact_upper_mnok"]), key="risk_scale_imp")
+            if st.button("Save scale (master only)", key="risk_scale_save"):
+                try:
+                    lik = [float(x) for x in lik_txt.replace(";", ",").split(",") if x.strip()]
+                    imp = [float(x) for x in imp_txt.replace(";", ",").split(",") if x.strip()]
+                    assert len(lik) == 4 and len(imp) == 4 and lik == sorted(lik) and imp == sorted(imp)
+                except Exception:
+                    st.error("Band limits must be four increasing numbers, e.g. 10, 30, 50, 80.")
+                else:
+                    cfg.update({"uplift_base_mnok": int(base), "horizon_year": int(year), "uplift_note": note,
+                                "likelihood_upper_pct": [int(x) if x == int(x) else x for x in lik],
+                                "impact_upper_mnok": [int(x) if x == int(x) else x for x in imp]})
+                    save_risk_scale(cfg)
+                    st.success("Scale saved.")
+                    st.rerun()
+    return cfg
+
+
+def render_outcome_ladder(risk_row, rid):
+    """Scoring table: cumulative outcome ladder → likelihood × impact per step → highest step is the score."""
+    cfg = load_risk_scale()
+    st.markdown("**Scoring table — outcome ladder**")
+    st.caption(
+        "For risks with a range of outcomes (e.g. TC uplift): give the probability that the outcome is "
+        "*this bad or worse*. Each step is scored on the common scale; the highest step is the risk score."
+    )
+    b1, b2 = st.columns([1, 1])
+    with b1:
+        basis = st.radio("Score basis", ["Residual", "Inherent", "Target"], horizontal=True,
+                         key=f"ladder_basis_{ACTIVE_REGISTER_KEY}_{rid}")
+    ladders = load_risk_ladders()
+    mine = ladders[(ladders["Risk ID"] == rid) & (ladders["Basis"] == basis)]
+    saved_vas = None
+    if not mine.empty:
+        try:
+            saved_vas = float(mine["Value at stake mNOK"].iloc[0])
+        except ValueError:
+            saved_vas = None
+    with b2:
+        vas = st.number_input(
+            f"Value at stake (mNOK, run-rate EBITDA {cfg['horizon_year']})", min_value=0.0, step=10.0,
+            value=float(saved_vas if saved_vas is not None else cfg["uplift_base_mnok"]),
+            key=f"ladder_vas_{ACTIVE_REGISTER_KEY}_{rid}_{basis}",
+            help=f"Default = TC uplift base ({cfg['uplift_base_mnok']}m) set by the scale master.",
+        )
+    if mine.empty:
+        base_df = pd.DataFrame({"Realization %": DEFAULT_LADDER_REALIZATION,
+                                "Probability %": [None] * len(DEFAULT_LADDER_REALIZATION)})
+    else:
+        base_df = pd.DataFrame({
+            "Realization %": pd.to_numeric(mine["Realization %"], errors="coerce"),
+            "Probability %": pd.to_numeric(mine["Probability %"], errors="coerce"),
+        }).reset_index(drop=True)
+    input_zone_banner(f"Outcome ladder — {basis.lower()} (probability this bad or worse)")
+    with st.container(key=f"vh_input_ladder_{ACTIVE_REGISTER_KEY}_{rid}_{basis}"):
+        edited = st.data_editor(
+            base_df, hide_index=True, use_container_width=True, num_rows="dynamic",
+            key=f"ladder_editor_{ACTIVE_REGISTER_KEY}_{rid}_{basis}",
+            column_config={
+                "Realization %": st.column_config.NumberColumn("Realised share of value (%)", min_value=0, max_value=100, step=5),
+                "Probability %": st.column_config.NumberColumn("Probability this bad or worse (%)", min_value=0, max_value=100, step=1),
+            },
+        )
+    result, exp_short = compute_ladder(edited, vas, cfg)
+    if result.empty:
+        st.info("Fill in probabilities to see the score.")
+        return
+    probs = list(result["Probability %"])
+    if any(probs[i + 1] > probs[i] for i in range(len(probs) - 1)):
+        st.warning("Probabilities should fall (or stay equal) as outcomes get worse — a worse outcome cannot be more likely than a milder one.")
+    best = result.loc[result["Score"].idxmax()]
+    lik, imp, score = int(best["Likelihood"]), int(best["Impact"]), int(best["Score"])
+    st.dataframe(result.style.apply(
+        lambda r: ["font-weight:700;background:#fde2d4" if r.name == best.name else "" for _ in r], axis=1),
+        hide_index=True, use_container_width=True)
+    o1, o2, o3 = st.columns(3)
+    o1.metric(f"{basis} score", f"{lik} × {imp} = {score}")
+    o2.metric("Driving step", str(best["Outcome (or worse)"]))
+    o3.metric("Expected shortfall", f"{exp_short:,.0f} mNOK".replace(",", " "))
+    s1, s2 = st.columns(2)
+    if s1.button("Save scoring table", key=f"ladder_save_{ACTIVE_REGISTER_KEY}_{rid}_{basis}"):
+        save_risk_ladder(rid, basis, vas, edited)
+        st.success("Scoring table saved.")
+    if s2.button(f"Save table and use {lik} × {imp} as {basis.lower()} score", type="primary",
+                 key=f"ladder_apply_{ACTIVE_REGISTER_KEY}_{rid}_{basis}"):
+        save_risk_ladder(rid, basis, vas, edited)
+        if basis == "Residual":
+            for k in (f"assess_rl_{ACTIVE_REGISTER_KEY}_{rid}", f"assess_ri_{ACTIVE_REGISTER_KEY}_{rid}"):
+                st.session_state.pop(k, None)
+        row = pd.DataFrame([{"Risk ID": rid, f"{basis} likelihood": lik, f"{basis} impact": imp}])
+        update_risks(row, [f"{basis} likelihood", f"{basis} impact"])
+
+
 def render_assess_and_decide(risks_df):
     """Pedagogical Assess & decide: read failure modes / mitigations, score residual, choose treatment."""
     st.markdown(
@@ -4777,6 +5048,7 @@ def render_assess_and_decide(risks_df):
     rl = pd.to_numeric(scored_df.get("Residual likelihood", pd.Series(dtype=float)), errors="coerce")
     ri = pd.to_numeric(scored_df.get("Residual impact", pd.Series(dtype=float)), errors="coerce")
     missing_n = int(((rl.isna()) | (ri.isna()) | (rl.fillna(0) <= 0) | (ri.fillna(0) <= 0)).sum())
+    render_risk_scale_settings()
     m1, m2, m3 = st.columns(3)
     m1.metric("Outside appetite", outside_n)
     m2.metric(f"Residual ≥ {MATERIAL_RESIDUAL_THRESHOLD}", material_n)
@@ -4940,6 +5212,9 @@ def render_assess_and_decide(risks_df):
         if v in options:
             return options.index(v)
         return default
+
+    # --- scoring table (outcome ladder) ---
+    render_outcome_ladder(risk_row, rid)
 
     # --- score & decide strip ---
     input_zone_banner("Score & decide — residual after current mitigation")

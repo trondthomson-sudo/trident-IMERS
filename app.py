@@ -121,7 +121,7 @@ ABBREVIATIONS = [
     ("AIP-01–03", "AIP's three value drivers – EBITDA, multiple and cash (Level I levers 1.1–1.3)"),
     ("PIL-01–05", "PIL = pillar: the five Level II value pillars 2.1–2.5. A fixed ID, so risks and processes stay tagged even if a pillar is renamed"),
     ("3.x.y", "A Level III value driver: Level III · pillar x · driver y (35 in total)"),
-    ("SBD-R001 · SBD-P04", "Department code + R (risk) or P (process) + number, e.g. Strategy & BD risk no. 001"),
+    ("TRI-R009 · SBD-P04", "Risk ID: TRI (Trident) + R + number — risks belong to Trident, not to a department. Process ID: department code + P + number, e.g. Strategy & BD process no. 04"),
     ("EBITDA", "Earnings before interest, taxes, depreciation and amortisation"),
     ("EV", "Enterprise value"), ("NIBD", "Net interest-bearing debt"),
     ("Capex", "Capital expenditure"), ("FID", "Final investment decision"),
@@ -403,21 +403,21 @@ def seed_data():
          ["Process ID", "Process", "Process owner", "Purpose", "Trigger / inputs", "Main activities", "Outputs", "Interfaces", "Review frequency", "S&BD Manual section"])
     risk_cols = COLUMNS["risks"]
     seed(FILES["risks"], [
-        ["SBD-R001", "Fleet & capacity", "Investment in fleet capacity that does not match future demand", "OBJ-02; OBJ-03", "PIL-01; PIL-02", "EBITDA; Multiple; Cash/NIBD", "3.1.2; 3.2.1; 3.1.6; 3.2.2", "SBD-P02; SBD-P04; SBD-P06; SBD-P07", "Uncertain forecasts of salmon production, customer demand and competitor capacity", "Trident commits capital to vessel segments or geographies with insufficient demand", "Low utilization, reduced returns and constrained financial flexibility", "Trond V. Thomson", "", "Finance; Commercial; Vessel Operations", "1–3 years", "Medium", 4, 5, 3, 4, 2, 3, "Outside appetite", "Increasing", "Treatment in progress", "Yes", "Illustrative – validate"],
-        ["SBD-R002", "Strategy execution", "Strategic initiatives fail to translate into accountable execution", "OBJ-01; OBJ-04", "PIL-01; PIL-03", "EBITDA; Multiple", "3.3.7; 3.3.8; 3.1.1", "SBD-P01; SBD-P12", "Insufficient ownership, capacity, milestones or cross-functional alignment", "Material strategic initiatives are delayed or incompletely implemented", "Growth, integration and value-creation targets are not achieved", "Trond V. Thomson", "", "All units", "0–12 months", "Medium", 4, 4, 3, 3, 2, 2, "Approaching appetite", "Stable", "Treatment in progress", "Yes", "Illustrative – validate"],
-        ["SBD-R003", "New business models", "SFaaS expansion creates exposures outside established capabilities", "OBJ-03; OBJ-05", "PIL-02; PIL-03", "EBITDA; Multiple; Cash/NIBD", "3.2.4; 3.2.3; 3.3.8", "SBD-P03; SBD-P04; SBD-P07; SBD-P08", "Expansion from vessel services into aquaculture infrastructure", "The operating model, technology or commercial structure performs below plan", "Capital loss, operational liabilities and reputational harm", "Trond V. Thomson", "", "Finance; Commercial; Technical & HSEQ; Vessel Operations", ">3 years", "Slow", 3, 5, 3, 4, 2, 3, "Approaching appetite", "Stable", "Monitoring", "Yes", "Illustrative – validate"],
-        ["SBD-R004", "Data & assumptions", "Strategic decisions rely on incomplete or unreliable information", "OBJ-01; OBJ-02; OBJ-03", "PIL-01; PIL-02; PIL-03", "EBITDA; Multiple; Cash/NIBD", "3.1.1; 3.3.1; 3.3.7", "SBD-P01; SBD-P02; SBD-P04", "Group data and external intelligence are fragmented or inconsistent", "Management bases decisions on assumptions that are not sufficiently tested", "Misallocation of capital and delayed corrective decisions", "Trond V. Thomson", "", "Finance; Commercial; ICT; Vessel Operations", "0–12 months", "Fast", 4, 4, 3, 3, 2, 2, "Approaching appetite", "Stable", "Open", "No", "Illustrative – validate"],
-        ["SBD-R005", "M&A & integration", "Acquisitions fail to deliver expected synergies", "OBJ-01; OBJ-04", "PIL-01; PIL-02; PIL-03", "EBITDA; Multiple; Cash/NIBD", "3.2.3; 3.3.8; 3.5.1", "SBD-P08; SBD-P12", "Due diligence, integration planning or ownership of synergies is insufficient", "An acquired business is not integrated effectively", "Synergies are delayed, costs increase and group governance remains fragmented", "Trond V. Thomson", "", "All units", "1–3 years", "Medium", 4, 4, 3, 4, 2, 3, "Outside appetite", "Stable", "Treatment in progress", "Yes", "Illustrative – validate"],
+        ["TRI-R009", "Fleet & capacity", "Investment in fleet capacity that does not match future demand", "OBJ-02; OBJ-03", "PIL-01; PIL-02", "EBITDA; Multiple; Cash/NIBD", "3.1.2; 3.2.1; 3.1.6; 3.2.2", "SBD-P02; SBD-P04; SBD-P06; SBD-P07", "Uncertain forecasts of salmon production, customer demand and competitor capacity", "Trident commits capital to vessel segments or geographies with insufficient demand", "Low utilization, reduced returns and constrained financial flexibility", "Trond V. Thomson", "", "Finance; Commercial; Vessel Operations", "1–3 years", "Medium", 4, 5, 3, 4, 2, 3, "Outside appetite", "Increasing", "Treatment in progress", "Yes", "Illustrative – validate"],
+        ["TRI-R033", "Strategy execution", "Strategic initiatives fail to translate into accountable execution", "OBJ-01; OBJ-04", "PIL-01; PIL-03", "EBITDA; Multiple", "3.3.7; 3.3.8; 3.1.1", "SBD-P01; SBD-P12", "Insufficient ownership, capacity, milestones or cross-functional alignment", "Material strategic initiatives are delayed or incompletely implemented", "Growth, integration and value-creation targets are not achieved", "Trond V. Thomson", "", "All units", "0–12 months", "Medium", 4, 4, 3, 3, 2, 2, "Approaching appetite", "Stable", "Treatment in progress", "Yes", "Illustrative – validate"],
+        ["TRI-R018", "New business models", "SFaaS expansion creates exposures outside established capabilities", "OBJ-03; OBJ-05", "PIL-02; PIL-03", "EBITDA; Multiple; Cash/NIBD", "3.2.4; 3.2.3; 3.3.8", "SBD-P03; SBD-P04; SBD-P07; SBD-P08", "Expansion from vessel services into aquaculture infrastructure", "The operating model, technology or commercial structure performs below plan", "Capital loss, operational liabilities and reputational harm", "Trond V. Thomson", "", "Finance; Commercial; Technical & HSEQ; Vessel Operations", ">3 years", "Slow", 3, 5, 3, 4, 2, 3, "Approaching appetite", "Stable", "Monitoring", "Yes", "Illustrative – validate"],
+        ["TRI-R020", "Data & assumptions", "Strategic decisions rely on incomplete or unreliable information", "OBJ-01; OBJ-02; OBJ-03", "PIL-01; PIL-02; PIL-03", "EBITDA; Multiple; Cash/NIBD", "3.1.1; 3.3.1; 3.3.7", "SBD-P01; SBD-P02; SBD-P04", "Group data and external intelligence are fragmented or inconsistent", "Management bases decisions on assumptions that are not sufficiently tested", "Misallocation of capital and delayed corrective decisions", "Trond V. Thomson", "", "Finance; Commercial; ICT; Vessel Operations", "0–12 months", "Fast", 4, 4, 3, 3, 2, 2, "Approaching appetite", "Stable", "Open", "No", "Illustrative – validate"],
+        ["TRI-R016", "M&A & integration", "Acquisitions fail to deliver expected synergies", "OBJ-01; OBJ-04", "PIL-01; PIL-02; PIL-03", "EBITDA; Multiple; Cash/NIBD", "3.2.3; 3.3.8; 3.5.1", "SBD-P08; SBD-P12", "Due diligence, integration planning or ownership of synergies is insufficient", "An acquired business is not integrated effectively", "Synergies are delayed, costs increase and group governance remains fragmented", "Trond V. Thomson", "", "All units", "1–3 years", "Medium", 4, 4, 3, 4, 2, 3, "Outside appetite", "Stable", "Treatment in progress", "Yes", "Illustrative – validate"],
     ], risk_cols)
     seed(FILES["controls"], [
-        ["SBD-C001", "SBD-R001", "Board-approved investment process and business case", "Preventive", "Trond V. Thomson", "Per investment", "Partly effective", "Approved business case and minutes", "SBD-P04; SBD-P07"],
-        ["SBD-C002", "SBD-R002", "Strategy review and initiative follow-up", "Detective", "Trond V. Thomson", "Quarterly", "Partly effective", "Strategy status report", "SBD-P12"],
-        ["SBD-C003", "SBD-R004", "Market intelligence and scenario analysis", "Preventive", "Trond V. Thomson", "Quarterly", "Partly effective", "Market report and model assumptions", "SBD-P02"],
+        ["SBD-C001", "TRI-R009", "Board-approved investment process and business case", "Preventive", "Trond V. Thomson", "Per investment", "Partly effective", "Approved business case and minutes", "SBD-P04; SBD-P07"],
+        ["SBD-C002", "TRI-R033", "Strategy review and initiative follow-up", "Detective", "Trond V. Thomson", "Quarterly", "Partly effective", "Strategy status report", "SBD-P12"],
+        ["SBD-C003", "TRI-R020", "Market intelligence and scenario analysis", "Preventive", "Trond V. Thomson", "Quarterly", "Partly effective", "Market report and model assumptions", "SBD-P02"],
     ], ["Control ID", "Risk ID", "Control", "Control type", "Control owner", "Frequency", "Effectiveness", "Evidence", "Linked processes"])
     seed(FILES["actions"], [
-        ["SBD-A001", "SBD-R001", "Establish standard fleet demand and capacity scenarios", "Trond V. Thomson", "2026-12-31", "In progress", 30, "Reduce likelihood", ""],
-        ["SBD-A002", "SBD-R002", "Assign executive sponsors and measurable milestones", "Trond V. Thomson", "2026-11-30", "Not started", 0, "Reduce likelihood", ""],
-        ["SBD-A003", "SBD-R005", "Create a common synergy register and integration review cadence", "Trond V. Thomson", "2026-12-31", "Not started", 0, "Reduce impact", ""],
+        ["SBD-A001", "TRI-R009", "Establish standard fleet demand and capacity scenarios", "Trond V. Thomson", "2026-12-31", "In progress", 30, "Reduce likelihood", ""],
+        ["SBD-A002", "TRI-R033", "Assign executive sponsors and measurable milestones", "Trond V. Thomson", "2026-11-30", "Not started", 0, "Reduce likelihood", ""],
+        ["SBD-A003", "TRI-R016", "Create a common synergy register and integration review cadence", "Trond V. Thomson", "2026-12-31", "Not started", 0, "Reduce impact", ""],
     ], ["Action ID", "Risk ID", "Action", "Action owner", "Due date", "Status", "Progress %", "Treatment effect", "Completion evidence"])
     seed(FILES["opportunities"], [
         ["SBD-O001", "Develop SFaaS and aquaculture-infrastructure ownership", "OBJ-05", "Trond V. Thomson", "High", "Medium", "High", "High", "Concept development", "Illustrative – validate"],
@@ -605,17 +605,17 @@ def migrate_existing_data():
     risk_path = FILES["risks"]
     risks = safe_read_csv(risk_path, columns=schema_columns_for("risks"))
     if "Value pillars" not in risks.columns:
-        pillar_map = {"SBD-R001": "PIL-01; PIL-02", "SBD-R002": "PIL-01; PIL-03", "SBD-R003": "PIL-02; PIL-03", "SBD-R004": "PIL-01; PIL-02; PIL-03", "SBD-R005": "PIL-01; PIL-02; PIL-03"}
-        effect_map = {"SBD-R001": "EBITDA; Multiple; Cash/NIBD", "SBD-R002": "EBITDA; Multiple", "SBD-R003": "EBITDA; Multiple; Cash/NIBD", "SBD-R004": "EBITDA; Multiple; Cash/NIBD", "SBD-R005": "EBITDA; Multiple; Cash/NIBD"}
+        pillar_map = {"TRI-R009": "PIL-01; PIL-02", "TRI-R033": "PIL-01; PIL-03", "TRI-R018": "PIL-02; PIL-03", "TRI-R020": "PIL-01; PIL-02; PIL-03", "TRI-R016": "PIL-01; PIL-02; PIL-03"}
+        effect_map = {"TRI-R009": "EBITDA; Multiple; Cash/NIBD", "TRI-R033": "EBITDA; Multiple", "TRI-R018": "EBITDA; Multiple; Cash/NIBD", "TRI-R020": "EBITDA; Multiple; Cash/NIBD", "TRI-R016": "EBITDA; Multiple; Cash/NIBD"}
         position = list(risks.columns).index("Objectives") + 1
         risks.insert(position, "Value pillars", risks["Risk ID"].map(pillar_map).fillna(""))
         risks.insert(position + 1, "Value effects", risks["Risk ID"].map(effect_map).fillna(""))
     revised_links = {
-        "SBD-R001": ("PIL-01; PIL-02; PIL-03; PIL-05", "Organic EBITDA; Investment EBITDA; Multiple; Cash/NIBD"),
-        "SBD-R002": ("PIL-01; PIL-03; PIL-04", "Organic EBITDA; Multiple; Cash conversion"),
-        "SBD-R003": ("PIL-02; PIL-03; PIL-05", "Investment EBITDA; Multiple; Cash/NIBD"),
-        "SBD-R004": ("PIL-01; PIL-02; PIL-03; PIL-04; PIL-05", "Organic EBITDA; Investment EBITDA; Multiple; Cash conversion; Cash/NIBD"),
-        "SBD-R005": ("PIL-02; PIL-03; PIL-04; PIL-05", "Investment EBITDA; Multiple; Cash conversion; Cash/NIBD"),
+        "TRI-R009": ("PIL-01; PIL-02; PIL-03; PIL-05", "Organic EBITDA; Investment EBITDA; Multiple; Cash/NIBD"),
+        "TRI-R033": ("PIL-01; PIL-03; PIL-04", "Organic EBITDA; Multiple; Cash conversion"),
+        "TRI-R018": ("PIL-02; PIL-03; PIL-05", "Investment EBITDA; Multiple; Cash/NIBD"),
+        "TRI-R020": ("PIL-01; PIL-02; PIL-03; PIL-04; PIL-05", "Organic EBITDA; Investment EBITDA; Multiple; Cash conversion; Cash/NIBD"),
+        "TRI-R016": ("PIL-02; PIL-03; PIL-04; PIL-05", "Investment EBITDA; Multiple; Cash conversion; Cash/NIBD"),
     }
     for risk_id, (pillars, effects) in revised_links.items():
         mask = risks["Risk ID"] == risk_id
@@ -625,11 +625,11 @@ def migrate_existing_data():
         insert_at = list(risks.columns).index("Value effects") + 1 if "Value effects" in risks.columns else len(risks.columns)
         risks.insert(insert_at, "Level 3 drivers", "")
     seed_level3 = {
-        "SBD-R001": "3.1.2; 3.2.1; 3.1.6; 3.2.2",
-        "SBD-R002": "3.3.7; 3.3.8; 3.1.1",
-        "SBD-R003": "3.2.4; 3.2.3; 3.3.8",
-        "SBD-R004": "3.1.1; 3.3.1; 3.3.7",
-        "SBD-R005": "3.2.3; 3.3.8; 3.5.1",
+        "TRI-R009": "3.1.2; 3.2.1; 3.1.6; 3.2.2",
+        "TRI-R033": "3.3.7; 3.3.8; 3.1.1",
+        "TRI-R018": "3.2.4; 3.2.3; 3.3.8",
+        "TRI-R020": "3.1.1; 3.3.1; 3.3.7",
+        "TRI-R016": "3.2.3; 3.3.8; 3.5.1",
     }
     for risk_id, refs in seed_level3.items():
         mask = (risks["Risk ID"] == risk_id) & (risks["Level 3 drivers"].astype(str).str.strip() == "")
@@ -2169,7 +2169,7 @@ def render_about_imers():
             st.markdown("**Department codes**")
             st.dataframe(pd.DataFrame(DEPARTMENT_CODES, columns=["Code", "Department"]), hide_index=True,
                          use_container_width=True, height=36 * (len(DEPARTMENT_CODES) + 1))
-            st.caption("Used in risk and process IDs, e.g. SBD-R001. SBD is in use today; the other codes are proposed.")
+            st.caption("Used in process IDs, e.g. SBD-P04. Risk IDs use the neutral prefix TRI-R (risks belong to Trident). SBD and LEG are in use today; the other codes are proposed.")
         with c_abbr:
             st.markdown("**Codes and abbreviations**")
             st.dataframe(pd.DataFrame(ABBREVIATIONS, columns=["Abbreviation", "Meaning"]), hide_index=True,
@@ -3306,8 +3306,8 @@ def render_redeployment_case_button(risk_id):
 
 
 PIL01_RISK_EXPLAINS = {
-    "SBD-R001": """
-**SBD-R001 — Investment in fleet capacity that does not match future demand**
+    "TRI-R009": """
+**TRI-R009 — Investment in fleet capacity that does not match future demand**
 
 **In plain words**
 We commit money to **new vessels or capacity** based on forecasts of salmon production,
@@ -3329,8 +3329,8 @@ kill/hold gate when forecasts soften. In short: **we buy capacity before demand 
 **One sentence**
 R001 is the risk that we **pay for tomorrow’s fleet today** while demand never shows up.
 """,
-    "SBD-R102": """
-**SBD-R102 — Segment orderbook dilutes utilization of the existing fleet**
+    "TRI-R005": """
+**TRI-R005 — Segment orderbook dilutes utilization of the existing fleet**
 
 **In plain words**
 When the industry (or we) deliver **too many similar vessels** into a segment, paid days on
@@ -3352,8 +3352,8 @@ do not force a response (idle, redeploy case, terms defence, or delay of our own
 **One sentence**
 R102 is the risk that **everyone’s new ships steal days from our old ones** — including ours.
 """,
-    "SBD-R103": """
-**SBD-R103 — Commercial terms erode (indexation, pass-through, duration)**
+    "TRI-R023": """
+**TRI-R023 — Commercial terms erode (indexation, pass-through, duration)**
 
 **In plain words**
 Customers push to drop **CPI indexation**, **fuel pass-through**, or **multi-year tenure**.
@@ -3375,8 +3375,8 @@ signed contracts no longer have.
 **One sentence**
 R103 is the risk that we keep the day rate and **give away the contract’s shock absorbers**.
 """,
-    "SBD-R105": """
-**SBD-R105 — Underlying salmon supply growth undershoots consensus**
+    "TRI-R010": """
+**TRI-R010 — Underlying salmon supply growth undershoots consensus**
 
 **In plain words**
 Our growth story assumes farmers keep expanding sea-based production. If **regulation, biology,
@@ -3398,8 +3398,8 @@ data worsen. Capital and renewal optimism outrun the biology/regulation reality.
 **One sentence**
 R105 is the risk that we plan a busy fleet on **fish that never get into the water**.
 """,
-    "SBD-R106": """
-**SBD-R106 — Crewing and operating-cost inflation outpaces rate growth**
+    "TRI-R003": """
+**TRI-R003 — Crewing and operating-cost inflation outpaces rate growth**
 
 **In plain words**
 Trident's **cost to run the vessels** (crew wages, operating costs) can rise faster than
@@ -3426,8 +3426,8 @@ signals and renewal instructions is the core failure mode.
 R106 is the risk that we **sell tomorrow's vessel days at yesterday's prices** while the
 crew and opex bill keeps climbing.
 """,
-    "SBD-R111": """
-**SBD-R111 — Norway share build fails despite claimed right-to-play**
+    "TRI-R014": """
+**TRI-R014 — Norway share build fails despite claimed right-to-play**
 
 **In plain words**
 Norway is the large strategic market in the plan. We claim we can win **wellboat / harvest /
@@ -3449,8 +3449,8 @@ award. Wins are assumed; pipeline quality is not stress-tested against real barr
 **One sentence**
 R111 is the risk that we **talk Norway share** while the awards keep going to someone already there.
 """,
-    "SBD-R113": """
-**SBD-R113 — Segment mix bets misread demand intensity by vessel type**
+    "TRI-R013": """
+**TRI-R013 — Segment mix bets misread demand intensity by vessel type**
 
 **In plain words**
 We overweight growth in **wellboat, premium service, harvest, or feed-carrier** relative to
@@ -3472,8 +3472,8 @@ segment is underweighted until utilization proves the miss.
 **One sentence**
 R113 is the risk that we **buy the popular vessel type** for a market that wanted something else.
 """,
-    "SBD-R120": """
-**SBD-R120 — Farming-technology or regulatory shifts change vessel-demand mix**
+    "TRI-R029": """
+**TRI-R029 — Farming-technology or regulatory shifts change vessel-demand mix**
 
 **In plain words**
 Faster moves to **closed / semi-closed / land-based / offshore** systems — or abrupt policy
@@ -3495,8 +3495,8 @@ spec/geographic shift are missing, so the growth narrative keeps promising the o
 **One sentence**
 R120 is the risk that the **farming system changes under our fleet** while we keep building for open cages.
 """,
-    "SBD-R121": """
-**SBD-R121 — Premium positioning or farmer trust is damaged**
+    "TRI-R004": """
+**TRI-R004 — Premium positioning or farmer trust is damaged**
 
 **In plain words**
 Trident wants to be paid as a **premium** partner (better rate / terms) because farmers trust
@@ -3521,8 +3521,8 @@ the offer. In short: **we negotiate price while ignoring trust.**
 R121 is the risk that we ask for premium rates after we have spent the farmer's trust —
 or while an open service wound is still bleeding.
 """,
-    "SBD-R135": """
-**SBD-R135 — Existing-fleet operating performance undershoots plan**
+    "TRI-R007": """
+**TRI-R007 — Existing-fleet operating performance undershoots plan**
 
 **In plain words**
 Even with decent rates, **reliability, maintenance quality, or operating discipline** can miss
@@ -3544,8 +3544,8 @@ There is no early bridge from vessel performance signals into portfolio and pric
 **One sentence**
 R135 is the risk that we **price like a premium fleet while we run like an average one**.
 """,
-    "SBD-R137": """
-**SBD-R137 — Vessel EBITDA volatility remains above the multiple-expansion tolerance**
+    "TRI-R027": """
+**TRI-R027 — Vessel EBITDA volatility remains above the multiple-expansion tolerance**
 
 **In plain words**
 Investors (and our own plan) need **steadier vessel EBITDA** to support a higher multiple.
@@ -3570,8 +3570,8 @@ R137 is the risk that earnings **jump around too much** for anyone to pay a prem
 }
 
 PIL02_RISK_EXPLAINS = {
-    "SBD-R003": """
-**SBD-R003 — SFaaS expansion creates exposures outside established capabilities**
+    "TRI-R018": """
+**TRI-R018 — SFaaS expansion creates exposures outside established capabilities**
 
 **In plain words**
 We expand from vessel services into **aquaculture infrastructure / SFaaS**. That can put
@@ -3593,8 +3593,8 @@ capital are diverted before the new platform has evidence it can deliver.
 **One sentence**
 R003 is the risk that we **buy into a new business model** before we can actually run it.
 """,
-    "SBD-R005": """
-**SBD-R005 — Acquisitions fail to deliver expected synergies**
+    "TRI-R016": """
+**TRI-R016 — Acquisitions fail to deliver expected synergies**
 
 **In plain words**
 We buy a business expecting **synergies, scale, and cleaner group governance**. If diligence,
@@ -3616,8 +3616,8 @@ without forcing **identifiable synergy capture** against the investment case.
 **One sentence**
 R005 is the risk that we **pay for synergies on closing day** and never collect them in cash.
 """,
-    "SBD-R107": """
-**SBD-R107 — Newbuild economics miss approved yield and IRR thresholds**
+    "TRI-R011": """
+**TRI-R011 — Newbuild economics miss approved yield and IRR thresholds**
 
 **In plain words**
 Board-approved newbuilds assume a **yield / IRR**. Yard CAPEX inflation, specification creep,
@@ -3639,8 +3639,8 @@ fleet narrative even when economics no longer clear the Board bar.
 **One sentence**
 R107 is the risk that we **launch ships that clear the yard but miss the Board’s return bar**.
 """,
-    "SBD-R108": """
-**SBD-R108 — Yard capacity and delivery risk delays growth CAPEX realization**
+    "TRI-R012": """
+**TRI-R012 — Yard capacity and delivery risk delays growth CAPEX realization**
 
 **In plain words**
 Growth CAPEX only creates Investment EBITDA when ships **actually deliver and start**. Limited
@@ -3662,8 +3662,8 @@ narratives keep promising dates the yard cannot hit.
 **One sentence**
 R108 is the risk that **growth CAPEX sits in the yard calendar** while the EBITDA plan assumes it is already sailing.
 """,
-    "SBD-R109": """
-**SBD-R109 — Second-hand vessel or reconstruction investments are mispriced**
+    "TRI-R008": """
+**TRI-R008 — Second-hand vessel or reconstruction investments are mispriced**
 
 **In plain words**
 Buying second-hand or reconstructing can look cheaper than newbuild — until **technical diligence,
@@ -3684,8 +3684,8 @@ optimistic. Portfolio forums celebrate “cheap steel” without a hard **post-i
 **One sentence**
 R109 is the risk that we **buy cheap steel that turns out expensive** once diligence and upgrades land.
 """,
-    "SBD-R110": """
-**SBD-R110 — Platform M&A overpays or fails to capture identifiable synergies**
+    "TRI-R017": """
+**TRI-R017 — Platform M&A overpays or fails to capture identifiable synergies**
 
 **In plain words**
 Platform deals are meant to buy **scale, Investment EBITDA, and a higher multiple**. Aggressive
@@ -3707,8 +3707,8 @@ in SBD-P08/P04/P12 forums.
 **One sentence**
 R110 is the risk that we **win the deal and lose the returns** — overpay in, under-deliver out.
 """,
-    "SBD-R112": """
-**SBD-R112 — New growth platforms (e.g., SFaaS) underperform or divert focus**
+    "TRI-R019": """
+**TRI-R019 — New growth platforms (e.g., SFaaS) underperform or divert focus**
 
 **In plain words**
 Adjacent growth platforms (SFaaS and similar) can miss **commercial, technical, or capital-return**
@@ -3730,8 +3730,8 @@ stories are late.
 **One sentence**
 R112 is the risk that a **shiny adjacent platform** burns the calendar and the capital the core fleet needed.
 """,
-    "SBD-R129": """
-**SBD-R129 — ROIC on growth investments stays below cost of capital**
+    "TRI-R048": """
+**TRI-R048 — ROIC on growth investments stays below cost of capital**
 
 **In plain words**
 Growth CAPEX only creates equity value when **portfolio ROIC clears the cost of capital** after
@@ -3756,8 +3756,8 @@ R129 is the risk that we **grow the balance sheet faster than we grow economic r
 }
 
 PIL03_RISK_EXPLAINS = {
-    "SBD-R002": """
-**SBD-R002 — Strategic initiatives fail to translate into accountable execution**
+    "TRI-R033": """
+**TRI-R033 — Strategic initiatives fail to translate into accountable execution**
 
 **In plain words**
 Multiple expansion needs **governance and delivery** — contract quality, fleet modernization,
@@ -3781,8 +3781,8 @@ support targets quietly miss.
 **One sentence**
 R002 is the risk that we **write a multiple-expansion plan** and then fail to execute the work that would earn it.
 """,
-    "SBD-R004": """
-**SBD-R004 — Strategic decisions rely on incomplete or unreliable information**
+    "TRI-R020": """
+**TRI-R020 — Strategic decisions rely on incomplete or unreliable information**
 
 **In plain words**
 Contract coverage, earnings visibility, and fleet-quality bets only support a higher multiple if
@@ -3805,8 +3805,8 @@ renewal gates proceed without a single tested evidence pack — so wrong bets su
 **One sentence**
 R004 is the risk that we **steer earnings quality on foggy numbers** and discover the miss too late to fix the multiple.
 """,
-    "SBD-R114": """
-**SBD-R114 — Earnings visibility weakened by lower long-term TC coverage**
+    "TRI-R021": """
+**TRI-R021 — Earnings visibility weakened by lower long-term TC coverage**
 
 **In plain words**
 The multiple-expansion case assumes a healthy share of **contracted EBITDA** and decent
@@ -3828,8 +3828,8 @@ in SBD-P05/P02 forums tied to the multiple plan.
 **One sentence**
 R114 is the risk that **short tenors and spot creep** hollow out the earnings visibility the multiple needs.
 """,
-    "SBD-R115": """
-**SBD-R115 — Counterparty or top-customer concentration crystallizes**
+    "TRI-R022": """
+**TRI-R022 — Counterparty or top-customer concentration crystallizes**
 
 **In plain words**
 Heavy exposure to a **small set of large farmers or regional counterparties** can look efficient —
@@ -3851,8 +3851,8 @@ account dominates contracted earnings.
 **One sentence**
 R115 is the risk that **one farmer’s problem becomes Trident’s multiple problem**.
 """,
-    "SBD-R116": """
-**SBD-R116 — Fleet obsolescence erodes residual value and commercial relevance**
+    "TRI-R028": """
+**TRI-R028 — Fleet obsolescence erodes residual value and commercial relevance**
 
 **In plain words**
 Multiple support from **fleet quality** assumes vessels stay commercially relevant and residual
@@ -3874,8 +3874,8 @@ move. Disposal and replacement plans lag until residuals and commercial relevanc
 **One sentence**
 R116 is the risk that the **fleet ages out of the market** while the valuation still prices a modern peer set.
 """,
-    "SBD-R117": """
-**SBD-R117 — Fleet modernization and disciplined divestments slip**
+    "TRI-R031": """
+**TRI-R031 — Fleet modernization and disciplined divestments slip**
 
 **In plain words**
 Even with a modernization plan, **sale processes slip**, attachment to underperforming assets
@@ -3897,8 +3897,8 @@ the portfolio no longer matches.
 **One sentence**
 R117 is the risk that we **talk modernization** while the old ships quietly stay and discount the multiple.
 """,
-    "SBD-R118": """
-**SBD-R118 — Governance, reporting, or scalability gaps impair exit readiness**
+    "TRI-R034": """
+**TRI-R034 — Governance, reporting, or scalability gaps impair exit readiness**
 
 **In plain words**
 Buyers and lenders pay for **auditability, KPI reliability, and management bandwidth**. If
@@ -3920,8 +3920,8 @@ assumes institutional quality that diligence would not yet accept.
 **One sentence**
 R118 is the risk that **exit diligence fails the governance test** and the multiple we planned never clears.
 """,
-    "SBD-R119": """
-**SBD-R119 — Key-person dependency limits scalable execution**
+    "TRI-R035": """
+**TRI-R035 — Key-person dependency limits scalable execution**
 
 **In plain words**
 Critical **commercial, technical, or yard relationships** concentrated in a few individuals make
@@ -3938,14 +3938,14 @@ that does not exist.
 1. Map **key-person / key-relationship concentration** and force dual coverage on material accounts and yard paths (SBD-P12).
 2. Document commercial and technical playbooks so execution survives absence or departure.
 3. Cap overload — redistribute tenders and integration load before single points of failure burn out.
-4. Include key-person risk in exit-readiness and governance reviews (with R118).
+4. Include key-person risk in exit-readiness and governance reviews (with TRI-R034).
 5. Hire or develop bench strength where concentration exceeds the scalability tolerance.
 
 **One sentence**
 R119 is the risk that the **multiple depends on a few people** the institution has not yet replaced.
 """,
-    "SBD-R123": """
-**SBD-R123 — Maintenance-capex overruns or deferred backlog catch-up**
+    "TRI-R030": """
+**TRI-R030 — Maintenance-capex overruns or deferred backlog catch-up**
 
 **In plain words**
 Protecting **uptime and residual value** (and therefore fleet-quality support for the multiple)
@@ -3968,8 +3968,8 @@ honest CapEx corridor when Technical signals turn red.
 **One sentence**
 R123 is the risk that we **underfund the fleet that is supposed to earn the quality multiple**.
 """,
-    "SBD-R132": """
-**SBD-R132 — Disposal of underperforming assets is delayed or value-destructive**
+    "TRI-R051": """
+**TRI-R051 — Disposal of underperforming assets is delayed or value-destructive**
 
 **In plain words**
 Identified **non-core or underperforming vessels** should leave the portfolio in a disciplined way.
@@ -3992,8 +3992,8 @@ both hurt portfolio quality optics.
 **One sentence**
 R132 is the risk that **underperforming steel stays on the books** and quietly taxes both ROIC and the multiple.
 """,
-    "SBD-R136": """
-**SBD-R136 — Long-term contract coverage falls below the earnings-quality target**
+    "TRI-R024": """
+**TRI-R024 — Long-term contract coverage falls below the earnings-quality target**
 
 **In plain words**
 Multiple expansion needs a target share of EBITDA on **long-term contracts**. When renewals
@@ -4019,8 +4019,8 @@ R136 is the risk that **long-term coverage slips under the quality bar** the mul
 
 
 PIL04_RISK_EXPLAINS = {
-    "SBD-R122": """
-**SBD-R122 — Working-capital and DSO discipline slips as the group scales**
+    "TRI-R042": """
+**TRI-R042 — Working-capital and DSO discipline slips as the group scales**
 
 **In plain words**
 Cash conversion needs **EBITDA to become operating cash** — not just sit in receivables and
@@ -4043,8 +4043,8 @@ stay fragmented after integration — so free cash flow lags EBITDA and leverage
 **One sentence**
 R122 is the risk that we **grow the P&L while working capital quietly eats the cash**.
 """,
-    "SBD-R124": """
-**SBD-R124 — Cash interest burden rises with rates or leverage**
+    "TRI-R044": """
+**TRI-R044 — Cash interest burden rises with rates or leverage**
 
 **In plain words**
 EBITDA-to-cash conversion after financing depends on **cash interest** staying inside the plan.
@@ -4067,8 +4067,8 @@ investment EBITDA while cash interest silently crowds out distributions and opti
 **One sentence**
 R124 is the risk that **cash interest eats the conversion** the growth story still assumes is free.
 """,
-    "SBD-R125": """
-**SBD-R125 — Cash-tax leakage exceeds plan across jurisdictions**
+    "TRI-R045": """
+**TRI-R045 — Cash-tax leakage exceeds plan across jurisdictions**
 
 **In plain words**
 Cash conversion embeds an assumption about **cash taxes paid**, not just book tax. Cross-border
@@ -4091,8 +4091,8 @@ the FCF bridge — corrective structuring lags the leakage.
 **One sentence**
 R125 is the risk that **cash taxes leak** what the EBITDA-to-cash plan thought was convertible.
 """,
-    "SBD-R126": """
-**SBD-R126 — Growth CAPEX timing mismatches cash generation**
+    "TRI-R046": """
+**TRI-R046 — Growth CAPEX timing mismatches cash generation**
 
 **In plain words**
 Cash conversion during the investment cycle needs **growth CapEx timing** to match when
@@ -4109,14 +4109,14 @@ The cash-conversion narrative ignores the investment-cycle trough until liquidit
 1. Require a **progress-payment vs TC-cash timing bridge** at every material growth CapEx gate (SBD-P04/P07).
 2. Sequence commitments so operating cash after maintenance can fund the curve — or pre-arrange funding explicitly.
 3. Stress leverage and conversion optics for delay / early-payment / late-hire scenarios before signing.
-4. Separate maintenance-capex protection (R123) from growth CapEx so short-term cash pressure does not defer upkeep.
+4. Separate maintenance-capex protection (TRI-R030) from growth CapEx so short-term cash pressure does not defer upkeep.
 5. Escalate when the investment curve would breach the cash-conversion / NIBD corridor in the plan.
 
 **One sentence**
 R126 is the risk that we **pay for growth steel before the cash shows up** and conversion optics break mid-cycle.
 """,
-    "SBD-R127": """
-**SBD-R127 — Cash-conversion forecasting and KPI ownership remain weak**
+    "TRI-R041": """
+**TRI-R041 — Cash-conversion forecasting and KPI ownership remain weak**
 
 **In plain words**
 You cannot manage **EBITDA-to-cash** if reporting stays EBITDA-centric without equally rigorous
@@ -4139,8 +4139,8 @@ governed as leading indicators — so the cash-conversion plan is aspiration, no
 **One sentence**
 R127 is the risk that we **manage the P&L in high definition and the cash bridge in fog**.
 """,
-    "SBD-R138": """
-**SBD-R138 — DSO and collection performance slip versus cash-conversion targets**
+    "TRI-R043": """
+**TRI-R043 — DSO and collection performance slip versus cash-conversion targets**
 
 **In plain words**
 Cash conversion depends on **getting paid on time** — billing quality, dispute handling, and
@@ -4166,8 +4166,8 @@ R138 is the risk that **slow collections turn contracted EBITDA into trapped cas
 }
 
 PIL05_RISK_EXPLAINS = {
-    "SBD-R128": """
-**SBD-R128 — Capital deployed to lower risk-adjusted uses than available alternatives**
+    "TRI-R047": """
+**TRI-R047 — Capital deployed to lower risk-adjusted uses than available alternatives**
 
 **In plain words**
 Capital allocation is a **ranking problem under scarce cash and debt capacity**. Organic growth,
@@ -4190,8 +4190,8 @@ Capital constraints stay narrative — so inferior uses win by inertia, not by B
 **One sentence**
 R128 is the risk that we **spend scarce capital on the second-best use** because we never forced a real ranking.
 """,
-    "SBD-R130": """
-**SBD-R130 — NIBD and leverage exceed target band during growth**
+    "TRI-R049": """
+**TRI-R049 — NIBD and leverage exceed target band during growth**
 
 **In plain words**
 Growth only preserves optionality if **NIBD and leverage stay inside the Board band**. Simultaneous
@@ -4214,8 +4214,8 @@ growth while leverage optics breach the band assumed in the capital plan.
 **One sentence**
 R130 is the risk that **growth steel and soft cash push leverage through the band** the Board thought it owned.
 """,
-    "SBD-R131": """
-**SBD-R131 — Liquidity or covenant headroom becomes insufficient**
+    "TRI-R052": """
+**TRI-R052 — Liquidity or covenant headroom becomes insufficient**
 
 **In plain words**
 Liquidity and **covenant headroom** are the last lines before forced action. Undrawn facility
@@ -4238,8 +4238,8 @@ until a payment peak or EBITDA miss crystallizes the squeeze.
 **One sentence**
 R131 is the risk that we **discover we are out of liquidity or covenant room** only when the next payment is due.
 """,
-    "SBD-R133": """
-**SBD-R133 — Refinancing or financing flexibility is constrained at need**
+    "TRI-R053": """
+**TRI-R053 — Refinancing or financing flexibility is constrained at need**
 
 **In plain words**
 Strategy assumes **financing flexibility when we need it** — new facilities, amendments, or
@@ -4262,8 +4262,8 @@ is assumed until the market (or lenders) say no.
 **One sentence**
 R133 is the risk that **the balance sheet is inflexible exactly when strategy needs it to flex**.
 """,
-    "SBD-R134": """
-**SBD-R134 — Debt reduction versus growth trade-offs lack a binding decision rule**
+    "TRI-R050": """
+**TRI-R050 — Debt reduction versus growth trade-offs lack a binding decision rule**
 
 **In plain words**
 Under stress, the Board must choose **delever versus fund accretive projects** with clear
@@ -4291,59 +4291,59 @@ R134 is the risk that **without a binding delever-vs-grow rule, we lurch between
 RISK_LIBRARY_EXPLAINS = {**PIL01_RISK_EXPLAINS, **PIL02_RISK_EXPLAINS, **PIL03_RISK_EXPLAINS, **PIL04_RISK_EXPLAINS, **PIL05_RISK_EXPLAINS}
 
 _PIL01_EXPLAIN_DIALOG_TITLES = {
-    "SBD-R001": "SBD-R001 — fleet capacity vs future demand",
-    "SBD-R102": "SBD-R102 — segment orderbook vs utilization",
-    "SBD-R103": "SBD-R103 — commercial terms erosion",
-    "SBD-R105": "SBD-R105 — salmon supply growth undershoot",
-    "SBD-R106": "SBD-R106 — cost inflation vs rate growth",
-    "SBD-R111": "SBD-R111 — Norway share build",
-    "SBD-R113": "SBD-R113 — segment mix vs demand",
-    "SBD-R120": "SBD-R120 — farming tech / policy demand shift",
-    "SBD-R121": "SBD-R121 — premium trust and farmer relationships",
-    "SBD-R135": "SBD-R135 — existing-fleet operating performance",
-    "SBD-R137": "SBD-R137 — vessel EBITDA volatility",
+    "TRI-R009": "TRI-R009 — fleet capacity vs future demand",
+    "TRI-R005": "TRI-R005 — segment orderbook vs utilization",
+    "TRI-R023": "TRI-R023 — commercial terms erosion",
+    "TRI-R010": "TRI-R010 — salmon supply growth undershoot",
+    "TRI-R003": "TRI-R003 — cost inflation vs rate growth",
+    "TRI-R014": "TRI-R014 — Norway share build",
+    "TRI-R013": "TRI-R013 — segment mix vs demand",
+    "TRI-R029": "TRI-R029 — farming tech / policy demand shift",
+    "TRI-R004": "TRI-R004 — premium trust and farmer relationships",
+    "TRI-R007": "TRI-R007 — existing-fleet operating performance",
+    "TRI-R027": "TRI-R027 — vessel EBITDA volatility",
 }
 
 _PIL02_EXPLAIN_DIALOG_TITLES = {
-    "SBD-R003": "SBD-R003 — SFaaS expansion capability gap",
-    "SBD-R005": "SBD-R005 — acquisition synergies miss",
-    "SBD-R107": "SBD-R107 — newbuild yield / IRR miss",
-    "SBD-R108": "SBD-R108 — yard delivery delays growth CAPEX",
-    "SBD-R109": "SBD-R109 — second-hand / reconstruction misprice",
-    "SBD-R110": "SBD-R110 — platform M&A overpay / synergies",
-    "SBD-R112": "SBD-R112 — new growth platforms divert focus",
-    "SBD-R129": "SBD-R129 — growth ROIC below cost of capital",
+    "TRI-R018": "TRI-R018 — SFaaS expansion capability gap",
+    "TRI-R016": "TRI-R016 — acquisition synergies miss",
+    "TRI-R011": "TRI-R011 — newbuild yield / IRR miss",
+    "TRI-R012": "TRI-R012 — yard delivery delays growth CAPEX",
+    "TRI-R008": "TRI-R008 — second-hand / reconstruction misprice",
+    "TRI-R017": "TRI-R017 — platform M&A overpay / synergies",
+    "TRI-R019": "TRI-R019 — new growth platforms divert focus",
+    "TRI-R048": "TRI-R048 — growth ROIC below cost of capital",
 }
 
 _PIL03_EXPLAIN_DIALOG_TITLES = {
-    "SBD-R002": "SBD-R002 — strategic initiatives lack accountable execution",
-    "SBD-R004": "SBD-R004 — decisions on incomplete / unreliable information",
-    "SBD-R114": "SBD-R114 — long-term TC coverage / earnings visibility",
-    "SBD-R115": "SBD-R115 — counterparty / top-customer concentration",
-    "SBD-R116": "SBD-R116 — fleet obsolescence / residual value",
-    "SBD-R117": "SBD-R117 — modernization and divestment slip",
-    "SBD-R118": "SBD-R118 — governance / exit readiness gaps",
-    "SBD-R119": "SBD-R119 — key-person dependency",
-    "SBD-R123": "SBD-R123 — maintenance-capex / backlog catch-up",
-    "SBD-R132": "SBD-R132 — disposal of underperforming assets",
-    "SBD-R136": "SBD-R136 — long-term contract coverage vs quality target",
+    "TRI-R033": "TRI-R033 — strategic initiatives lack accountable execution",
+    "TRI-R020": "TRI-R020 — decisions on incomplete / unreliable information",
+    "TRI-R021": "TRI-R021 — long-term TC coverage / earnings visibility",
+    "TRI-R022": "TRI-R022 — counterparty / top-customer concentration",
+    "TRI-R028": "TRI-R028 — fleet obsolescence / residual value",
+    "TRI-R031": "TRI-R031 — modernization and divestment slip",
+    "TRI-R034": "TRI-R034 — governance / exit readiness gaps",
+    "TRI-R035": "TRI-R035 — key-person dependency",
+    "TRI-R030": "TRI-R030 — maintenance-capex / backlog catch-up",
+    "TRI-R051": "TRI-R051 — disposal of underperforming assets",
+    "TRI-R024": "TRI-R024 — long-term contract coverage vs quality target",
 }
 
 _PIL04_EXPLAIN_DIALOG_TITLES = {
-    "SBD-R122": "SBD-R122 — working-capital / DSO discipline at scale",
-    "SBD-R124": "SBD-R124 — cash interest burden vs conversion",
-    "SBD-R125": "SBD-R125 — cash-tax leakage across jurisdictions",
-    "SBD-R126": "SBD-R126 — growth CapEx timing vs cash generation",
-    "SBD-R127": "SBD-R127 — cash-conversion forecasting / KPI ownership",
-    "SBD-R138": "SBD-R138 — DSO and collection vs conversion targets",
+    "TRI-R042": "TRI-R042 — working-capital / DSO discipline at scale",
+    "TRI-R044": "TRI-R044 — cash interest burden vs conversion",
+    "TRI-R045": "TRI-R045 — cash-tax leakage across jurisdictions",
+    "TRI-R046": "TRI-R046 — growth CapEx timing vs cash generation",
+    "TRI-R041": "TRI-R041 — cash-conversion forecasting / KPI ownership",
+    "TRI-R043": "TRI-R043 — DSO and collection vs conversion targets",
 }
 
 _PIL05_EXPLAIN_DIALOG_TITLES = {
-    "SBD-R128": "SBD-R128 — capital stack / inferior risk-adjusted uses",
-    "SBD-R130": "SBD-R130 — NIBD and leverage vs target band",
-    "SBD-R131": "SBD-R131 — liquidity / covenant headroom",
-    "SBD-R133": "SBD-R133 — refinancing / financing flexibility at need",
-    "SBD-R134": "SBD-R134 — debt reduction vs growth decision rule",
+    "TRI-R047": "TRI-R047 — capital stack / inferior risk-adjusted uses",
+    "TRI-R049": "TRI-R049 — NIBD and leverage vs target band",
+    "TRI-R052": "TRI-R052 — liquidity / covenant headroom",
+    "TRI-R053": "TRI-R053 — refinancing / financing flexibility at need",
+    "TRI-R050": "TRI-R050 — debt reduction vs growth decision rule",
 }
 
 _RISK_EXPLAIN_DIALOG_TITLES = {**_PIL01_EXPLAIN_DIALOG_TITLES, **_PIL02_EXPLAIN_DIALOG_TITLES, **_PIL03_EXPLAIN_DIALOG_TITLES, **_PIL04_EXPLAIN_DIALOG_TITLES, **_PIL05_EXPLAIN_DIALOG_TITLES}
@@ -4362,8 +4362,8 @@ def _pil01_risk_explain_dialog(risk_id: str):
 
 
 # Keep legacy names pointing at dict entries so any leftover references still resolve.
-SBD_R106_EXPLAIN_MD = PIL01_RISK_EXPLAINS["SBD-R106"]
-SBD_R121_EXPLAIN_MD = PIL01_RISK_EXPLAINS["SBD-R121"]
+SBD_R106_EXPLAIN_MD = PIL01_RISK_EXPLAINS["TRI-R003"]
+SBD_R121_EXPLAIN_MD = PIL01_RISK_EXPLAINS["TRI-R004"]
 
 
 def render_risk_explain_button(risk_id, driver_ref=""):
@@ -4379,56 +4379,56 @@ def render_risk_explain_button(risk_id, driver_ref=""):
     """
     suffix = f"{ACTIVE_REGISTER_KEY}_{risk_id}_{driver_ref or 'na'}"
     _help_ids = (
-        "SBD-R001",
-        "SBD-R002",
-        "SBD-R003",
-        "SBD-R004",
-        "SBD-R005",
-        "SBD-R101",
-        "SBD-R102",
-        "SBD-R103",
-        "SBD-R104",
-        "SBD-R105",
-        "SBD-R106",
-        "SBD-R107",
-        "SBD-R108",
-        "SBD-R109",
-        "SBD-R110",
-        "SBD-R111",
-        "SBD-R112",
-        "SBD-R113",
-        "SBD-R114",
-        "SBD-R115",
-        "SBD-R116",
-        "SBD-R117",
-        "SBD-R118",
-        "SBD-R119",
-        "SBD-R120",
-        "SBD-R121",
-        "SBD-R122",
-        "SBD-R123",
-        "SBD-R124",
-        "SBD-R125",
-        "SBD-R126",
-        "SBD-R127",
-        "SBD-R128",
-        "SBD-R129",
-        "SBD-R130",
-        "SBD-R131",
-        "SBD-R132",
-        "SBD-R133",
-        "SBD-R134",
-        "SBD-R135",
-        "SBD-R136",
-        "SBD-R137",
-        "SBD-R138",
+        "TRI-R009",
+        "TRI-R033",
+        "TRI-R018",
+        "TRI-R020",
+        "TRI-R016",
+        "TRI-R001",
+        "TRI-R005",
+        "TRI-R023",
+        "TRI-R002",
+        "TRI-R010",
+        "TRI-R003",
+        "TRI-R011",
+        "TRI-R012",
+        "TRI-R008",
+        "TRI-R017",
+        "TRI-R014",
+        "TRI-R019",
+        "TRI-R013",
+        "TRI-R021",
+        "TRI-R022",
+        "TRI-R028",
+        "TRI-R031",
+        "TRI-R034",
+        "TRI-R035",
+        "TRI-R029",
+        "TRI-R004",
+        "TRI-R042",
+        "TRI-R030",
+        "TRI-R044",
+        "TRI-R045",
+        "TRI-R046",
+        "TRI-R041",
+        "TRI-R047",
+        "TRI-R048",
+        "TRI-R049",
+        "TRI-R052",
+        "TRI-R051",
+        "TRI-R053",
+        "TRI-R050",
+        "TRI-R007",
+        "TRI-R024",
+        "TRI-R027",
+        "TRI-R043",
     )
     if risk_id not in _help_ids:
         return
 
     with st.container(key=f"vh_help_{suffix}"):
         c1, c2, c3, _sp = st.columns([1.05, 1.25, 1.45, 6.2], gap="small")
-        if risk_id == "SBD-R101":
+        if risk_id == "TRI-R001":
             with c1:
                 if st.button(
                     "playbook",
@@ -4443,7 +4443,7 @@ def render_risk_explain_button(risk_id, driver_ref=""):
                     help="What linking the operating agenda to a renewal means",
                 ):
                     _p05_agenda_dialog(risk_id)
-        elif risk_id == "SBD-R104":
+        elif risk_id == "TRI-R002":
             with c1:
                 if st.button(
                     "redeployment case",
@@ -4528,7 +4528,7 @@ def render_risk_library(risks_df, processes_df=None, function_name=None):
     st.write(
         "Same layout as **Context** Level IV-B ERM: pillars → Level III drivers → risk chips. "
         "Under each risk: **what we can fail to do** and **what we can do** (ISO process links come later). "
-        "Risk chips show failure modes and mitigations. Tailored **explain** buttons cover PIL-01–05 Strategy library risks linked here (PIL-01: R001, R102, R103, R105, R106, R111, R113, R120, R121, R135, R137; PIL-02 adds R003, R005, R107–R110, R112, R129 — plus shared R001/R105/R111/R113; PIL-03 adds R002, R004, R114–R119, R123, R132, R136 — plus shared R003/R005/R102/R103/R110/R120/R121/R137; PIL-04 adds R122, R124–R127, R138 — plus shared R123; PIL-05 adds R128, R130, R131, R133, R134 — plus shared R001/R005/R107/R109/R110/R116/R117/R124/R126/R129/R132); R101 also has playbook + P05, and R104 has the shared redeployment-case tag — not auto-copied outside this explicit list."
+        "Risk chips show failure modes and mitigations. Tailored **explain** buttons cover the Strategy library risks linked here."
     )
     catalog = level3_driver_catalog()
     scope = function_scope(function_name)
@@ -4682,7 +4682,7 @@ def render_risk_library(risks_df, processes_df=None, function_name=None):
                     parts.append("</div>")
                     st.markdown("".join(parts), unsafe_allow_html=True)
                     # Explicit helps only for risks we have tailored (not keyword auto-copy)
-                    if rid in ("SBD-R001", "SBD-R002", "SBD-R003", "SBD-R004", "SBD-R005", "SBD-R101", "SBD-R102", "SBD-R103", "SBD-R104", "SBD-R105", "SBD-R106", "SBD-R107", "SBD-R108", "SBD-R109", "SBD-R110", "SBD-R111", "SBD-R112", "SBD-R113", "SBD-R114", "SBD-R115", "SBD-R116", "SBD-R117", "SBD-R118", "SBD-R119", "SBD-R120", "SBD-R121", "SBD-R122", "SBD-R123", "SBD-R124", "SBD-R125", "SBD-R126", "SBD-R127", "SBD-R128", "SBD-R129", "SBD-R130", "SBD-R131", "SBD-R132", "SBD-R133", "SBD-R134", "SBD-R135", "SBD-R136", "SBD-R137", "SBD-R138"):
+                    if rid in ("TRI-R009", "TRI-R033", "TRI-R018", "TRI-R020", "TRI-R016", "TRI-R001", "TRI-R005", "TRI-R023", "TRI-R002", "TRI-R010", "TRI-R003", "TRI-R011", "TRI-R012", "TRI-R008", "TRI-R017", "TRI-R014", "TRI-R019", "TRI-R013", "TRI-R021", "TRI-R022", "TRI-R028", "TRI-R031", "TRI-R034", "TRI-R035", "TRI-R029", "TRI-R004", "TRI-R042", "TRI-R030", "TRI-R044", "TRI-R045", "TRI-R046", "TRI-R041", "TRI-R047", "TRI-R048", "TRI-R049", "TRI-R052", "TRI-R051", "TRI-R053", "TRI-R050", "TRI-R007", "TRI-R024", "TRI-R027", "TRI-R043"):
                         render_risk_explain_button(rid, driver_ref=ref)
 
     st.markdown("---")

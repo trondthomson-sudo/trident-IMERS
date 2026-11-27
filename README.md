@@ -119,3 +119,7 @@ On **03 Risks & Opportunities**, the **Risk library** tab mirrors all five pilla
 - Twelve unit registers and one Enterprise roll-up
 
 Starter entries are illustrative and require management validation. This is a single-user prototype; authentication, permissions, database storage, formal audit trails and controlled documents belong in later versions.
+
+Neutral risk IDs (27 Nov 2026): all 53 risks renumbered from department prefixes (SBD-R…, LEG-R…) to Trident-wide
+IDs TRI-R001–TRI-R053, ordered by pillar and Level III driver. Risks belong to Trident; departments own processes.
+Old → new mapping: `data/risk_id_map.csv`. Process, control and action IDs keep their department prefixes.

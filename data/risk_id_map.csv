@@ -1,0 +1,54 @@
+New Risk ID,Old Risk ID,Risk title,Register
+TRI-R001,SBD-R101,Contract renewals fail to deliver planned rate uplift,strategy
+TRI-R002,SBD-R104,Fleet redeployment misses higher-return regional demand,strategy
+TRI-R003,SBD-R106,Crewing and operating-cost inflation outpaces rate growth,strategy
+TRI-R004,SBD-R121,Premium positioning or farmer trust is damaged,strategy
+TRI-R005,SBD-R102,Segment orderbook dilutes utilization of the existing fleet,vessel_operations
+TRI-R006,LEG-R003,"Unfavourable contract terms on liability, indexation or termination",legal_compliance
+TRI-R007,SBD-R135,Existing-fleet operating performance undershoots plan,vessel_operations
+TRI-R008,SBD-R109,Second-hand vessel or reconstruction investments are mispriced,strategy
+TRI-R009,SBD-R001,Investment in fleet capacity that does not match future demand,strategy
+TRI-R010,SBD-R105,Underlying salmon supply growth undershoots consensus,strategy
+TRI-R011,SBD-R107,Newbuild economics miss approved yield and IRR thresholds,strategy
+TRI-R012,SBD-R108,Yard capacity and delivery risk delays growth CAPEX realization,strategy
+TRI-R013,SBD-R113,Segment mix bets misread demand intensity by vessel type,strategy
+TRI-R014,SBD-R111,Norway share build fails despite claimed right-to-play,strategy
+TRI-R015,LEG-R005,Hidden legal or compliance liabilities in an acquired company,legal_compliance
+TRI-R016,SBD-R005,Acquisitions fail to deliver expected synergies,strategy
+TRI-R017,SBD-R110,Platform M&A overpays or fails to capture identifiable synergies,strategy
+TRI-R018,SBD-R003,SFaaS expansion creates exposures outside established capabilities,strategy
+TRI-R019,SBD-R112,"New growth platforms (e.g., SFaaS) underperform or divert focus",strategy
+TRI-R020,SBD-R004,Strategic decisions rely on incomplete or unreliable information,strategy
+TRI-R021,SBD-R114,Earnings visibility weakened by lower long-term TC coverage,strategy
+TRI-R022,SBD-R115,Counterparty or top-customer concentration crystallizes,strategy
+TRI-R023,SBD-R103,"Commercial terms erode (indexation, pass-through, duration)",strategy
+TRI-R024,SBD-R136,Long-term contract coverage falls below the earnings-quality target,strategy
+TRI-R025,LEG-R004,"Contract signed without proper authority, or renewal and notice dates missed",legal_compliance
+TRI-R026,LEG-R006,"Major dispute or claim, or insured loss not recovered",legal_compliance
+TRI-R027,SBD-R137,Vessel EBITDA volatility remains above the multiple-expansion tolerance,finance
+TRI-R028,SBD-R116,Fleet obsolescence erodes residual value and commercial relevance,strategy
+TRI-R029,SBD-R120,Farming-technology or regulatory shifts change vessel-demand mix,strategy
+TRI-R030,SBD-R123,Maintenance-capex overruns or deferred backlog catch-up,strategy
+TRI-R031,SBD-R117,Fleet modernization and disciplined divestments slip,strategy
+TRI-R032,LEG-R009,"Entity, board or filing deficiencies in Norway, Chile or the UK",legal_compliance
+TRI-R033,SBD-R002,Strategic initiatives fail to translate into accountable execution,strategy
+TRI-R034,SBD-R118,"Governance, reporting, or scalability gaps impair exit readiness",strategy
+TRI-R035,SBD-R119,Key-person dependency limits scalable execution,strategy
+TRI-R036,LEG-R001,"Sanctions or anti-corruption breach via an agent, supplier or acquired company",legal_compliance
+TRI-R037,LEG-R002,New or changed regulation is detected or implemented too late,legal_compliance
+TRI-R038,LEG-R008,"Misconduct is not reported, or reports are poorly handled",legal_compliance
+TRI-R039,LEG-R010,Compliance awareness does not keep pace as Trident more than doubles in size,legal_compliance
+TRI-R040,LEG-R007,"Personal data breach involving crew, employees or customers",legal_compliance
+TRI-R041,SBD-R127,Cash-conversion forecasting and KPI ownership remain weak,finance
+TRI-R042,SBD-R122,Working-capital and DSO discipline slips as the group scales,finance
+TRI-R043,SBD-R138,DSO and collection performance slip versus cash-conversion targets,finance
+TRI-R044,SBD-R124,Cash interest burden rises with rates or leverage,finance
+TRI-R045,SBD-R125,Cash-tax leakage exceeds plan across jurisdictions,finance
+TRI-R046,SBD-R126,Growth CAPEX timing mismatches cash generation,strategy
+TRI-R047,SBD-R128,Capital deployed to lower risk-adjusted uses than available alternatives,strategy
+TRI-R048,SBD-R129,ROIC on growth investments stays below cost of capital,strategy
+TRI-R049,SBD-R130,NIBD and leverage exceed target band during growth,strategy
+TRI-R050,SBD-R134,Debt reduction versus growth trade-offs lack a binding decision rule,strategy
+TRI-R051,SBD-R132,Disposal of underperforming assets is delayed or value-destructive,strategy
+TRI-R052,SBD-R131,Liquidity or covenant headroom becomes insufficient,strategy
+TRI-R053,SBD-R133,Refinancing or financing flexibility is constrained at need,strategy

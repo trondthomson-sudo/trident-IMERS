@@ -1,157 +1,157 @@
 Risk ID,Department,Role,Mitigation contribution %,Mitigation focus,Notes
-SBD-R001,Strategy & Business Development,Primary owner,55,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
-SBD-R001,Finance,Contributor,15,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R001,Commercial,Contributor,15,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R001,Vessel Operations,Contributor,15,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R002,Strategy & Business Development,Primary owner,45,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
-SBD-R002,Finance,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R002,Commercial,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R002,Vessel Operations,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R002,Technical & HSEQ,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R002,Crewing,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R002,Onshore Employees & Organization,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R002,Administration,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R002,ICT,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R002,Legal & Compliance,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R002,Chile Operations,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R002,Shetland Operations,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R003,Strategy & Business Development,Primary owner,56,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
-SBD-R003,Finance,Contributor,11,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R003,Commercial,Contributor,11,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R003,Technical & HSEQ,Contributor,11,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R003,Vessel Operations,Contributor,11,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R004,Strategy & Business Development,Primary owner,56,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
-SBD-R004,Finance,Contributor,11,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R004,Commercial,Contributor,11,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R004,ICT,Contributor,11,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R004,Vessel Operations,Contributor,11,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R005,Strategy & Business Development,Primary owner,45,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
-SBD-R005,Finance,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R005,Commercial,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R005,Vessel Operations,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R005,Technical & HSEQ,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R005,Crewing,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R005,Onshore Employees & Organization,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R005,Administration,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R005,ICT,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R005,Legal & Compliance,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R005,Chile Operations,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R005,Shetland Operations,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R101,Strategy & Business Development,Primary owner,55,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
-SBD-R101,Commercial,Contributor,45,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R102,Strategy & Business Development,Contributor,56,Contribute controls/actions in this unit,Seeded from Strategy inventory - validate
-SBD-R102,Commercial,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R102,Vessel Operations,Primary owner,22,Lead mitigation design and follow-up,Primary ownership moved from Strategy & BD (scope retag) - validate
-SBD-R103,Strategy & Business Development,Primary owner,55,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
-SBD-R103,Commercial,Contributor,45,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R104,Strategy & Business Development,Primary owner,56,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
-SBD-R104,Commercial,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R104,Vessel Operations,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R105,Strategy & Business Development,Primary owner,55,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
-SBD-R105,Commercial,Contributor,45,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R106,Strategy & Business Development,Primary owner,56,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
-SBD-R106,Vessel Operations,Contributor,11,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R106,Crewing,Contributor,11,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R106,Commercial,Contributor,11,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R106,Finance,Contributor,11,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R107,Strategy & Business Development,Primary owner,56,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
-SBD-R107,Finance,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R107,Technical & HSEQ,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R108,Strategy & Business Development,Primary owner,56,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
-SBD-R108,Technical & HSEQ,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R108,Finance,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R109,Strategy & Business Development,Primary owner,56,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
-SBD-R109,Technical & HSEQ,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R109,Finance,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R110,Strategy & Business Development,Primary owner,45,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
-SBD-R110,Finance,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R110,Commercial,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R110,Vessel Operations,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R110,Technical & HSEQ,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R110,Crewing,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R110,Onshore Employees & Organization,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R110,Administration,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R110,ICT,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R110,Legal & Compliance,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R110,Chile Operations,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R110,Shetland Operations,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R111,Strategy & Business Development,Primary owner,55,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
-SBD-R111,Commercial,Contributor,45,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R112,Strategy & Business Development,Primary owner,56,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
-SBD-R112,Finance,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R112,Technical & HSEQ,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R113,Strategy & Business Development,Primary owner,56,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
-SBD-R113,Commercial,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R113,Finance,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R114,Strategy & Business Development,Primary owner,56,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
-SBD-R114,Commercial,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R114,Finance,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R115,Strategy & Business Development,Primary owner,56,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
-SBD-R115,Commercial,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R115,Finance,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R116,Strategy & Business Development,Primary owner,56,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
-SBD-R116,Technical & HSEQ,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R116,Vessel Operations,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R117,Strategy & Business Development,Primary owner,56,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
-SBD-R117,Technical & HSEQ,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R117,Finance,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R118,Strategy & Business Development,Primary owner,45,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
-SBD-R118,Finance,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R118,Commercial,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R118,Vessel Operations,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R118,Technical & HSEQ,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R118,Crewing,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R118,Onshore Employees & Organization,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R118,Administration,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R118,ICT,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R118,Legal & Compliance,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R118,Chile Operations,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R118,Shetland Operations,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R119,Strategy & Business Development,Primary owner,55,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
-SBD-R119,Onshore Employees & Organization,Contributor,45,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R120,Strategy & Business Development,Primary owner,56,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
-SBD-R120,Technical & HSEQ,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R120,Commercial,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R121,Strategy & Business Development,Primary owner,55,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
-SBD-R121,Commercial,Contributor,15,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R121,Vessel Operations,Contributor,15,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R121,Technical & HSEQ,Contributor,15,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R122,Finance,Primary owner,56,Lead mitigation design and follow-up,Primary ownership moved from Strategy & BD (scope retag) - validate
-SBD-R122,Commercial,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R122,Administration,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R123,Finance,Primary owner,56,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
-SBD-R123,Technical & HSEQ,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R123,Vessel Operations,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R124,Finance,Primary owner,100,Lead mitigation design and follow-up,Primary ownership moved from Strategy & BD (scope retag) - validate
-SBD-R125,Finance,Primary owner,55,Lead mitigation design and follow-up,Primary ownership moved from Strategy & BD (scope retag) - validate
-SBD-R125,Legal & Compliance,Contributor,45,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R126,Finance,Primary owner,55,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
-SBD-R126,Strategy & Business Development,Contributor,45,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R127,Finance,Primary owner,55,Lead mitigation design and follow-up,Primary ownership moved from Strategy & BD (scope retag) - validate
-SBD-R127,Strategy & Business Development,Contributor,45,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R128,Strategy & Business Development,Primary owner,55,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
-SBD-R128,Finance,Contributor,45,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R129,Strategy & Business Development,Primary owner,55,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
-SBD-R129,Finance,Contributor,45,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R130,Finance,Primary owner,55,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
-SBD-R130,Strategy & Business Development,Contributor,45,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R131,Finance,Primary owner,100,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
-SBD-R132,Strategy & Business Development,Primary owner,56,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
-SBD-R132,Finance,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R132,Technical & HSEQ,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R133,Finance,Primary owner,55,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
-SBD-R133,Strategy & Business Development,Contributor,45,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R134,Finance,Primary owner,55,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
-SBD-R134,Strategy & Business Development,Contributor,45,Contribute controls/actions in this unit,Seeded from Affected units - validate
-SBD-R135,Strategy & Business Development,Contributor,56,Contribute controls/actions in this unit,Seeded with library fill - validate
-SBD-R135,Vessel Operations,Primary owner,22,Lead mitigation design and follow-up,Primary ownership moved from Strategy & BD (scope retag) - validate
-SBD-R135,Technical & HSEQ,Contributor,22,Contribute controls/actions in this unit,Seeded with library fill - validate
-SBD-R136,Strategy & Business Development,Primary owner,55,Lead mitigation design and follow-up,Seeded with library fill - validate
-SBD-R136,Commercial,Contributor,45,Contribute controls/actions in this unit,Seeded with library fill - validate
-SBD-R137,Strategy & Business Development,Contributor,55,Contribute controls/actions in this unit,Seeded with library fill - validate
-SBD-R137,Commercial,Contributor,15,Contribute controls/actions in this unit,Seeded with library fill - validate
-SBD-R137,Vessel Operations,Contributor,15,Contribute controls/actions in this unit,Seeded with library fill - validate
-SBD-R137,Finance,Primary owner,15,Lead mitigation design and follow-up,Primary ownership moved from Strategy & BD (scope retag) - validate
-SBD-R138,Finance,Primary owner,56,Lead mitigation design and follow-up,Primary ownership moved from Strategy & BD (scope retag) - validate
-SBD-R138,Commercial,Contributor,22,Contribute controls/actions in this unit,Seeded with library fill - validate
-SBD-R138,Administration,Contributor,22,Contribute controls/actions in this unit,Seeded with library fill - validate
+TRI-R009,Strategy & Business Development,Primary owner,55,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
+TRI-R009,Finance,Contributor,15,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R009,Commercial,Contributor,15,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R009,Vessel Operations,Contributor,15,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R033,Strategy & Business Development,Primary owner,45,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
+TRI-R033,Finance,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R033,Commercial,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R033,Vessel Operations,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R033,Technical & HSEQ,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R033,Crewing,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R033,Onshore Employees & Organization,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R033,Administration,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R033,ICT,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R033,Legal & Compliance,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R033,Chile Operations,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R033,Shetland Operations,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R018,Strategy & Business Development,Primary owner,56,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
+TRI-R018,Finance,Contributor,11,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R018,Commercial,Contributor,11,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R018,Technical & HSEQ,Contributor,11,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R018,Vessel Operations,Contributor,11,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R020,Strategy & Business Development,Primary owner,56,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
+TRI-R020,Finance,Contributor,11,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R020,Commercial,Contributor,11,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R020,ICT,Contributor,11,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R020,Vessel Operations,Contributor,11,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R016,Strategy & Business Development,Primary owner,45,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
+TRI-R016,Finance,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R016,Commercial,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R016,Vessel Operations,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R016,Technical & HSEQ,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R016,Crewing,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R016,Onshore Employees & Organization,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R016,Administration,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R016,ICT,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R016,Legal & Compliance,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R016,Chile Operations,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R016,Shetland Operations,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R001,Strategy & Business Development,Primary owner,55,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
+TRI-R001,Commercial,Contributor,45,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R005,Strategy & Business Development,Contributor,56,Contribute controls/actions in this unit,Seeded from Strategy inventory - validate
+TRI-R005,Commercial,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R005,Vessel Operations,Primary owner,22,Lead mitigation design and follow-up,Primary ownership moved from Strategy & BD (scope retag) - validate
+TRI-R023,Strategy & Business Development,Primary owner,55,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
+TRI-R023,Commercial,Contributor,45,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R002,Strategy & Business Development,Primary owner,56,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
+TRI-R002,Commercial,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R002,Vessel Operations,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R010,Strategy & Business Development,Primary owner,55,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
+TRI-R010,Commercial,Contributor,45,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R003,Strategy & Business Development,Primary owner,56,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
+TRI-R003,Vessel Operations,Contributor,11,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R003,Crewing,Contributor,11,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R003,Commercial,Contributor,11,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R003,Finance,Contributor,11,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R011,Strategy & Business Development,Primary owner,56,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
+TRI-R011,Finance,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R011,Technical & HSEQ,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R012,Strategy & Business Development,Primary owner,56,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
+TRI-R012,Technical & HSEQ,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R012,Finance,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R008,Strategy & Business Development,Primary owner,56,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
+TRI-R008,Technical & HSEQ,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R008,Finance,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R017,Strategy & Business Development,Primary owner,45,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
+TRI-R017,Finance,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R017,Commercial,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R017,Vessel Operations,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R017,Technical & HSEQ,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R017,Crewing,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R017,Onshore Employees & Organization,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R017,Administration,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R017,ICT,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R017,Legal & Compliance,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R017,Chile Operations,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R017,Shetland Operations,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R014,Strategy & Business Development,Primary owner,55,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
+TRI-R014,Commercial,Contributor,45,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R019,Strategy & Business Development,Primary owner,56,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
+TRI-R019,Finance,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R019,Technical & HSEQ,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R013,Strategy & Business Development,Primary owner,56,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
+TRI-R013,Commercial,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R013,Finance,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R021,Strategy & Business Development,Primary owner,56,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
+TRI-R021,Commercial,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R021,Finance,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R022,Strategy & Business Development,Primary owner,56,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
+TRI-R022,Commercial,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R022,Finance,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R028,Strategy & Business Development,Primary owner,56,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
+TRI-R028,Technical & HSEQ,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R028,Vessel Operations,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R031,Strategy & Business Development,Primary owner,56,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
+TRI-R031,Technical & HSEQ,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R031,Finance,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R034,Strategy & Business Development,Primary owner,45,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
+TRI-R034,Finance,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R034,Commercial,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R034,Vessel Operations,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R034,Technical & HSEQ,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R034,Crewing,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R034,Onshore Employees & Organization,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R034,Administration,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R034,ICT,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R034,Legal & Compliance,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R034,Chile Operations,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R034,Shetland Operations,Contributor,5,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R035,Strategy & Business Development,Primary owner,55,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
+TRI-R035,Onshore Employees & Organization,Contributor,45,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R029,Strategy & Business Development,Primary owner,56,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
+TRI-R029,Technical & HSEQ,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R029,Commercial,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R004,Strategy & Business Development,Primary owner,55,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
+TRI-R004,Commercial,Contributor,15,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R004,Vessel Operations,Contributor,15,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R004,Technical & HSEQ,Contributor,15,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R042,Finance,Primary owner,56,Lead mitigation design and follow-up,Primary ownership moved from Strategy & BD (scope retag) - validate
+TRI-R042,Commercial,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R042,Administration,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R030,Finance,Primary owner,56,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
+TRI-R030,Technical & HSEQ,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R030,Vessel Operations,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R044,Finance,Primary owner,100,Lead mitigation design and follow-up,Primary ownership moved from Strategy & BD (scope retag) - validate
+TRI-R045,Finance,Primary owner,55,Lead mitigation design and follow-up,Primary ownership moved from Strategy & BD (scope retag) - validate
+TRI-R045,Legal & Compliance,Contributor,45,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R046,Finance,Primary owner,55,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
+TRI-R046,Strategy & Business Development,Contributor,45,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R041,Finance,Primary owner,55,Lead mitigation design and follow-up,Primary ownership moved from Strategy & BD (scope retag) - validate
+TRI-R041,Strategy & Business Development,Contributor,45,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R047,Strategy & Business Development,Primary owner,55,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
+TRI-R047,Finance,Contributor,45,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R048,Strategy & Business Development,Primary owner,55,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
+TRI-R048,Finance,Contributor,45,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R049,Finance,Primary owner,55,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
+TRI-R049,Strategy & Business Development,Contributor,45,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R052,Finance,Primary owner,100,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
+TRI-R051,Strategy & Business Development,Primary owner,56,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
+TRI-R051,Finance,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R051,Technical & HSEQ,Contributor,22,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R053,Finance,Primary owner,55,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
+TRI-R053,Strategy & Business Development,Contributor,45,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R050,Finance,Primary owner,55,Lead mitigation design and follow-up,Seeded from Strategy inventory - validate
+TRI-R050,Strategy & Business Development,Contributor,45,Contribute controls/actions in this unit,Seeded from Affected units - validate
+TRI-R007,Strategy & Business Development,Contributor,56,Contribute controls/actions in this unit,Seeded with library fill - validate
+TRI-R007,Vessel Operations,Primary owner,22,Lead mitigation design and follow-up,Primary ownership moved from Strategy & BD (scope retag) - validate
+TRI-R007,Technical & HSEQ,Contributor,22,Contribute controls/actions in this unit,Seeded with library fill - validate
+TRI-R024,Strategy & Business Development,Primary owner,55,Lead mitigation design and follow-up,Seeded with library fill - validate
+TRI-R024,Commercial,Contributor,45,Contribute controls/actions in this unit,Seeded with library fill - validate
+TRI-R027,Strategy & Business Development,Contributor,55,Contribute controls/actions in this unit,Seeded with library fill - validate
+TRI-R027,Commercial,Contributor,15,Contribute controls/actions in this unit,Seeded with library fill - validate
+TRI-R027,Vessel Operations,Contributor,15,Contribute controls/actions in this unit,Seeded with library fill - validate
+TRI-R027,Finance,Primary owner,15,Lead mitigation design and follow-up,Primary ownership moved from Strategy & BD (scope retag) - validate
+TRI-R043,Finance,Primary owner,56,Lead mitigation design and follow-up,Primary ownership moved from Strategy & BD (scope retag) - validate
+TRI-R043,Commercial,Contributor,22,Contribute controls/actions in this unit,Seeded with library fill - validate
+TRI-R043,Administration,Contributor,22,Contribute controls/actions in this unit,Seeded with library fill - validate

@@ -4788,6 +4788,24 @@ RISK_SCALE_DEFAULTS = {
     "impact_upper_mnok": [10, 25, 50, 150],
 }
 DEFAULT_LADDER_REALIZATION = [90, 80, 70, 60, 50, 40, 30, 20, 10, 0]
+DEFAULT_UPSIDE_REALIZATION = [110, 120, 130]
+
+
+def compute_upside(up_df, value_at_stake):
+    """Cumulative upside ladder (probability of this share or more) -> expected upside (conservative: lower edge of each step)."""
+    pts = []
+    for _, r in up_df.iterrows():
+        try:
+            pts.append((float(r["Realization %"]), float(r["Probability %"])))
+        except (TypeError, ValueError):
+            continue
+    pts = sorted([p for p in pts if p[0] > 100], key=lambda x: x[0])
+    exp_up = 0.0
+    for i, (share, prob) in enumerate(pts):
+        nxt = pts[i + 1][1] if i + 1 < len(pts) else 0.0
+        exp_up += max(prob - nxt, 0.0) / 100.0 * value_at_stake * (share - 100) / 100.0
+    rising = any(pts[i + 1][1] > pts[i][1] for i in range(len(pts) - 1))
+    return exp_up, pts, rising
 
 
 def load_risk_scale():
@@ -4870,7 +4888,7 @@ def compute_ladder(ladder_df, value_at_stake, cfg):
         lik = likelihood_from_pct(prob, cfg)
         imp = impact_from_mnok(shortfall, cfg)
         rows.append({
-            "Outcome (or worse)": f"{real:.0f} % realised",
+            "Share achieved (or less)": f"{real:.0f} %",
             "Probability %": prob,
             "Shortfall mNOK": round(shortfall),
             "Likelihood": lik,
@@ -4937,10 +4955,13 @@ def render_risk_scale_settings():
 def render_outcome_ladder(risk_row, rid):
     """Scoring table: cumulative outcome ladder → likelihood × impact per step → highest step is the score."""
     cfg = load_risk_scale()
+    _drv = split_refs(risk_row.get("Level 3 drivers", ""))
+    _is_uplift = "3.1.1" in _drv or "uplift" in str(risk_row.get("Risk title", "")).lower()
+    tgt = "targeted uplift" if _is_uplift else "targeted value"
     st.markdown("**Scoring table — outcome ladder**")
     st.caption(
-        "For risks with a range of outcomes (e.g. TC uplift): give the probability that the outcome is "
-        "*this bad or worse*. Each step is scored on the common scale; the highest step is the risk score."
+        "For risks with a range of outcomes (e.g. TC uplift): for each share of the target, give the probability "
+        "of achieving *only that share – or less*. Each step is scored on the common scale; the highest step is the risk score."
     )
     b1, b2 = st.columns([1, 1])
     with b1:
@@ -4961,25 +4982,42 @@ def render_outcome_ladder(risk_row, rid):
             key=f"ladder_vas_{ACTIVE_REGISTER_KEY}_{rid}_{basis}",
             help=f"Default = TC uplift base ({cfg['uplift_base_mnok']}m) set by the scale master.",
         )
-    if mine.empty:
-        base_df = pd.DataFrame({"Realization %": DEFAULT_LADDER_REALIZATION,
-                                "Probability %": [None] * len(DEFAULT_LADDER_REALIZATION)})
-    else:
-        base_df = pd.DataFrame({
-            "Realization %": pd.to_numeric(mine["Realization %"], errors="coerce"),
-            "Probability %": pd.to_numeric(mine["Probability %"], errors="coerce"),
-        }).reset_index(drop=True)
-    input_zone_banner(f"Outcome ladder — {basis.lower()} (probability this bad or worse)")
+    _all = pd.DataFrame({
+        "Realization %": pd.to_numeric(mine["Realization %"], errors="coerce"),
+        "Probability %": pd.to_numeric(mine["Probability %"], errors="coerce"),
+    }).reset_index(drop=True)
+    _down = _all[_all["Realization %"] <= 100].reset_index(drop=True)
+    _up = _all[_all["Realization %"] > 100].reset_index(drop=True)
+    base_df = _down if not _down.empty else pd.DataFrame(
+        {"Realization %": DEFAULT_LADDER_REALIZATION, "Probability %": [None] * len(DEFAULT_LADDER_REALIZATION)})
+    up_df = _up if not _up.empty else pd.DataFrame(
+        {"Realization %": DEFAULT_UPSIDE_REALIZATION, "Probability %": [None] * len(DEFAULT_UPSIDE_REALIZATION)})
+    input_zone_banner(f"Outcome ladder — {basis.lower()} (probability of achieving only this share of the {tgt} – or less)")
     with st.container(key=f"vh_input_ladder_{ACTIVE_REGISTER_KEY}_{rid}_{basis}"):
         edited = st.data_editor(
             base_df, hide_index=True, use_container_width=True, num_rows="dynamic",
             key=f"ladder_editor_{ACTIVE_REGISTER_KEY}_{rid}_{basis}",
             column_config={
-                "Realization %": st.column_config.NumberColumn("Realised share of value (%)", min_value=0, max_value=100, step=5),
-                "Probability %": st.column_config.NumberColumn("Probability this bad or worse (%)", min_value=0, max_value=100, step=1),
+                "Realization %": st.column_config.NumberColumn(f"Share of {tgt} achieved (%)", min_value=0, max_value=100, step=5),
+                "Probability %": st.column_config.NumberColumn("Probability of achieving only this share – or less (%)", min_value=0, max_value=100, step=1),
             },
         )
+    input_zone_banner(f"Upside — probability of achieving this share of the {tgt} – or more (not scored; used for the net expectation)")
+    with st.container(key=f"vh_input_ladder_up_{ACTIVE_REGISTER_KEY}_{rid}_{basis}"):
+        up_edited = st.data_editor(
+            up_df, hide_index=True, use_container_width=True, num_rows="dynamic",
+            key=f"ladder_up_editor_{ACTIVE_REGISTER_KEY}_{rid}_{basis}",
+            column_config={
+                "Realization %": st.column_config.NumberColumn(f"Share of {tgt} achieved (%)", min_value=100, max_value=300, step=5),
+                "Probability %": st.column_config.NumberColumn("Probability of achieving this share – or more (%)", min_value=0, max_value=100, step=1),
+            },
+        )
+    edited = edited[pd.to_numeric(edited["Realization %"], errors="coerce").fillna(-1) <= 100]
+    combined = pd.concat([edited, up_edited], ignore_index=True)
     result, exp_short = compute_ladder(edited, vas, cfg)
+    exp_up, up_pts, up_rising = compute_upside(up_edited, vas)
+    if up_rising:
+        st.warning("Upside probabilities should fall as the share rises — a better outcome cannot be more likely than a milder one.")
     if result.empty:
         st.info("Fill in probabilities to see the score.")
         return
@@ -4989,19 +5027,29 @@ def render_outcome_ladder(risk_row, rid):
     best = result.loc[result["Score"].idxmax()]
     lik, imp, score = int(best["Likelihood"]), int(best["Impact"]), int(best["Score"])
     st.dataframe(result.style.apply(
-        lambda r: ["font-weight:700;background:#fde2d4" if r.name == best.name else "" for _ in r], axis=1),
+        lambda r: ["font-weight:700;background:#fde2d4" if r.name == best.name else "" for _ in r], axis=1)
+        .format({"Probability %": "{:.0f}", "Shortfall mNOK": "{:,.0f}"}),
         hide_index=True, use_container_width=True)
-    o1, o2, o3 = st.columns(3)
-    o1.metric(f"{basis} score", f"{lik} × {imp} = {score}")
-    o2.metric("Driving step", str(best["Outcome (or worse)"]))
-    o3.metric("Expected shortfall", f"{exp_short:,.0f} mNOK".replace(",", " "))
+    o1, o2 = st.columns(2)
+    o1.metric(f"{basis} score (downside only)", f"{lik} × {imp} = {score}")
+    o2.metric("Driving step", f"{best['Share achieved (or less)']} achieved or less")
+    net = vas - exp_short + exp_up
+    _f = lambda x: f"{x:,.0f} mNOK".replace(",", " ")
+    e1, e2, e3, e4 = st.columns(4)
+    e1.metric("Target", _f(vas))
+    e2.metric("Expected shortfall", "−" + _f(exp_short))
+    e3.metric("Expected upside", "+" + _f(exp_up))
+    e4.metric("Net expected outcome", _f(net), delta=f"{(net - vas) / vas * 100:+.0f} % vs target" if vas else None,
+              delta_color="normal")
+    st.caption("Net expected outcome = target − expected shortfall + expected upside. Each step is valued at its lower edge "
+               "(conservative). Only the downside drives the risk score; the upside shows whether the target is a realistic expectation.")
     s1, s2 = st.columns(2)
     if s1.button("Save scoring table", key=f"ladder_save_{ACTIVE_REGISTER_KEY}_{rid}_{basis}"):
-        save_risk_ladder(rid, basis, vas, edited)
+        save_risk_ladder(rid, basis, vas, combined)
         st.success("Scoring table saved.")
     if s2.button(f"Save table and use {lik} × {imp} as {basis.lower()} score", type="primary",
                  key=f"ladder_apply_{ACTIVE_REGISTER_KEY}_{rid}_{basis}"):
-        save_risk_ladder(rid, basis, vas, edited)
+        save_risk_ladder(rid, basis, vas, combined)
         if basis == "Residual":
             for k in (f"assess_rl_{ACTIVE_REGISTER_KEY}_{rid}", f"assess_ri_{ACTIVE_REGISTER_KEY}_{rid}"):
                 st.session_state.pop(k, None)

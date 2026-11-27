@@ -704,7 +704,7 @@ def save(key, df):
 # risks allocated to them by the owner of each risk's primary Level III driver)
 # ---------------------------------------------------------------------------
 RISK_REGISTER_HUB = "Risk Register"
-RISK_EXTRA_COLUMNS = ["Primary driver", "Evaluator function"]
+RISK_EXTRA_COLUMNS = ["Primary driver", "Evaluator function", "Defined by"]
 MASTER_FUNCTION = "Strategy & Business Development"
 
 
@@ -818,6 +818,7 @@ def save_risks_slice(register_key, slice_df):
         if c not in new.columns:
             new[c] = ""
     new.loc[new["Evaluator function"].astype(str).str.strip() == "", "Evaluator function"] = fn
+    new.loc[new["Defined by"].astype(str).str.strip() == "", "Defined by"] = f"{FUNCTION_HEAD.get(fn, '')} ({CLEVEL_TITLE.get(fn, fn)})"
     new.loc[new["Primary driver"].astype(str).str.strip() == "", "Primary driver"] = new["Level 3 drivers"].map(primary_driver_of) if "Level 3 drivers" in new.columns else ""
     save_unified_risks(pd.concat([keep, new], ignore_index=True))
 
@@ -5274,6 +5275,67 @@ def render_hub_risk_form(row):
             update_unified(pd.DataFrame([{"Risk ID": rid, **vals}]), list(vals.keys()))
 
 
+def _risk_owner_text(r):
+    ev_fn = effective_evaluator(r.get("Evaluator function"))
+    owner = str(r.get("Risk owner", "") or "").strip() or f"{FUNCTION_HEAD.get(ev_fn, '')} ({CLEVEL_TITLE.get(ev_fn, ev_fn)})"
+    return owner
+
+
+def _risk_score_text(r):
+    try:
+        return f"residual {int(float(r['Residual likelihood']))}×{int(float(r['Residual impact']))}={int(float(r['Residual likelihood'])) * int(float(r['Residual impact']))}"
+    except (TypeError, ValueError, KeyError):
+        return "not scored"
+
+
+def _risk_detail(r):
+    rid = str(r["Risk ID"])
+    sel = st.session_state.get("rr_driver", "")
+    prim = str(r.get("Primary driver", "")) == sel
+    c1, c2 = st.columns(2)
+    c1.markdown(f"**Risk event:** {r.get('Risk event', '')}\n\n**Cause:** {str(r.get('Cause', ''))[:600]}\n\n**Consequence:** {r.get('Consequences', '')}")
+    c2.markdown(f"**Risk owner (evaluates):** {_risk_owner_text(r)}\n\n**Defined by:** {r.get('Defined by', '') or '—'}"
+                f"\n\n**Mitigating processes:** {r.get('Processes', '') or '—'}\n\n**Level III drivers:** {r.get('Level 3 drivers', '')}"
+                f" (primary {r.get('Primary driver', '') or '—'})")
+    if sel and not prim:
+        st.info(f"Evaluated under its primary driver {r.get('Primary driver', '')}; listed here because it also affects {sel}.")
+    render_hub_risk_form(r)
+
+
+def _open_risk_dialog(r):
+    title = f"{r['Risk ID']} · {r.get('Risk title', '')}"
+    if hasattr(st, "dialog"):
+        @st.dialog(title, width="large")
+        def _dlg():
+            _risk_detail(r)
+        _dlg()
+    else:
+        st.session_state["rr_risk_fallback"] = str(r["Risk ID"])
+
+
+def _render_inline_risks(ref, rows):
+    from html import escape as _esc
+    if not rows:
+        st.caption("No risks linked to this driver yet.")
+        return
+    rows = sorted(rows, key=lambda r: (str(r.get("Primary driver", "")) != ref, str(r["Risk ID"])))
+    for r in rows:
+        rid = str(r["Risk ID"])
+        key = f"rr_risk_{ref.replace('.', '_')}_{rid.replace('-', '_')}"
+        if st.button(f"**{rid}** {r.get('Risk title', '')}", key=key, use_container_width=True,
+                     help="Open to read and evaluate the risk"):
+            _open_risk_dialog(r)
+        extra = "" if str(r.get("Primary driver", "")) == ref else f" · primary {r.get('Primary driver', '')}"
+        st.markdown(f'<div class="rr-rmeta">Owner: {_esc(_risk_owner_text(r))} · Defined by: {_esc(str(r.get("Defined by", "") or "—"))}'
+                    f' · {_esc(_risk_score_text(r))}{_esc(extra)}</div>', unsafe_allow_html=True)
+    fb = st.session_state.get("rr_risk_fallback")
+    if fb:
+        hit = [r for r in rows if str(r["Risk ID"]) == fb]
+        if hit:
+            with st.container(border=True):
+                _risk_detail(hit[0])
+
+
 def render_risk_register_hub():
     from html import escape as _esc
     allr = load_unified_risks()
@@ -5284,7 +5346,7 @@ def render_risk_register_hub():
 
     st.subheader("Trident risk register")
     st.caption("One register for all Trident risks. Each risk is evaluated by the executive who owns its primary Level III driver; "
-               "the departments' processes mitigate it. Click a value driver in the map to evaluate its risks.")
+               "the departments' processes mitigate it. Click a value driver to see its risks right below it; click a risk to evaluate it.")
     evaluated = int(sc.apply(_is_evaluated, axis=1).sum()) if not sc.empty else 0
     res = pd.to_numeric(sc.get("Residual score", pd.Series(dtype=float)), errors="coerce").fillna(0)
     material = int(((res >= MATERIAL_RESIDUAL_THRESHOLD) | (sc.get("Appetite status", pd.Series(dtype=str)) == "Outside appetite")).sum()) if not sc.empty else 0
@@ -5316,6 +5378,15 @@ def render_risk_register_hub():
         kcls = "st-key-rr_drv_" + c["reference"].replace(".", "_")
         border = "3px solid #00191d" if sel == c["reference"] else "1px solid #c9d6d9"
         css.append(f'.{kcls} button{{background:{bg};border:{border}}} .{kcls} button p{{color:{fg}}}')
+    css.append('[class*="st-key-rr_risk_"] button{width:100%;justify-content:flex-start;text-align:left;border-radius:6px;'
+               'background:#fff;border:1px solid #c9d6d9;border-left-width:8px;min-height:40px}')
+    css.append('[class*="st-key-rr_risk_"] button p{font-size:.76rem;line-height:1.25;text-align:left;color:#00191d}')
+    css.append('[class*="st-key-rr_risk_"] button *{white-space:normal !important;overflow:visible !important;text-overflow:clip !important}')
+    css.append('.rr-rmeta{font-size:.7rem;color:#4a5a5e;margin:-8px 0 8px 10px;line-height:1.3}')
+    css.append('.rr-inline{border-left:3px solid #00191d;padding-left:6px;margin:-2px 0 12px 4px}')
+    for r in by_driver.get(sel, []) if sel else []:
+        rbg, _rfg = _hub_heat(r.get("Residual score", "") if str(r.get("Residual likelihood", "")).strip() else None)
+        css.append(f'.st-key-rr_risk_{sel.replace(".", "_")}_{str(r["Risk ID"]).replace("-", "_")} button{{border-left-color:{rbg}}}')
     css.append('</style>')
     st.markdown("".join(css), unsafe_allow_html=True)
 
@@ -5335,49 +5406,16 @@ def render_risk_register_hub():
                 ev = sum(1 for r in rows if _is_evaluated(r))
                 own = CLEVEL_TITLE.get(owners.get(ref, ""), owners.get(ref, "") or "—")
                 if st.button(f"**{ref}** {dname}", key=f"rr_drv_{ref.replace('.', '_')}", use_container_width=True):
-                    st.session_state["rr_driver"] = ref
+                    if st.session_state.get("rr_driver") == ref:
+                        st.session_state.pop("rr_driver", None)
+                    else:
+                        st.session_state["rr_driver"] = ref
                     st.rerun()
                 st.markdown(f'<div class="rr-meta">{_esc(own)} · {n} risk{"s" if n != 1 else ""}'
                             + (f' · {ev}/{n} evaluated' if n else '') + '</div>', unsafe_allow_html=True)
+                if sel == ref:
+                    _render_inline_risks(ref, rows)
     st.caption("Tile colour = highest residual score among the risks linked to the driver (grey = no risks / no score).")
-
-    if sel:
-        st.markdown("---")
-        owner_fn = owners.get(sel, "")
-        own_row = load_driver_ownership()
-        contrib = own_row.loc[own_row["Level 3 ref"] == sel, "Contributing functions"]
-        contrib = contrib.iloc[0] if len(contrib) else ""
-        h1, h2 = st.columns([4, 1])
-        h1.markdown(f"### {sel} · {names.get(sel, '')}")
-        if h2.button("Close", key="rr_close"):
-            st.session_state.pop("rr_driver", None)
-            st.rerun()
-        st.caption(f"Driver owner and evaluator: {FUNCTION_HEAD.get(owner_fn, '')} ({CLEVEL_TITLE.get(owner_fn, owner_fn)})"
-                   + (f" · contributing: {contrib}" if contrib else ""))
-        rows = by_driver.get(sel, [])
-        if not rows:
-            st.info("No risks linked to this driver yet.")
-        rows = sorted(rows, key=lambda r: (str(r.get("Primary driver", "")) != sel, str(r["Risk ID"])))
-        for r in rows:
-            rid = str(r["Risk ID"])
-            ev_fn = effective_evaluator(r.get("Evaluator function"))
-            ev_who = f"{FUNCTION_HEAD.get(ev_fn, '')} ({CLEVEL_TITLE.get(ev_fn, ev_fn)})"
-            prim = str(r.get("Primary driver", "")) == sel
-            rs = r.get("Residual score", "")
-            try:
-                rs_txt = f"residual {int(float(r['Residual likelihood']))}×{int(float(r['Residual impact']))}={int(float(rs))}"
-            except (TypeError, ValueError, KeyError):
-                rs_txt = "residual not scored"
-            label = f"{rid} · {r.get('Risk title', '')} — {rs_txt} · evaluator {ev_who}" + ("" if prim else f" · primary driver {r.get('Primary driver', '')}")
-            with st.expander(label, expanded=False):
-                c1, c2 = st.columns(2)
-                c1.markdown(f"**Risk event:** {r.get('Risk event', '')}\n\n**Consequence:** {r.get('Consequences', '')}")
-                c2.markdown(f"**Mitigating processes:** {r.get('Processes', '') or '—'}\n\n**Level III drivers:** {r.get('Level 3 drivers', '')}"
-                            f"\n\n**Accountable executive:** {r.get('Accountable executive', '') or '—'}")
-                if not prim:
-                    st.info(f"This risk is evaluated under its primary driver {r.get('Primary driver', '')} by {ev_who}. "
-                            "It is listed here because it also affects this driver.")
-                render_hub_risk_form(r)
 
     with st.expander("Allocation of risk evaluation · master: CS&BDO", expanded=False):
         st.caption("Evaluator = owner of the risk's primary Level III driver (first driver in the list). "
@@ -5855,6 +5893,13 @@ st.markdown(
     .st-key-folder_tabs [role="radiogroup"] label:has(input:checked) p{color:#fff}
     .st-key-folder_tabs [role="radiogroup"] label:hover{background:#d9ecef}
     .st-key-folder_tabs [role="radiogroup"] label:has(input:checked):hover{background:#006677}
+    /* Shared, non-department folders (Risk Register, Enterprise, Operating Agenda, About IMERS) */
+    .st-key-folder_tabs [role="radiogroup"] > div:nth-child(n+10) label{background:#00191d;border-color:#00191d}
+    .st-key-folder_tabs [role="radiogroup"] > div:nth-child(n+10) label p{color:#caff74}
+    .st-key-folder_tabs [role="radiogroup"] > div:nth-child(10){margin-left:18px}
+    .st-key-folder_tabs [role="radiogroup"] > div:nth-child(n+10) label:hover{background:#123a40}
+    .st-key-folder_tabs [role="radiogroup"] > div:nth-child(n+10) label:has(input:checked){background:#caff74;border-color:#00191d}
+    .st-key-folder_tabs [role="radiogroup"] > div:nth-child(n+10) label:has(input:checked) p{color:#00191d}
     </style>
     """,
     unsafe_allow_html=True,
